@@ -247,6 +247,7 @@ body {
   display: none; /* active時はflexに */
   flex-direction: column;
   background: #000;
+  overflow: hidden; /* 子要素が画面外にはみ出さないよう封じ込め */
 }
 #scene-game.active {
   display: flex;
@@ -342,6 +343,7 @@ body {
 #map-canvas {
   display: block;
   flex: 1;
+  min-height: 0;    /* flexで正しく縮めるために必須 */
   width: 100%;
   cursor: pointer;
   image-rendering: pixelated;
@@ -352,6 +354,7 @@ body {
    ======================================== */
 #battle-overlay {
   flex: 1;
+  min-height: 0;    /* flexで正しく縮めるために必須 */
   width: 100%;
   background: linear-gradient(180deg, #000010 0%, #000848 55%, #001860 100%);
   display: flex;
@@ -360,6 +363,7 @@ body {
   align-items: center;
   gap: 14px;
   padding: 12px 0 8px;
+  overflow: hidden;
 }
 
 #battle-enemy-sprite-area {
@@ -425,9 +429,10 @@ body {
   flex-shrink: 0;
 }
 
-/* メッセージエリア */
+/* メッセージエリア：高さを固定してマップの直下に確実に表示 */
 #message-area {
   flex-shrink: 0;
+  height: 100px;   /* 固定高さ：2行 + タップヒント分 */
 }
 
 #message-window {
@@ -436,11 +441,13 @@ body {
   border-left: none;
   border-right: none;
   outline: none;
-  min-height: 80px;
-  padding: 10px 14px;
+  height: 100%;
+  padding: 8px 14px 6px;
   font-size: var(--fs-md);
-  line-height: 1.8;
+  line-height: 1.7;
   letter-spacing: 1px;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 #message-text {
@@ -450,13 +457,14 @@ body {
 
 /* ========================================
    戦闘コマンド
+   メッセージエリア(100px)の上に重ねて表示
    ======================================== */
 #battle-menu,
 #spell-menu,
 #item-menu,
 #shop-menu {
   position: absolute;
-  bottom: 0;
+  bottom: 100px;   /* メッセージエリアの高さ分だけ上 */
   left: 0;
   right: 0;
   z-index: 10;
@@ -466,12 +474,11 @@ body {
 #spell-menu .window-border,
 #item-menu .window-border,
 #shop-menu .window-border {
-  border-top: 3px solid var(--border);
-  border-bottom: none;
-  border-left: none;
-  border-right: none;
-  outline: none;
+  border: 3px solid var(--border);
+  outline: 2px solid #000;
+  outline-offset: -6px;
   padding: 10px 14px 14px;
+  background: var(--window-bg);
 }
 
 .battle-cmd-label {
@@ -493,7 +500,7 @@ body {
   color: var(--white);
   font-family: var(--font);
   font-size: var(--fs-md);
-  padding: 10px 4px;
+  padding: 8px 4px;
   cursor: pointer;
   letter-spacing: 1px;
   transition: background 0.1s;
