@@ -109,24 +109,66 @@ body {
   padding: 16px 30px;
   background: #000030;
   width: 90%;
+  animation: box-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes box-pulse {
+  0%,100% { box-shadow: 0 0 8px 2px #f8e80066, inset 0 0 12px #f8e80022; }
+  50%      { box-shadow: 0 0 22px 6px #f8e800bb, inset 0 0 24px #f8e80055; }
+}
+
+@keyframes title-glow {
+  0%,100% {
+    text-shadow:
+      0 0 6px #f8e800,
+      0 0 14px #f8a800,
+      2px 2px 0 #7a4000,
+      -1px -1px 0 #7a4000;
+    color: #f8e800;
+  }
+  50% {
+    text-shadow:
+      0 0 12px #fff0a0,
+      0 0 28px #f8c800,
+      0 0 48px #f87000,
+      2px 2px 0 #7a4000,
+      -1px -1px 0 #7a4000;
+    color: #ffffc0;
+  }
+}
+
+@keyframes title-glow2 {
+  0%,100% {
+    text-shadow:
+      0 0 6px #f8e800,
+      0 0 14px #f8a800,
+      2px 2px 0 #7a4000,
+      -1px -1px 0 #7a4000;
+    color: #f8e800;
+  }
+  50% {
+    text-shadow:
+      0 0 12px #fff0a0,
+      0 0 28px #f8c800,
+      0 0 48px #f87000,
+      2px 2px 0 #7a4000,
+      -1px -1px 0 #7a4000;
+    color: #ffffc0;
+  }
 }
 
 .title-logo-line1 {
   font-size: var(--fs-xxl);
   color: var(--yellow);
-  text-shadow:
-    2px 2px 0 #a86000,
-    -1px -1px 0 #a86000;
-  letter-spacing: 4px;
+  letter-spacing: 6px;
+  animation: title-glow 2.4s ease-in-out infinite;
 }
 
 .title-logo-line2 {
   font-size: var(--fs-xxl);
   color: var(--yellow);
-  text-shadow:
-    2px 2px 0 #a86000,
-    -1px -1px 0 #a86000;
-  letter-spacing: 4px;
+  letter-spacing: 6px;
+  animation: title-glow2 2.4s ease-in-out infinite 0.4s;
 }
 
 .title-mid-space {
