@@ -8,7 +8,7 @@ const PLAYER_INIT = () => ({
   name   : 'でこやま',
   level  : 1,
   exp    : 0,
-  gold   : 50,
+  gold   : 0,
   hp     : 15,
   maxHp  : 15,
   mp     : 8,
@@ -26,9 +26,27 @@ const PLAYER_INIT = () => ({
 const Game = (() => {
 
   let player = PLAYER_INIT();
+  let _kingGoldGiven = false;
 
   // ── 初期化 ────────────────────────────────────────────────
   function init() {
+    // dvhが使えないブラウザ向けフォールバック：window.innerHeightをCSSカスタム変数でセット
+    function _setVh() {
+      const vh = window.innerHeight;
+      document.getElementById('game-wrapper').style.height = Math.min(vh, 854) + 'px';
+    }
+    _setVh();
+    window.addEventListener('resize', _setVh);
+
+    // メニューボタン
+    const menuBtn = document.getElementById('status-menu-btn');
+    if (menuBtn) {
+      menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        UI.showGameMenu();
+      });
+    }
+
     UI.init();
     MapEngine.init(document.getElementById('map-canvas'));
     _showTitle();
@@ -44,6 +62,7 @@ const Game = (() => {
       sceneEl.removeEventListener('click',      onStart);
       sceneEl.removeEventListener('touchstart', onStartTouch);
       player = PLAYER_INIT();
+      _kingGoldGiven = false;
       _startOpening();
     }
     function onStartTouch(e) {
@@ -153,9 +172,18 @@ const Game = (() => {
   function addItem(itemId) {
     const item = GameData.ITEMS[itemId];
     if (!item) return;
-    if (item.type === 'weapon' && !player.weapon) {
+    if (item.type === 'weapon') {
+      if (player.weapon) player.items.push(player.weapon); // 旧装備をバッグへ
       player.weapon = itemId;
       player.atk    = _calcAtk();
+    } else if (item.type === 'armor') {
+      if (player.armor) player.items.push(player.armor);
+      player.armor = itemId;
+      player.def    = _calcDef();
+    } else if (item.type === 'shield') {
+      if (player.shield) player.items.push(player.shield);
+      player.shield = itemId;
+      player.def    = _calcDef();
     } else {
       player.items.push(itemId);
     }
@@ -232,12 +260,76 @@ const Game = (() => {
     }
   }
 
+  function getKingDialog() {
+    if (!_kingGoldGiven) {
+      _kingGoldGiven = true;
+      return {
+        lines: GameData.NPC.king,
+        onClose: () => {
+          player.gold += 50;
+          UI.updateStatus(player);
+          UI.showMessage('おうさまから　５０Ｇを　もらった！', null);
+        }
+      };
+    }
+    // 2回目以降
+    if (MapEngine.isBossCleared('dungeon2_boss')) {
+      return { lines: GameData.NPC.king_after_d2, onClose: null };
+    } else if (MapEngine.isBossCleared('dungeon1_boss')) {
+      return { lines: GameData.NPC.king_after_d1, onClose: null };
+    } else {
+      return {
+        lines: ['まおうを　たおし\nひめをたすけよ！\nでこやまよ！'],
+        onClose: null
+      };
+    }
+  }
+
   function revive() {
     // 復活：HP/MP全回復・金半減
     player.hp   = player.maxHp;
     player.mp   = player.maxMp;
     player.gold = Math.floor(player.gold / 2);
     UI.updateStatus(player);
+  }
+
+  // ── セーブ・ロード ────────────────────────────────────────
+  function saveGame() {
+    const data = {
+      version: 1,
+      player: JSON.parse(JSON.stringify(player)),
+      map:    MapEngine.getMapState(),
+      flags:  { kingGoldGiven: _kingGoldGiven },
+    };
+    try {
+      localStorage.setItem('dekoyama_save', JSON.stringify(data));
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  function loadGame() {
+    try {
+      const raw = localStorage.getItem('dekoyama_save');
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (!data || data.version !== 1) return false;
+      player         = data.player;
+      _kingGoldGiven = data.flags ? data.flags.kingGoldGiven : false;
+      UI.updateStatus(player);
+      UI.showScene('game');
+      setTimeout(() => {
+        MapEngine.setMapState(data.map);
+      }, 50);
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  function hasSaveData() {
+    return !!localStorage.getItem('dekoyama_save');
   }
 
   function getPlayer() { return player; }
@@ -261,6 +353,10 @@ const Game = (() => {
     useInn,
     openShop,
     startEnding,
+    getKingDialog,
+    saveGame,
+    loadGame,
+    hasSaveData,
   };
 
 })();

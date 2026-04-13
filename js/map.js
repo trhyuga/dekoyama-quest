@@ -62,13 +62,21 @@ const MapEngine = (() => {
     render();
   }
 
+  // ── 実際の表示タイル行数（キャンバス高さから動的に算出） ─
+  function _getViewH() {
+    if (!canvas || canvas.clientWidth === 0) return VIEW_H;
+    const tileSize = canvas.clientWidth / VIEW_W;
+    return Math.ceil(canvas.clientHeight / tileSize);
+  }
+
   // ── カメラ中央揃え ────────────────────────────────────────
   function _centerCamera() {
-    const map = _currentMap();
+    const map   = _currentMap();
+    const viewH = _getViewH();
     const halfW = Math.floor(VIEW_W / 2);
-    const halfH = Math.floor(VIEW_H / 2);
+    const halfH = Math.floor(viewH  / 2);
     state.cameraX = Math.max(0, Math.min(state.playerX - halfW, map.width  - VIEW_W));
-    state.cameraY = Math.max(0, Math.min(state.playerY - halfH, map.height - VIEW_H));
+    state.cameraY = Math.max(0, Math.min(state.playerY - halfH, map.height - viewH));
   }
 
   // ── タップ処理 ────────────────────────────────────────────
@@ -262,9 +270,14 @@ const MapEngine = (() => {
       case 'npc':
         _movePlayer(nx, ny);
         setTimeout(() => {
-          if (typeof UI !== 'undefined') {
-            const lines = GameData.NPC[ev.npcId];
-            if (lines) UI.showNpcDialog(lines);
+          if (typeof UI !== 'undefined' && typeof Game !== 'undefined') {
+            if (ev.npcId === 'king') {
+              const kd = Game.getKingDialog();
+              UI.showNpcDialog(kd.lines, kd.onClose);
+            } else {
+              const lines = GameData.NPC[ev.npcId];
+              if (lines) UI.showNpcDialog(lines);
+            }
           }
         }, 150);
         break;
@@ -316,15 +329,17 @@ const MapEngine = (() => {
     if (!ctx || !canvas) return;
     const map      = _currentMap();
     const tileSize = canvas.width / VIEW_W;
+    const viewH    = _getViewH();   // キャンバス全体を埋める実際の行数
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (let row = 0; row < VIEW_H; row++) {
+    for (let row = 0; row < viewH; row++) {
       for (let col = 0; col < VIEW_W; col++) {
         const mx = state.cameraX + col;
         const my = state.cameraY + row;
         if (mx < 0 || my < 0 || mx >= map.width || my >= map.height) {
-          ctx.fillStyle = '#000';
+          // マップ外は暗い霧色（純黒を避ける）
+          ctx.fillStyle = '#0a0a1e';
           ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
           continue;
         }
@@ -339,17 +354,27 @@ const MapEngine = (() => {
         const ex = ev.x - state.cameraX;
         const ey = ev.y - state.cameraY;
         // ビュー外はスキップ
-        if (ex < 0 || ey < 0 || ex >= VIEW_W || ey >= VIEW_H) return;
+        if (ex < 0 || ey < 0 || ex >= VIEW_W || ey >= viewH) return;
         const sx = ex * tileSize;
         const sy = ey * tileSize;
 
         switch (ev.type) {
           case 'npc':
-            _drawNpcIcon(ctx, sx, sy, tileSize);
+            if (ev.npcId === 'king') {
+              _drawKingIcon(ctx, sx, sy, tileSize);
+            } else {
+              _drawNpcIcon(ctx, sx, sy, tileSize);
+            }
             break;
-          case 'teleport':
-            _drawBuildingIcon(ctx, sx, sy, tileSize);
+          case 'teleport': {
+            const d = ev.dest || '';
+            if (d === 'castle_town' || d === 'throne_room') {
+              _drawCastleIcon(ctx, sx, sy, tileSize);
+            } else {
+              _drawBuildingIcon(ctx, sx, sy, tileSize);
+            }
             break;
+          }
           case 'boss':
             if (!state.clearedBoss[ev.bossId]) {
               _drawBossIcon(ctx, sx, sy, tileSize);
@@ -429,45 +454,177 @@ const MapEngine = (() => {
   }
 
   function _drawPlayer(ctx, x, y, size) {
-    const s  = size;
-    const cx = x + s / 2;
-    const cy = y + s / 2;
+    const s = size, cx = x + s / 2;
 
-    // 体
-    ctx.fillStyle = PLAYER_COLOR;
-    ctx.fillRect(x + s*0.3, y + s*0.4, s*0.4, s*0.4);
-
-    // 頭
-    ctx.fillStyle = '#f8d090';
+    // 赤マント（背面）
+    ctx.fillStyle = '#cc2200';
     ctx.beginPath();
-    ctx.arc(cx, y + s*0.3, s*0.18, 0, Math.PI*2);
+    ctx.moveTo(cx, y + s*0.44);
+    ctx.lineTo(cx - s*0.26, y + s*0.84);
+    ctx.lineTo(cx + s*0.10, y + s*0.84);
+    ctx.closePath();
     ctx.fill();
 
-    // 帽子
-    ctx.fillStyle = '#cc4400';
-    ctx.fillRect(x + s*0.28, y + s*0.1, s*0.44, s*0.14);
-    ctx.fillRect(x + s*0.35, y + s*0.04, s*0.3, s*0.1);
+    // 青い鎧（胴体）
+    ctx.fillStyle = '#2244aa';
+    ctx.fillRect(x + s*0.30, y + s*0.44, s*0.40, s*0.38);
+    // 鎧ハイライト
+    ctx.fillStyle = '#5577dd';
+    ctx.fillRect(x + s*0.30, y + s*0.44, s*0.40, s*0.05);
+    ctx.fillRect(x + s*0.30, y + s*0.44, s*0.05, s*0.30);
+
+    // 剣（右）
+    ctx.fillStyle = '#ccddee';
+    ctx.fillRect(x + s*0.70, y + s*0.34, s*0.07, s*0.34);
+    // 鍔
+    ctx.fillStyle = '#aa9933';
+    ctx.fillRect(x + s*0.63, y + s*0.50, s*0.21, s*0.05);
+
+    // 頭（肌色）
+    ctx.fillStyle = '#f8c880';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.30, s*0.17, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 兜（青）
+    ctx.fillStyle = '#2244aa';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.26, s*0.20, Math.PI, 0);
+    ctx.fill();
+    ctx.fillRect(x + s*0.27, y + s*0.26, s*0.46, s*0.08);
+    // 兜ハイライト
+    ctx.fillStyle = '#5577dd';
+    ctx.fillRect(x + s*0.34, y + s*0.15, s*0.07, s*0.12);
 
     // 目
-    ctx.fillStyle = '#000';
-    ctx.fillRect(cx - s*0.08, y + s*0.26, s*0.05, s*0.05);
-    ctx.fillRect(cx + s*0.03, y + s*0.26, s*0.05, s*0.05);
+    ctx.fillStyle = '#222';
+    ctx.fillRect(cx - s*0.08, y + s*0.27, s*0.05, s*0.05);
+    ctx.fillRect(cx + s*0.03, y + s*0.27, s*0.05, s*0.05);
   }
 
-  // ── NPCアイコン（白い人型） ───────────────────────────────
+  // ── NPCアイコン（村人） ──────────────────────────────────
   function _drawNpcIcon(ctx, x, y, size) {
-    const cx = x + size / 2;
-    // 頭
-    ctx.fillStyle = '#ffffff';
+    const s = size, cx = x + s / 2;
+    // 服（緑系）
+    ctx.fillStyle = '#336622';
+    ctx.fillRect(x + s*0.30, y + s*0.44, s*0.40, s*0.36);
+    ctx.fillStyle = '#558844';
+    ctx.fillRect(x + s*0.30, y + s*0.44, s*0.40, s*0.05);
+    // 頭（肌色）
+    ctx.fillStyle = '#f8c880';
     ctx.beginPath();
-    ctx.arc(cx, y + size * 0.28, size * 0.14, 0, Math.PI * 2);
+    ctx.arc(cx, y + s*0.30, s*0.16, 0, Math.PI * 2);
     ctx.fill();
-    // 胴体
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(x + size * 0.34, y + size * 0.44, size * 0.32, size * 0.3);
+    // 髪（茶色）
+    ctx.fillStyle = '#663311';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.25, s*0.18, Math.PI, 0);
+    ctx.fill();
+    ctx.fillRect(x + s*0.28, y + s*0.24, s*0.06, s*0.10);
+    ctx.fillRect(x + s*0.66, y + s*0.24, s*0.06, s*0.10);
+    // 目
+    ctx.fillStyle = '#333';
+    ctx.fillRect(cx - s*0.07, y + s*0.28, s*0.04, s*0.04);
+    ctx.fillRect(cx + s*0.03, y + s*0.28, s*0.04, s*0.04);
   }
 
-  // ── 建物アイコン（テレポート・城・町：茶色の四角） ─────────
+  // ── 王様アイコン（王冠・杖） ─────────────────────────────
+  function _drawKingIcon(ctx, x, y, size) {
+    const s = size, cx = x + s / 2;
+    // ローブ（紫）
+    ctx.fillStyle = '#5511aa';
+    ctx.beginPath();
+    ctx.moveTo(cx - s*0.22, y + s*0.44);
+    ctx.lineTo(cx - s*0.28, y + s*0.84);
+    ctx.lineTo(cx + s*0.28, y + s*0.84);
+    ctx.lineTo(cx + s*0.22, y + s*0.44);
+    ctx.closePath();
+    ctx.fill();
+    // ローブハイライト
+    ctx.fillStyle = '#7733cc';
+    ctx.fillRect(x + s*0.40, y + s*0.44, s*0.06, s*0.36);
+    // 白いひげ
+    ctx.fillStyle = '#eeeeee';
+    ctx.fillRect(cx - s*0.13, y + s*0.36, s*0.26, s*0.11);
+    // 頭（肌色）
+    ctx.fillStyle = '#f8c880';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.30, s*0.17, 0, Math.PI * 2);
+    ctx.fill();
+    // 王冠（金）
+    ctx.fillStyle = '#ddaa00';
+    ctx.fillRect(cx - s*0.22, y + s*0.12, s*0.44, s*0.11);
+    // 王冠の突起3本
+    ctx.fillRect(cx - s*0.22, y + s*0.05, s*0.09, s*0.10);
+    ctx.fillRect(cx - s*0.045, y + s*0.02, s*0.09, s*0.13);
+    ctx.fillRect(cx + s*0.13, y + s*0.05, s*0.09, s*0.10);
+    // 宝石（赤）
+    ctx.fillStyle = '#ff2233';
+    ctx.fillRect(cx - s*0.04, y + s*0.04, s*0.08, s*0.06);
+    // 目
+    ctx.fillStyle = '#333';
+    ctx.fillRect(cx - s*0.08, y + s*0.27, s*0.05, s*0.05);
+    ctx.fillRect(cx + s*0.03, y + s*0.27, s*0.05, s*0.05);
+    // 杖
+    ctx.fillStyle = '#886600';
+    ctx.fillRect(x + s*0.72, y + s*0.32, s*0.06, s*0.52);
+    ctx.fillStyle = '#ddaa00';
+    ctx.beginPath();
+    ctx.arc(x + s*0.75, y + s*0.29, s*0.07, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath();
+    ctx.arc(x + s*0.75, y + s*0.29, s*0.04, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // ── 城アイコン（城・王の間入口） ────────────────────────────
+  function _drawCastleIcon(ctx, x, y, size) {
+    const s = size;
+    // 左の塔
+    ctx.fillStyle = '#aaaabc';
+    ctx.fillRect(x + s*0.04, y + s*0.30, s*0.23, s*0.70);
+    // 右の塔
+    ctx.fillRect(x + s*0.73, y + s*0.30, s*0.23, s*0.70);
+    // 中央の壁
+    ctx.fillRect(x + s*0.22, y + s*0.44, s*0.56, s*0.56);
+    // 中央の高い塔
+    ctx.fillStyle = '#9999ab';
+    ctx.fillRect(x + s*0.35, y + s*0.10, s*0.30, s*0.38);
+    // 影ライン（奥行き感）
+    ctx.fillStyle = '#77778a';
+    ctx.fillRect(x + s*0.04, y + s*0.30, s*0.23, s*0.04);
+    ctx.fillRect(x + s*0.73, y + s*0.30, s*0.23, s*0.04);
+    ctx.fillRect(x + s*0.22, y + s*0.44, s*0.56, s*0.04);
+    ctx.fillRect(x + s*0.35, y + s*0.10, s*0.30, s*0.04);
+    // 銃眼（左塔）
+    ctx.fillStyle = '#555566';
+    ctx.fillRect(x + s*0.04, y + s*0.22, s*0.08, s*0.10);
+    ctx.fillRect(x + s*0.16, y + s*0.22, s*0.08, s*0.10);
+    // 銃眼（右塔）
+    ctx.fillRect(x + s*0.73, y + s*0.22, s*0.08, s*0.10);
+    ctx.fillRect(x + s*0.85, y + s*0.22, s*0.08, s*0.10);
+    // 銃眼（中央塔）
+    ctx.fillRect(x + s*0.35, y + s*0.02, s*0.07, s*0.10);
+    ctx.fillRect(x + s*0.46, y + s*0.02, s*0.07, s*0.10);
+    ctx.fillRect(x + s*0.57, y + s*0.02, s*0.07, s*0.10);
+    // 窓（中央塔）
+    ctx.fillStyle = '#334488';
+    ctx.fillRect(x + s*0.42, y + s*0.18, s*0.16, s*0.14);
+    // 窓（左塔）
+    ctx.fillStyle = '#334488';
+    ctx.fillRect(x + s*0.08, y + s*0.36, s*0.10, s*0.10);
+    // 窓（右塔）
+    ctx.fillRect(x + s*0.82, y + s*0.36, s*0.10, s*0.10);
+    // 門（アーチ型）
+    ctx.fillStyle = '#221100';
+    ctx.fillRect(x + s*0.40, y + s*0.62, s*0.20, s*0.38);
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.62, s*0.10, Math.PI, 0);
+    ctx.fill();
+  }
+
+  // ── 建物アイコン（一般的な家・店） ──────────────────────────
   function _drawBuildingIcon(ctx, x, y, size) {
     const m = size * 0.15;
     // 壁
@@ -608,6 +765,20 @@ const MapEngine = (() => {
     getPlayerPos : () => ({ x: state.playerX, y: state.playerY }),
     getCurrentMapId : () => state.currentMapId,
     setMoveLock : (v) => { state.moving = v; },
+    getMapState() {
+      return {
+        currentMapId : state.currentMapId,
+        playerX      : state.playerX,
+        playerY      : state.playerY,
+        openedChests : JSON.parse(JSON.stringify(state.openedChests)),
+        clearedBoss  : JSON.parse(JSON.stringify(state.clearedBoss)),
+      };
+    },
+    setMapState(s) {
+      state.openedChests = s.openedChests || {};
+      state.clearedBoss  = s.clearedBoss  || {};
+      loadMap(s.currentMapId, s.playerX, s.playerY);
+    },
   };
 
 })();

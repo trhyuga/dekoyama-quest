@@ -46,10 +46,22 @@
       <!-- ステータスバー -->
       <div id="status-bar">
         <div id="status-name">でこやま</div>
+        <button id="status-menu-btn" title="メニュー">≡</button>
         <div id="status-right">
           <span id="status-hp">HP:  15/ 15</span>
           <span id="status-mp">MP:   8/  8</span>
           <span id="status-gold">G:  50</span>
+        </div>
+      </div>
+
+      <!-- ゲームメニュー（セーブ/ロード） -->
+      <div id="game-menu-overlay" class="hidden">
+        <div class="window-border game-menu-window">
+          <div class="game-menu-title">メニュー</div>
+          <button class="game-menu-btn" id="btn-save">セーブする</button>
+          <button class="game-menu-btn" id="btn-load">ロードする</button>
+          <div class="game-menu-divider"></div>
+          <button class="game-menu-btn game-menu-close" id="btn-menu-close">もどる</button>
         </div>
       </div>
 
@@ -154,10 +166,10 @@
   </div><!-- /#game-wrapper -->
 
   <!-- JS読み込み -->
-  <script src="js/data.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/map.js"></script>
-  <script src="js/battle.js"></script>
-  <script src="js/main.js"></script>
+  <script src="js/data.js?v=5"></script>
+  <script src="js/ui.js?v=5"></script>
+  <script src="js/map.js?v=5"></script>
+  <script src="js/battle.js?v=5"></script>
+  <script src="js/main.js?v=5"></script>
 </body>
 </html>

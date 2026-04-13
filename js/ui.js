@@ -316,6 +316,37 @@ const UI = (() => {
     elStatusOverlay.classList.add('hidden');
   }
 
+  // ── ゲームメニュー（セーブ/ロード） ─────────────────────
+  let elGameMenu;
+  function _initGameMenu() {
+    if (elGameMenu) return;
+    elGameMenu = document.getElementById('game-menu-overlay');
+    document.getElementById('btn-save').addEventListener('click', () => {
+      const ok = Game.saveGame();
+      _hideGameMenu();
+      showMessage(ok ? 'セーブしました！' : 'セーブに　しっぱいした…', null);
+    });
+    document.getElementById('btn-load').addEventListener('click', () => {
+      _hideGameMenu();
+      if (!Game.hasSaveData()) {
+        showMessage('セーブデータが　ありません。', null);
+        return;
+      }
+      const ok = Game.loadGame();
+      if (!ok) showMessage('ロードに　しっぱいした…', null);
+    });
+    document.getElementById('btn-menu-close').addEventListener('click', _hideGameMenu);
+  }
+
+  function showGameMenu() {
+    _initGameMenu();
+    elGameMenu.classList.remove('hidden');
+  }
+
+  function _hideGameMenu() {
+    if (elGameMenu) elGameMenu.classList.add('hidden');
+  }
+
   function hideAllSubMenus() {
     elSpellMenu.classList.add('hidden');
     elItemMenu.classList.add('hidden');
@@ -462,6 +493,7 @@ const UI = (() => {
     showOpening,
     showEnding,
     hideAllSubMenus,
+    showGameMenu,
   };
 
 })();
