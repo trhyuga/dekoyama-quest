@@ -429,10 +429,13 @@ const UI = (() => {
         elText.style.opacity = '1';
 
         if (isLast) {
-          elText.style.fontSize = '24px';
+          elText.style.fontSize = '48px';
           elText.style.textAlign = 'center';
           elText.style.color = '#f8e800';
-          return; // おわり表示で終了
+          elText.style.fontFamily = "'Great Vibes', cursive";
+          elText.style.letterSpacing = '4px';
+          elText.style.transition = 'opacity 2s';
+          return; // Fin表示で終了
         }
 
         elHint.classList.remove('hidden');
