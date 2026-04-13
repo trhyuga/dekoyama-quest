@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>でこやまクエスト</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game-wrapper">
+
+    <!-- ========== タイトル画面 ========== -->
+    <div id="scene-title" class="scene active">
+      <div class="title-top-space"></div>
+      <div class="title-logo-box">
+        <div class="title-logo-line1">でこやま</div>
+        <div class="title-logo-line2">クエスト</div>
+      </div>
+      <div class="title-mid-space"></div>
+      <div class="title-menu-box">
+        <div class="window-border">
+          <div class="menu-item" id="menu-start">
+            <span class="cursor">▶</span>ぼうけんをはじめる
+          </div>
+        </div>
+      </div>
+      <div class="title-bottom">
+        <div class="title-copyright">©2026　DEKOYAMA SOFT</div>
+      </div>
+    </div>
+
+    <!-- ========== オープニング画面 ========== -->
+    <div id="scene-opening" class="scene">
+      <div class="opening-bg">
+        <div class="window-border opening-window">
+          <div id="opening-text"></div>
+          <div id="opening-tap-hint" class="tap-hint hidden">（画面をタップ）</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ゲーム画面 ========== -->
+    <div id="scene-game" class="scene">
+      <!-- ステータスバー -->
+      <div id="status-bar">
+        <div id="status-name">でこやま</div>
+        <div id="status-right">
+          <span id="status-hp">HP:  15/ 15</span>
+          <span id="status-mp">MP:   8/  8</span>
+          <span id="status-gold">G:  50</span>
+        </div>
+      </div>
+
+      <!-- ステータス確認オーバーレイ -->
+      <div id="status-overlay" class="hidden">
+        <div class="window-border status-detail-window">
+          <div class="status-detail-title">ステータス</div>
+          <div class="status-detail-grid">
+            <span class="sd-label">なまえ</span><span id="sd-name" class="sd-value"></span>
+            <span class="sd-label">レベル</span><span id="sd-level" class="sd-value"></span>
+            <span class="sd-label">けいけんち</span><span id="sd-exp" class="sd-value"></span>
+            <span class="sd-label">HP</span><span id="sd-hp" class="sd-value"></span>
+            <span class="sd-label">MP</span><span id="sd-mp" class="sd-value"></span>
+            <span class="sd-label">こうげき</span><span id="sd-atk" class="sd-value"></span>
+            <span class="sd-label">まもり</span><span id="sd-def" class="sd-value"></span>
+            <span class="sd-label">ぶき</span><span id="sd-weapon" class="sd-value"></span>
+            <span class="sd-label">よろい</span><span id="sd-armor" class="sd-value"></span>
+            <span class="sd-label">たて</span><span id="sd-shield" class="sd-value"></span>
+            <span class="sd-label">もちきん</span><span id="sd-gold" class="sd-value"></span>
+          </div>
+          <div class="status-detail-hint">（タップでとじる）</div>
+        </div>
+      </div>
+
+      <!-- マップキャンバス（タップで移動） -->
+      <canvas id="map-canvas"></canvas>
+
+      <!-- 戦闘オーバーレイ（戦闘時にマップと入れ替え） -->
+      <div id="battle-overlay" class="hidden">
+        <div id="battle-enemy-sprite-area">
+          <canvas id="battle-canvas" width="200" height="180"></canvas>
+        </div>
+        <div id="battle-enemy-info">
+          <div id="battle-enemy-name-text">スライム</div>
+          <div class="enemy-hp-wrap">
+            <span class="hp-label">HP</span>
+            <div class="hp-track"><div id="enemy-hp-fill"></div></div>
+            <span id="enemy-hp-num" class="hp-num">8</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- メッセージウィンドウ -->
+      <div id="message-area">
+        <div class="window-border" id="message-window">
+          <div id="message-text">　</div>
+          <div id="message-tap-hint" class="tap-hint hidden">（タップで続く）</div>
+        </div>
+      </div>
+
+      <!-- 戦闘コマンドメニュー -->
+      <div id="battle-menu" class="hidden">
+        <div class="window-border battle-cmd-window">
+          <div class="battle-cmd-label">コマンド</div>
+          <div class="battle-cmd-grid">
+            <button class="battle-btn" id="btn-fight">たたかう</button>
+            <button class="battle-btn" id="btn-spell">じゅもん</button>
+            <button class="battle-btn" id="btn-item">どうぐ</button>
+            <button class="battle-btn" id="btn-run">にげる</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- じゅもんサブメニュー -->
+      <div id="spell-menu" class="hidden">
+        <div class="window-border">
+          <div class="battle-cmd-label">じゅもん</div>
+          <div id="spell-list"></div>
+          <button class="cancel-btn" id="btn-spell-cancel">もどる</button>
+        </div>
+      </div>
+
+      <!-- どうぐサブメニュー -->
+      <div id="item-menu" class="hidden">
+        <div class="window-border">
+          <div class="battle-cmd-label">どうぐ</div>
+          <div id="item-list"></div>
+          <button class="cancel-btn" id="btn-item-cancel">もどる</button>
+        </div>
+      </div>
+
+      <!-- ショップメニュー -->
+      <div id="shop-menu" class="hidden">
+        <div class="window-border">
+          <div class="battle-cmd-label" id="shop-title">みせ</div>
+          <div id="shop-list"></div>
+          <button class="cancel-btn" id="btn-shop-cancel">やめる</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== エンディング画面 ========== -->
+    <div id="scene-ending" class="scene">
+      <div class="ending-bg">
+        <div id="ending-content">
+          <div id="ending-text"></div>
+          <div id="ending-tap-hint" class="tap-hint hidden">（タップで続く）</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#game-wrapper -->
+
+  <!-- JS読み込み -->
+  <script src="js/data.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/battle.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,589 @@
+/* ========================================
+   でこやまクエスト - メインスタイル
+   ファミコンDQ1風・縦型スマホ対応
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+:root {
+  --bg:        #000000;
+  --bg-dark:   #000820;
+  --white:     #ffffff;
+  --yellow:    #f8e800;
+  --cyan:      #00f8f8;
+  --gray:      #888888;
+  --border:    #a8a8a8;
+  --window-bg: #000048;
+  --font:      'DotGothic16', monospace;
+  --fs-sm:     12px;
+  --fs-md:     14px;
+  --fs-lg:     18px;
+  --fs-xl:     28px;
+  --fs-xxl:    40px;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font);
+}
+
+/* ゲーム全体のラッパー（縦型固定サイズ） */
+#game-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  max-width: 480px;
+  max-height: 854px;
+  background: var(--bg-dark);
+  overflow: hidden;
+  /* スマホで画面いっぱいに表示 */
+  margin: auto;
+}
+
+/* ========================================
+   シーン共通
+   ======================================== */
+.scene {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.scene.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========================================
+   ウィンドウ枠（DQ1風 二重線ボーダー）
+   ======================================== */
+.window-border {
+  background: var(--window-bg);
+  border: 3px solid var(--border);
+  outline: 2px solid #000;
+  outline-offset: -6px;
+  padding: 12px 14px;
+  color: var(--white);
+  font-family: var(--font);
+}
+
+/* ========================================
+   タイトル画面
+   ======================================== */
+#scene-title {
+  background: var(--bg-dark);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.title-top-space {
+  height: 8vh;
+}
+
+.title-logo-box {
+  text-align: center;
+  line-height: 1.1;
+  /* ロゴ部分を囲む枠 */
+  border: 4px solid var(--yellow);
+  outline: 3px solid #000;
+  outline-offset: -8px;
+  padding: 16px 30px;
+  background: #000030;
+  width: 90%;
+}
+
+.title-logo-line1 {
+  font-size: var(--fs-xxl);
+  color: var(--yellow);
+  text-shadow:
+    2px 2px 0 #a86000,
+    -1px -1px 0 #a86000;
+  letter-spacing: 4px;
+}
+
+.title-logo-line2 {
+  font-size: var(--fs-xxl);
+  color: var(--yellow);
+  text-shadow:
+    2px 2px 0 #a86000,
+    -1px -1px 0 #a86000;
+  letter-spacing: 4px;
+}
+
+.title-mid-space {
+  height: 6vh;
+}
+
+.title-menu-box {
+  width: 90%;
+}
+
+.title-menu-box .window-border {
+  padding: 14px 20px;
+}
+
+.menu-item {
+  font-size: var(--fs-md);
+  color: var(--white);
+  padding: 4px 0;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+
+.menu-item .cursor {
+  color: var(--white);
+  margin-right: 6px;
+  animation: blink 0.8s step-start infinite;
+}
+
+.title-bottom {
+  height: 10vh;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 16px;
+}
+
+.title-copyright {
+  font-size: var(--fs-sm);
+  color: var(--gray);
+  letter-spacing: 1px;
+}
+
+/* ========================================
+   オープニング画面
+   ======================================== */
+#scene-opening {
+  background: #000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.opening-bg {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.opening-window {
+  width: 100%;
+  min-height: 200px;
+  font-size: var(--fs-md);
+  line-height: 2;
+  letter-spacing: 1px;
+}
+
+#opening-text {
+  min-height: 120px;
+  white-space: pre-wrap;
+}
+
+/* ========================================
+   ゲーム画面
+   ======================================== */
+#scene-game {
+  display: none; /* active時はflexに */
+  flex-direction: column;
+  background: #000;
+}
+#scene-game.active {
+  display: flex;
+}
+
+/* ステータスバー */
+#status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--window-bg);
+  border-bottom: 2px solid var(--border);
+  padding: 5px 12px;
+  font-size: var(--fs-sm);
+  color: var(--white);
+  flex-shrink: 0;
+  height: 36px;
+}
+
+#status-name {
+  color: var(--yellow);
+  letter-spacing: 1px;
+}
+
+#status-right {
+  display: flex;
+  gap: 12px;
+}
+
+#status-hp   { color: #00ff88; }
+#status-mp   { color: #88aaff; }
+#status-gold { color: var(--yellow); }
+
+/* ステータス確認オーバーレイ */
+#status-overlay {
+  position: absolute;
+  inset: 36px 0 0 0; /* ステータスバーの下から */
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 12px;
+  background: rgba(0,0,10,0.85);
+}
+
+.status-detail-window {
+  width: 100%;
+  max-width: 400px;
+}
+
+.status-detail-title {
+  font-size: var(--fs-md);
+  color: var(--cyan);
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.status-detail-grid {
+  display: grid;
+  grid-template-columns: 5em 1fr;
+  row-gap: 8px;
+  column-gap: 12px;
+  font-size: var(--fs-md);
+}
+
+.sd-label {
+  color: var(--gray);
+  letter-spacing: 1px;
+}
+
+.sd-value {
+  color: var(--white);
+  letter-spacing: 1px;
+}
+
+.status-detail-hint {
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--gray);
+  margin-top: 14px;
+  animation: blink 1s step-start infinite;
+}
+
+#status-name {
+  color: var(--yellow);
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-decoration: underline dotted var(--gray);
+}
+
+/* マップキャンバス */
+#map-canvas {
+  display: block;
+  flex: 1;
+  width: 100%;
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+
+/* ========================================
+   戦闘オーバーレイ
+   ======================================== */
+#battle-overlay {
+  flex: 1;
+  width: 100%;
+  background: linear-gradient(180deg, #000010 0%, #000848 55%, #001860 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0 8px;
+}
+
+#battle-enemy-sprite-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+#battle-canvas {
+  display: block;
+  image-rendering: pixelated;
+  /* 実際のサイズはJSで制御 */
+}
+
+#battle-enemy-info {
+  width: 88%;
+  background: var(--window-bg);
+  border: 2px solid var(--border);
+  padding: 8px 14px 10px;
+  flex-shrink: 0;
+}
+
+#battle-enemy-name-text {
+  color: var(--white);
+  font-size: var(--fs-md);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.enemy-hp-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hp-label {
+  color: #00ff88;
+  font-size: var(--fs-sm);
+  width: 18px;
+  flex-shrink: 0;
+}
+
+.hp-track {
+  flex: 1;
+  height: 12px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  overflow: hidden;
+}
+
+#enemy-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00cc66, #00ff88);
+  transition: width 0.4s ease;
+}
+
+.hp-num {
+  color: #00ff88;
+  font-size: var(--fs-sm);
+  width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* メッセージエリア */
+#message-area {
+  flex-shrink: 0;
+}
+
+#message-window {
+  border-top: 3px solid var(--border);
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  outline: none;
+  min-height: 80px;
+  padding: 10px 14px;
+  font-size: var(--fs-md);
+  line-height: 1.8;
+  letter-spacing: 1px;
+}
+
+#message-text {
+  white-space: pre-wrap;
+  color: var(--white);
+}
+
+/* ========================================
+   戦闘コマンド
+   ======================================== */
+#battle-menu,
+#spell-menu,
+#item-menu,
+#shop-menu {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+#battle-menu .window-border,
+#spell-menu .window-border,
+#item-menu .window-border,
+#shop-menu .window-border {
+  border-top: 3px solid var(--border);
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  outline: none;
+  padding: 10px 14px 14px;
+}
+
+.battle-cmd-label {
+  font-size: var(--fs-sm);
+  color: var(--cyan);
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+
+.battle-cmd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.battle-btn {
+  background: var(--window-bg);
+  border: 2px solid var(--border);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: var(--fs-md);
+  padding: 10px 4px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.1s;
+}
+
+.battle-btn:active {
+  background: #0000a0;
+}
+
+.cancel-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid var(--gray);
+  color: var(--gray);
+  font-family: var(--font);
+  font-size: var(--fs-sm);
+  padding: 6px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+
+#spell-list,
+#item-list,
+#shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.spell-item,
+.item-item,
+.shop-item {
+  background: var(--window-bg);
+  border: 1px solid var(--border);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: var(--fs-md);
+  padding: 8px 12px;
+  cursor: pointer;
+  text-align: left;
+  letter-spacing: 1px;
+}
+
+.spell-item:active,
+.item-item:active,
+.shop-item:active {
+  background: #0000a0;
+}
+
+.spell-item .spell-mp {
+  float: right;
+  color: #88aaff;
+  font-size: var(--fs-sm);
+}
+
+.shop-item .item-price {
+  float: right;
+  color: var(--yellow);
+  font-size: var(--fs-sm);
+}
+
+/* ========================================
+   エンディング画面
+   ======================================== */
+#scene-ending {
+  background: #000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.ending-bg {
+  width: 100%;
+}
+
+#ending-content {
+  width: 100%;
+}
+
+#ending-text {
+  font-size: var(--fs-md);
+  color: var(--white);
+  line-height: 2;
+  letter-spacing: 1px;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+/* ========================================
+   共通ユーティリティ
+   ======================================== */
+.hidden {
+  display: none !important;
+}
+
+.tap-hint {
+  text-align: right;
+  font-size: var(--fs-sm);
+  color: var(--gray);
+  margin-top: 6px;
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* スクロール禁止 */
+#game-wrapper * {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ========================================
+   レスポンシブ調整
+   ======================================== */
+@media (max-height: 600px) {
+  .title-logo-line1,
+  .title-logo-line2 {
+    font-size: 28px;
+  }
+  .title-top-space  { height: 4vh; }
+  .title-mid-space  { height: 3vh; }
+}
+
+@media (min-width: 481px) {
+  /* PCで見たとき中央に固定表示 */
+  #game-wrapper {
+    width: 480px;
+    height: 854px;
+    box-shadow: 0 0 40px rgba(0,0,120,0.6);
+  }
+}
