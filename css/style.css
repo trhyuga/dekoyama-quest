@@ -49,11 +49,11 @@ body {
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;    /* dvh: アドレスバーなどブラウザUIを除く動的ビューポート高さ */
   max-width: 480px;
   max-height: 854px;
   background: var(--bg-dark);
   overflow: hidden;
-  /* スマホで画面いっぱいに表示 */
   margin: auto;
 }
 
