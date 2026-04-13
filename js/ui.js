@@ -476,14 +476,16 @@ const UI = (() => {
           return; // Fin表示で終了
         }
 
-        elHint.classList.remove('hidden');
-
-        function onTap(e) {
-          if (e) e.preventDefault();
-          nextLine();
-        }
-        cont.addEventListener('click', onTap, { once: true });
-        cont.addEventListener('touchstart', onTap, { once: true, passive: false });
+        // 読み飛ばし防止：3秒後にタップ受付開始
+        setTimeout(() => {
+          elHint.classList.remove('hidden');
+          function onTap(e) {
+            if (e) e.preventDefault();
+            nextLine();
+          }
+          cont.addEventListener('click', onTap, { once: true });
+          cont.addEventListener('touchstart', onTap, { once: true, passive: false });
+        }, 3000);
       }, 300);
     }
     nextLine();

@@ -171,8 +171,10 @@ const MapEngine = (() => {
 
   function _triggerEncounter() {
     const map     = _currentMap();
+    const pLv = Game.getPlayer().level;
     const enemies = Object.values(GameData.ENEMIES).filter(e =>
-      e.area && e.area.includes(map.id) && !e.isBoss
+      e.area && e.area.includes(map.id) && !e.isBoss &&
+      (!e.minLv || pLv >= e.minLv)
     );
     if (enemies.length === 0) return;
     const enemy = enemies[Math.floor(Math.random() * enemies.length)];

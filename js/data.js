@@ -557,7 +557,7 @@ const GameData = {
     },
     drakee: {
       id:'drakee', name:'ドラキー',
-      hp:12, atk:7, def:3,
+      hp:28, atk:7, def:5,
       exp:5, gold:35,
       area:['world'],
       minLv:2, maxLv:4,
@@ -566,7 +566,7 @@ const GameData = {
     },
     ghost: {
       id:'ghost', name:'ゴースト',
-      hp:18, atk:10, def:5,
+      hp:35, atk:30, def:8,
       exp:8, gold:55,
       area:['world'],
       minLv:3, maxLv:6,
@@ -575,10 +575,10 @@ const GameData = {
     },
     wyvern: {
       id:'wyvern', name:'ワイバーン',
-      hp:28, atk:16, def:8,
+      hp:80, atk:58, def:14,
       exp:14, gold:80,
       area:['world'],
-      minLv:5, maxLv:8,
+      minLv:6, maxLv:8,
       color:'#448844',
       spells:[],
     },
