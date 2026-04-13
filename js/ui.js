@@ -281,14 +281,12 @@ const UI = (() => {
       '<button class="battle-btn" id="_yn-yes" style="flex:1;padding:10px">はい</button>' +
       '<button class="battle-btn" id="_yn-no"  style="flex:1;padding:10px">やめる</button>' +
       '</div>';
-    document.getElementById('_yn-yes').addEventListener('click', () => {
-      if (onYes) onYes();
-      MapEngine.setMoveLock(false);
-    });
-    document.getElementById('_yn-no').addEventListener('click', () => {
-      if (onNo) onNo();
-      MapEngine.setMoveLock(false);
-    });
+    function doYes(e) { e.preventDefault(); e.stopPropagation(); if (onYes) onYes(); MapEngine.setMoveLock(false); }
+    function doNo(e)  { e.preventDefault(); e.stopPropagation(); if (onNo)  onNo();  MapEngine.setMoveLock(false); }
+    document.getElementById('_yn-yes').addEventListener('click', doYes);
+    document.getElementById('_yn-yes').addEventListener('touchstart', doYes, { passive: false });
+    document.getElementById('_yn-no').addEventListener('click', doNo);
+    document.getElementById('_yn-no').addEventListener('touchstart', doNo, { passive: false });
   }
 
   // ── ステータス確認オーバーレイ ────────────────────────────
