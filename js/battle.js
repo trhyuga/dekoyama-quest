@@ -388,12 +388,18 @@ const Battle = (() => {
   function _playerDead() {
     bstate.active = false;
     UI.showBattleMenu(false);
-    UI.showMessage('でこやまは　しんでしまった…\n\nおうさまのもとへ\nもどされた。', () => {
+    UI.showMessage('でこやまは　しんでしまった…', () => {
       _hideBattleScreen();
       Game.revive();
-      MapEngine.loadMap('castle_town', 7, 13);
+      MapEngine.loadMap('throne_room', 4, 8);
       MapEngine.setMoveLock(false);
-      UI.clearMessage();
+      // 王の台詞を表示（金が半分になる）
+      setTimeout(() => {
+        UI.showNpcDialog([
+          'おお　でこやまよ。\nしんで　しまうとは\nなさけない',
+          'かねは　はんぶん\nもらってゆく\nじょほほ',
+        ]);
+      }, 300);
     });
   }
 
