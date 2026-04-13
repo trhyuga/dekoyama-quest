@@ -101,74 +101,76 @@ body {
 
 .title-logo-box {
   text-align: center;
-  line-height: 1.1;
-  /* ロゴ部分を囲む枠 */
-  border: 4px solid var(--yellow);
-  outline: 3px solid #000;
-  outline-offset: -8px;
-  padding: 16px 30px;
-  background: #000030;
-  width: 90%;
-  animation: box-pulse 2.4s ease-in-out infinite;
+  line-height: 1.05;
+  border: none;
+  outline: none;
+  padding: 20px 10px;
+  background: transparent;
+  width: 100%;
+  position: relative;
 }
 
-@keyframes box-pulse {
-  0%,100% { box-shadow: 0 0 8px 2px #f8e80066, inset 0 0 12px #f8e80022; }
-  50%      { box-shadow: 0 0 22px 6px #f8e800bb, inset 0 0 24px #f8e80055; }
-}
-
-@keyframes title-glow {
+/* ドラクエ風タイトルアニメーション */
+@keyframes title-shine {
   0%,100% {
     text-shadow:
-      0 0 6px #f8e800,
-      0 0 14px #f8a800,
-      2px 2px 0 #7a4000,
-      -1px -1px 0 #7a4000;
-    color: #f8e800;
+      /* ゴールド外枠 */
+      -2px -2px 0 #D4A830,
+       2px -2px 0 #D4A830,
+      -2px  2px 0 #D4A830,
+       2px  2px 0 #D4A830,
+       0   -2px 0 #D4A830,
+       0    2px 0 #D4A830,
+      -2px  0   0 #D4A830,
+       2px  0   0 #D4A830,
+      /* 3D奥行き */
+       3px  3px 0 #3A1060,
+       4px  4px 0 #2E0A50,
+       5px  5px 0 #220840,
+       6px  6px 2px rgba(0,0,0,0.6),
+      /* グロウ */
+       0 0 10px rgba(200,160,60,0.3);
   }
   50% {
     text-shadow:
-      0 0 12px #fff0a0,
-      0 0 28px #f8c800,
-      0 0 48px #f87000,
-      2px 2px 0 #7a4000,
-      -1px -1px 0 #7a4000;
-    color: #ffffc0;
-  }
-}
-
-@keyframes title-glow2 {
-  0%,100% {
-    text-shadow:
-      0 0 6px #f8e800,
-      0 0 14px #f8a800,
-      2px 2px 0 #7a4000,
-      -1px -1px 0 #7a4000;
-    color: #f8e800;
-  }
-  50% {
-    text-shadow:
-      0 0 12px #fff0a0,
-      0 0 28px #f8c800,
-      0 0 48px #f87000,
-      2px 2px 0 #7a4000,
-      -1px -1px 0 #7a4000;
-    color: #ffffc0;
+      -2px -2px 0 #F0D050,
+       2px -2px 0 #F0D050,
+      -2px  2px 0 #F0D050,
+       2px  2px 0 #F0D050,
+       0   -2px 0 #F0D050,
+       0    2px 0 #F0D050,
+      -2px  0   0 #F0D050,
+       2px  0   0 #F0D050,
+       3px  3px 0 #3A1060,
+       4px  4px 0 #2E0A50,
+       5px  5px 0 #220840,
+       6px  6px 2px rgba(0,0,0,0.6),
+       0 0 20px rgba(240,200,80,0.5),
+       0 0 40px rgba(200,160,60,0.2);
   }
 }
 
 .title-logo-line1 {
-  font-size: var(--fs-xxl);
-  color: var(--yellow);
-  letter-spacing: 6px;
-  animation: title-glow 2.4s ease-in-out infinite;
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: 44px;
+  color: #7B3FA8;
+  letter-spacing: 3px;
+  animation: title-shine 3s ease-in-out infinite;
+  -webkit-text-stroke: 1px #D4A830;
+  paint-order: stroke fill;
 }
 
 .title-logo-line2 {
-  font-size: var(--fs-xxl);
-  color: var(--yellow);
-  letter-spacing: 6px;
-  animation: title-glow2 2.4s ease-in-out infinite 0.4s;
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: 56px;
+  color: #7B3FA8;
+  letter-spacing: 8px;
+  margin-top: 2px;
+  animation: title-shine 3s ease-in-out infinite 0.5s;
+  -webkit-text-stroke: 1.5px #D4A830;
+  paint-order: stroke fill;
 }
 
 .title-mid-space {
@@ -613,10 +615,8 @@ body {
    レスポンシブ調整
    ======================================== */
 @media (max-height: 600px) {
-  .title-logo-line1,
-  .title-logo-line2 {
-    font-size: 28px;
-  }
+  .title-logo-line1 { font-size: 32px; }
+  .title-logo-line2 { font-size: 40px; }
   .title-top-space  { height: 4vh; }
   .title-mid-space  { height: 3vh; }
 }
