@@ -607,7 +607,7 @@ const GameData = {
     // ── ダンジョン2 敵 ────────────────────────────────────
     orc: {
       id:'orc', name:'オーク',
-      hp:40, atk:20, def:12,
+      hp:40, atk:58, def:12,
       exp:18, gold:120,
       area:['dungeon2'],
       minLv:5, maxLv:7,
@@ -616,7 +616,7 @@ const GameData = {
     },
     dark_knight: {
       id:'dark_knight', name:'あんこくきし',
-      hp:55, atk:26, def:16,
+      hp:55, atk:66, def:16,
       exp:24, gold:160,
       area:['dungeon2'],
       minLv:6, maxLv:7,
@@ -627,7 +627,7 @@ const GameData = {
     // ── 魔王城 敵 ──────────────────────────────────────────
     death_bat: {
       id:'death_bat', name:'デスバット',
-      hp:50, atk:28, def:14,
+      hp:50, atk:85, def:14,
       exp:20, gold:140,
       area:['maou_castle'],
       minLv:6, maxLv:8,
@@ -636,7 +636,7 @@ const GameData = {
     },
     hell_guard: {
       id:'hell_guard', name:'ヘルガード',
-      hp:70, atk:34, def:20,
+      hp:70, atk:95, def:20,
       exp:28, gold:200,
       area:['maou_castle'],
       minLv:7, maxLv:8,
@@ -656,7 +656,7 @@ const GameData = {
     },
     dungeon2_boss: {
       id:'dungeon2_boss', name:'ダークドラゴン',
-      hp:180, atk:38, def:22,
+      hp:180, atk:72, def:22,
       exp:90, gold:600,
       area:[], isBoss:true,
       color:'#220044',
@@ -665,7 +665,7 @@ const GameData = {
     },
     maou: {
       id:'maou', name:'まおう',
-      hp:220, atk:55, def:25,
+      hp:220, atk:90, def:25,
       exp:200, gold:999,
       area:[], isBoss:true,
       color:'#cc0000',
