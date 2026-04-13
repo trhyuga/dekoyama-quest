@@ -43,7 +43,7 @@ const GameData = {
   ],
 
   // ランダムエンカウント発生タイル
-  ENCOUNTER_TILES: [0, 4, 5], // 草・砂・道
+  ENCOUNTER_TILES: [0, 4, 5, 7], // 草・砂・道・床（ダンジョン内）
 
   // ============================================================
   //  タイルカラー（Canvas描画用）
@@ -257,7 +257,7 @@ const GameData = {
       name: 'くさのどうくつ',
       width: 14,
       height: 14,
-      encounter_rate: 0.12,
+      encounter_rate: 0.22,
       data: [
         6,6,6,6,6,6,6,6,6,6,6,6,6,6,
         6,7,7,7,7,6,6,6,6,6,6,6,6,6,
@@ -293,7 +293,7 @@ const GameData = {
       name: 'まのとう',
       width: 14,
       height: 16,
-      encounter_rate: 0.14,
+      encounter_rate: 0.24,
       data: [
         6,6,6,6,6,6,6,6,6,6,6,6,6,6,
         6,7,7,7,7,6,6,6,6,6,6,6,6,6,
@@ -327,7 +327,7 @@ const GameData = {
       name: 'まおうじょう',
       width: 16,
       height: 18,
-      encounter_rate: 0.18,
+      encounter_rate: 0.28,
       data: [
         6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
         6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,6,
@@ -656,8 +656,8 @@ const GameData = {
     },
     dungeon2_boss: {
       id:'dungeon2_boss', name:'ダークドラゴン',
-      hp:140, atk:30, def:18,
-      exp:70, gold:500,
+      hp:180, atk:38, def:22,
+      exp:90, gold:600,
       area:[], isBoss:true,
       color:'#220044',
       spells:['gira'],
@@ -665,7 +665,7 @@ const GameData = {
     },
     maou: {
       id:'maou', name:'まおう',
-      hp:220, atk:45, def:25,
+      hp:220, atk:55, def:25,
       exp:200, gold:999,
       area:[], isBoss:true,
       color:'#cc0000',

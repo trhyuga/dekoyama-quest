@@ -273,13 +273,22 @@ const UI = (() => {
   }
 
   function _showYesNo(onYes, onNo) {
-    // 簡易YES/NOをメッセージウィンドウに追記
-    showMessage('「はい」・・・タップ\n「いいえ」・・・もう一度タップ', () => {
-      // 1回目タップ→YES
+    const elMsg = document.getElementById('message-text');
+    const elHint = document.getElementById('message-tap-hint');
+    elHint.classList.add('hidden');
+    elMsg.innerHTML =
+      '<div style="display:flex;gap:16px;justify-content:center;margin-top:8px">' +
+      '<button class="battle-btn" id="_yn-yes" style="flex:1;padding:10px">はい</button>' +
+      '<button class="battle-btn" id="_yn-no"  style="flex:1;padding:10px">やめる</button>' +
+      '</div>';
+    document.getElementById('_yn-yes').addEventListener('click', () => {
       if (onYes) onYes();
       MapEngine.setMoveLock(false);
     });
-    // 実装簡略化：タップ=YES
+    document.getElementById('_yn-no').addEventListener('click', () => {
+      if (onNo) onNo();
+      MapEngine.setMoveLock(false);
+    });
   }
 
   // ── ステータス確認オーバーレイ ────────────────────────────
