@@ -515,6 +515,13 @@ const GameData = {
       effect:'mp_heal', power:20,
       desc:'MPを20かいふくする',
     },
+    elixir: {
+      id:'elixir', name:'エリクサー',
+      price:0, sellPrice:100,
+      type:'consumable',
+      effect:'elixir', power:0,
+      desc:'HPとMPを全かいふくする',
+    },
     copper_sword: {
       id:'copper_sword', name:'どうのけん',
       price:120, sellPrice:60,
@@ -532,6 +539,12 @@ const GameData = {
       price:0, sellPrice:0,
       type:'weapon', atk:40,
       desc:'こうげきりょく+40\nまおうにこうかてき',
+    },
+    kings_sword: {
+      id:'kings_sword', name:'おうじゃのけん',
+      price:0, sellPrice:0,
+      type:'weapon', atk:50,
+      desc:'こうげきりょく+50\nでんせつのけん',
     },
     leather_armor: {
       id:'leather_armor', name:'かわのよろい',
@@ -717,6 +730,31 @@ const GameData = {
       minLv:6, maxLv:7,
       color:'#333366',
       spells:['gira'],
+    },
+
+    // ── レア・特殊敵 ──────────────────────────────────────
+    metal_slime: {
+      id:'metal_slime', name:'はぐれメタル',
+      hp:60, atk:15, def:999,
+      exp:500, gold:10,
+      area:['world'],
+      minLv:4, maxLv:10,
+      color:'#c0c0d0',
+      spells:[],
+      weight:1,  // 出現率低い（通常敵は10）
+      physImmune:false,
+    },
+    goldman: {
+      id:'goldman', name:'ゴールドマン',
+      hp:80, atk:50, def:999,
+      exp:8, gold:3000,
+      area:['world','maou_castle'],
+      minLv:6, maxLv:10,
+      color:'#daa520',
+      spells:[],
+      weight:2,
+      physImmune:true,  // 物理ダメージ常に1
+      requireBoss:'dungeon2_boss',
     },
 
     // ── 魔王城 敵 ──────────────────────────────────────────

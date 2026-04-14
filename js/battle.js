@@ -850,6 +850,85 @@ const Battle = (() => {
       ctx.fill();
     },
 
+    // ── はぐれメタル ──────────────────────────────────────
+    metal_slime(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.50, r=Math.min(W,H)*0.28;
+      // メタリックなしずく型の体
+      const grad = ctx.createRadialGradient(cx-r*0.2,cy-r*0.3,0, cx,cy,r*1.2);
+      grad.addColorStop(0,'#f0f0ff');
+      grad.addColorStop(0.4,'#b0b0d0');
+      grad.addColorStop(1,'#606080');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy-r*1.1);
+      ctx.quadraticCurveTo(cx+r*1.0,cy-r*0.1, cx+r*0.7,cy+r*0.5);
+      ctx.quadraticCurveTo(cx,cy+r*0.9, cx-r*0.7,cy+r*0.5);
+      ctx.quadraticCurveTo(cx-r*1.0,cy-r*0.1, cx,cy-r*1.1);
+      ctx.fill();
+      // 光沢
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.beginPath();
+      ctx.ellipse(cx-r*0.2,cy-r*0.4, r*0.2,r*0.12, -0.4,0,Math.PI*2);
+      ctx.fill();
+      // 目
+      ctx.fillStyle = '#111';
+      ctx.beginPath(); ctx.arc(cx-r*0.25,cy-r*0.05,r*0.07,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+r*0.25,cy-r*0.05,r*0.07,0,Math.PI*2); ctx.fill();
+      // にやり口
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(cx,cy+r*0.2, r*0.15, 0.1, Math.PI-0.1);
+      ctx.stroke();
+    },
+
+    // ── ゴールドマン ─────────────────────────────────────
+    goldman(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.45, r=Math.min(W,H)*0.26;
+      // 体（金色のずんぐり）
+      const grad = ctx.createRadialGradient(cx-r*0.2,cy-r*0.2,0, cx,cy+r*0.3,r*1.5);
+      grad.addColorStop(0,'#ffe870');
+      grad.addColorStop(0.5,'#daa520');
+      grad.addColorStop(1,'#8b6914');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(cx,cy+r*0.3, r*1.0,r*1.3, 0,0,Math.PI*2);
+      ctx.fill();
+      // 頭
+      ctx.beginPath();
+      ctx.ellipse(cx,cy-r*0.5, r*0.65,r*0.6, 0,0,Math.PI*2);
+      ctx.fill();
+      // 金の光沢
+      ctx.fillStyle = 'rgba(255,255,200,0.4)';
+      ctx.beginPath();
+      ctx.ellipse(cx-r*0.3,cy-r*0.7, r*0.25,r*0.15, -0.3,0,Math.PI*2);
+      ctx.fill();
+      // 目（宝石風）
+      ctx.fillStyle = '#cc0000';
+      ctx.beginPath(); ctx.arc(cx-r*0.25,cy-r*0.55,r*0.1,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+r*0.25,cy-r*0.55,r*0.1,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ff4444';
+      ctx.beginPath(); ctx.arc(cx-r*0.22,cy-r*0.57,r*0.04,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+r*0.28,cy-r*0.57,r*0.04,0,Math.PI*2); ctx.fill();
+      // 口
+      ctx.fillStyle = '#8b4513';
+      ctx.beginPath();
+      ctx.moveTo(cx-r*0.2,cy-r*0.25);
+      ctx.quadraticCurveTo(cx,cy-r*0.1, cx+r*0.2,cy-r*0.25);
+      ctx.closePath();
+      ctx.fill();
+      // 腕
+      ctx.fillStyle = '#daa520';
+      ctx.beginPath(); ctx.ellipse(cx-r*1.1,cy+r*0.3, r*0.22,r*0.5, 0.3,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*1.1,cy+r*0.3, r*0.22,r*0.5, -0.3,0,Math.PI*2); ctx.fill();
+      // Gマーク
+      ctx.fillStyle = '#8b6914';
+      ctx.font = `bold ${r*0.7}px 'DotGothic16',monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('G', cx, cy+r*0.35);
+    },
+
     // ── デフォルト（未定義の敵用） ───────────────────────
     _default(ctx, W, H, col) {
       const cx=W/2, cy=H*0.5, r=Math.min(W,H)*0.28;
@@ -897,6 +976,7 @@ const Battle = (() => {
     bstate.bossId     = bossId;
     bstate.phase2     = false;
     bstate.waitingCmd = false;
+    bstate.trueMaou   = false;
 
     MapEngine.setMoveLock(true);
     _showBattleScreen(bstate.enemy);
@@ -948,8 +1028,13 @@ const Battle = (() => {
 
     // かいしんのいちげき判定（1/16 ≈ 6%）
     const isCrit = Math.random() < 1/16;
-    const normalDmg = _calcDamage(player.atk + atkBonus, enemy.def);
-    const dmg = isCrit ? normalDmg * 2 : normalDmg;
+    let dmg;
+    if (enemy.physImmune) {
+      dmg = 1; // 物理免疫
+    } else {
+      const normalDmg = _calcDamage(player.atk + atkBonus, enemy.def);
+      dmg = isCrit ? normalDmg * 2 : normalDmg;
+    }
     bstate.enemyHp -= dmg;
     _updateHpBar(bstate.enemyHp, bstate.enemyMaxHp);
 
@@ -1019,6 +1104,12 @@ const Battle = (() => {
       Game.setPoison(false);
       Sound.curePoison();
       UI.showMessage(`${item.name}をつかった！\nどくが　なおった！`, () => _enemyTurn());
+    } else if (item.effect === 'elixir') {
+      Game.removeItem(itemId);
+      Game.healHp(9999);
+      Game.healMp(9999);
+      Sound.heal();
+      UI.showMessage(`${item.name}をつかった！\nHPとMPが　ぜんかいふくした！`, () => _enemyTurn());
     } else {
       UI.showMessage('いまは　つかえない。', () => _waitCommand());
     }
@@ -1144,6 +1235,33 @@ const Battle = (() => {
   function _endBattle(won) {
     bstate.active = false;
     UI.showBattleMenu(false);
+
+    // 真の魔王：Lv10で魔王撃破時、全回復してパワーアップ再戦
+    if (won && bstate.bossId === 'maou' && Game.getPlayer().level >= 10 && !bstate.trueMaou) {
+      bstate.trueMaou = true;
+      UI.showMessage('まおう:ふふふ…\nなかなか　やるではないか…', () => {
+        UI.showMessage('しかし　これが\nわしの　しんの　ちからだ！！', () => {
+          Sound.bossEncounter();
+          // 真の魔王ステータス
+          bstate.active = true;
+          bstate.enemy = {
+            ...bstate.enemy,
+            name:'しんのまおう',
+            hp:450, atk:130, def:45,
+            spells:['bagi','behoimi'],
+            phase2Hp:200,
+          };
+          bstate.enemyHp    = 450;
+          bstate.enemyMaxHp = 450;
+          bstate.phase2     = false;
+          _updateHpBar(450, 450);
+          _showBattleScreen(bstate.enemy);
+          UI.showMessage('しんのまおうが\nすがたを　あらわした！！', () => _waitCommand());
+        });
+      });
+      return;
+    }
+
     _hideBattleScreen();
     MapEngine.setMoveLock(false);
     if (won && bstate.bossId === 'maou') {

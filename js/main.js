@@ -30,6 +30,9 @@ const Game = (() => {
   let _kingGoldGiven    = false;
   let _queenItemGiven   = false;
   let _spellPowerDoubled = false;
+  let _deathCount       = 0;
+  let _queenElixirGiven = false;
+  let _kingSwordGiven   = false;
 
   // ── 初期化 ────────────────────────────────────────────────
   function init() {
@@ -76,6 +79,9 @@ const Game = (() => {
       _queenItemGiven    = false;
       _spellPowerDoubled = false;
       _slimeGiftGiven    = false;
+      _deathCount        = 0;
+      _queenElixirGiven  = false;
+      _kingSwordGiven    = false;
       _startOpening();
     }
     function onStartTouch(e) {
@@ -314,8 +320,19 @@ const Game = (() => {
       };
     }
     // 2回目以降
+    if (MapEngine.isBossCleared('dungeon2_boss') && !_kingSwordGiven) {
+      _kingSwordGiven = true;
+      return {
+        lines: GameData.NPC.king_after_d2,
+        onClose: () => {
+          addItem('kings_sword');
+          Sound.chest();
+          UI.showMessage('おうさまから\nおうじゃのけんを　もらった！\nでんせつの　けんだ！', null);
+        }
+      };
+    }
     if (MapEngine.isBossCleared('dungeon2_boss')) {
-      return { lines: GameData.NPC.king_after_d2, onClose: null };
+      return { lines: ['まおうは　さらに\nつよくなっているだろう。\nきをつけよ！'], onClose: null };
     } else if (MapEngine.isBossCleared('dungeon1_boss')) {
       return { lines: GameData.NPC.king_after_d1, onClose: null };
     } else {
@@ -334,6 +351,18 @@ const Game = (() => {
         onClose: () => {
           addItem('bamboo_spear');
           UI.showMessage('おうひさまから\nたけのやりを　もらった！', null);
+        }
+      };
+    }
+    // 5回以上死に戻り→エリクサー
+    if (_deathCount >= 5 && !_queenElixirGiven) {
+      _queenElixirGiven = true;
+      return {
+        lines: ['まあ　でこやまさん\nそんなに　ぼろぼろに\nなって…。', 'これを　おもちなさい。\nきっと　やくに　たつわ。'],
+        onClose: () => {
+          for (let i = 0; i < 5; i++) player.items.push('elixir');
+          Sound.chest();
+          UI.showMessage('おうひさまから\nエリクサーを　５つ　もらった！', null);
         }
       };
     }
@@ -389,6 +418,7 @@ const Game = (() => {
   }
 
   function revive() {
+    _deathCount++;
     // 復活：HP/MP全回復・毒解除・金半減
     player.hp       = player.maxHp;
     player.mp       = player.maxMp;
@@ -403,7 +433,7 @@ const Game = (() => {
       version: 1,
       player: JSON.parse(JSON.stringify(player)),
       map:    MapEngine.getMapState(),
-      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven },
+      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven, deathCount: _deathCount, queenElixirGiven: _queenElixirGiven, kingSwordGiven: _kingSwordGiven },
     };
     try {
       localStorage.setItem('dekoyama_save', JSON.stringify(data));
@@ -424,6 +454,9 @@ const Game = (() => {
       _queenItemGiven    = data.flags ? data.flags.queenItemGiven    : false;
       _spellPowerDoubled = data.flags ? data.flags.spellPowerDoubled : false;
       _slimeGiftGiven    = data.flags ? data.flags.slimeGiftGiven    : false;
+      _deathCount        = data.flags ? (data.flags.deathCount || 0) : 0;
+      _queenElixirGiven  = data.flags ? !!data.flags.queenElixirGiven : false;
+      _kingSwordGiven    = data.flags ? !!data.flags.kingSwordGiven   : false;
       UI.updateStatus(player);
       UI.showScene('game');
       setTimeout(() => {
