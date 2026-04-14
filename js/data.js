@@ -43,7 +43,7 @@ const GameData = {
   ],
 
   // ランダムエンカウント発生タイル
-  ENCOUNTER_TILES: [0, 4, 5], // 草・砂・道
+  ENCOUNTER_TILES: [0, 4, 5, 7], // 草・砂・道・床（ダンジョン内）
 
   // ============================================================
   //  タイルカラー（Canvas描画用）
@@ -257,7 +257,8 @@ const GameData = {
       name: 'くさのどうくつ',
       width: 14,
       height: 14,
-      encounter_rate: 0.12,
+      encounter_rate: 0.22,
+      isDungeon: true,
       data: [
         6,6,6,6,6,6,6,6,6,6,6,6,6,6,
         6,7,7,7,7,6,6,6,6,6,6,6,6,6,
@@ -293,7 +294,8 @@ const GameData = {
       name: 'まのとう',
       width: 14,
       height: 16,
-      encounter_rate: 0.14,
+      encounter_rate: 0.24,
+      isDungeon: true,
       data: [
         6,6,6,6,6,6,6,6,6,6,6,6,6,6,
         6,7,7,7,7,6,6,6,6,6,6,6,6,6,
@@ -327,7 +329,8 @@ const GameData = {
       name: 'まおうじょう',
       width: 16,
       height: 18,
-      encounter_rate: 0.18,
+      encounter_rate: 0.28,
+      isDungeon: true,
       data: [
         6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
         6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,6,
@@ -557,7 +560,7 @@ const GameData = {
     },
     drakee: {
       id:'drakee', name:'ドラキー',
-      hp:12, atk:7, def:3,
+      hp:28, atk:7, def:5,
       exp:5, gold:35,
       area:['world'],
       minLv:2, maxLv:4,
@@ -566,19 +569,20 @@ const GameData = {
     },
     ghost: {
       id:'ghost', name:'ゴースト',
-      hp:18, atk:10, def:5,
+      hp:35, atk:30, def:8,
       exp:8, gold:55,
       area:['world'],
       minLv:3, maxLv:6,
       color:'#aaaacc',
       spells:['hoimi'],
+      poison:true,
     },
     wyvern: {
       id:'wyvern', name:'ワイバーン',
-      hp:28, atk:16, def:8,
+      hp:80, atk:58, def:14,
       exp:14, gold:80,
       area:['world'],
-      minLv:5, maxLv:8,
+      minLv:6, maxLv:8,
       color:'#448844',
       spells:[],
     },
@@ -586,7 +590,7 @@ const GameData = {
     // ── ダンジョン1 敵 ────────────────────────────────────
     skeleton: {
       id:'skeleton', name:'スケルトン',
-      hp:22, atk:12, def:6,
+      hp:22, atk:28, def:6,
       exp:10, gold:70,
       area:['dungeon1'],
       minLv:3, maxLv:5,
@@ -595,7 +599,7 @@ const GameData = {
     },
     zombie: {
       id:'zombie', name:'ゾンビ',
-      hp:30, atk:14, def:8,
+      hp:30, atk:32, def:8,
       exp:12, gold:90,
       area:['dungeon1'],
       minLv:4, maxLv:5,
@@ -607,7 +611,7 @@ const GameData = {
     // ── ダンジョン2 敵 ────────────────────────────────────
     orc: {
       id:'orc', name:'オーク',
-      hp:40, atk:20, def:12,
+      hp:40, atk:58, def:12,
       exp:18, gold:120,
       area:['dungeon2'],
       minLv:5, maxLv:7,
@@ -616,7 +620,7 @@ const GameData = {
     },
     dark_knight: {
       id:'dark_knight', name:'あんこくきし',
-      hp:55, atk:26, def:16,
+      hp:55, atk:66, def:52,
       exp:24, gold:160,
       area:['dungeon2'],
       minLv:6, maxLv:7,
@@ -627,16 +631,17 @@ const GameData = {
     // ── 魔王城 敵 ──────────────────────────────────────────
     death_bat: {
       id:'death_bat', name:'デスバット',
-      hp:50, atk:28, def:14,
+      hp:50, atk:85, def:14,
       exp:20, gold:140,
       area:['maou_castle'],
       minLv:6, maxLv:8,
       color:'#220022',
       spells:[],
+      poison:true,
     },
     hell_guard: {
       id:'hell_guard', name:'ヘルガード',
-      hp:70, atk:34, def:20,
+      hp:70, atk:95, def:82,
       exp:28, gold:200,
       area:['maou_castle'],
       minLv:7, maxLv:8,
@@ -647,7 +652,7 @@ const GameData = {
     // ── ボス ──────────────────────────────────────────────
     dungeon1_boss: {
       id:'dungeon1_boss', name:'アームライオン',
-      hp:80, atk:18, def:10,
+      hp:80, atk:36, def:10,
       exp:40, gold:300,
       area:[], isBoss:true,
       color:'#aa6600',
@@ -656,8 +661,8 @@ const GameData = {
     },
     dungeon2_boss: {
       id:'dungeon2_boss', name:'ダークドラゴン',
-      hp:140, atk:30, def:18,
-      exp:70, gold:500,
+      hp:180, atk:72, def:22,
+      exp:90, gold:600,
       area:[], isBoss:true,
       color:'#220044',
       spells:['gira'],
@@ -665,7 +670,7 @@ const GameData = {
     },
     maou: {
       id:'maou', name:'まおう',
-      hp:220, atk:45, def:25,
+      hp:220, atk:90, def:25,
       exp:200, gold:999,
       area:[], isBoss:true,
       color:'#cc0000',
@@ -704,20 +709,20 @@ const GameData = {
   ],
 
   ENDING_LINES: [
-    'まおう デコゾーンは\nたおれた。',
-    'くらやみをきりさき\nひかりが　さしこんできた。',
-    'そこには　おひめさまが\nりんとした　すがたで\nたっていた。',
-    'ゆうしゃさま…\nよくぞ　きてくださいました。\nいっしょに　かえりましょう。',
-    'ふたりは　てをとりあい\nでこやまじょうへと\nかえっていった。',
-    'そして　でこやまのくには\nふたたび　へいわを\nとりもどした。',
-    'おうさまは　おおいに\nよろこび　こういった。',
-    'ありがとう　でこやまよ！\nそちの　ゆうきと　ちからが\nこのくにを　すくった！',
-    'でこやまよ　よかったら\nこのしろに　のこり\nひめのそばに　いてくれぬか？',
-    '「はい」「いいえ」',
-    // ---- はい ---
-    'でこやまは　おうさまの\nことばをうけいれ\nじょうにのこることに\nした。',
-    'やがて　ふたりは\nむつまじい　ふうふと\nなり　おだやかな　ひびを\nすごしたという。',
-    'おわり',
+    'まおう:ぐはぁぁぁ！\nおまえに　せかいのはんぶんを…',
+    'ぐはぁっ！ちょ、ちょっと　まて。\nぐはぁ！おのれ！ふいうちとは！\nなんと　ずるいやつ。',
+    'こうなったら、\nくらえっ！ひっさつのっ\nぐはぁっ！！',
+    'ちょ、おまっ、わざださせろっ！\nぐはぁっ！！',
+    'かくして、まおうは　たおされた。',
+    'まおうは　いう\nひかりあるかぎり\nやみもまたある…。',
+    'わしは　してんのう　さいじゃく。\nふたたび　なにものかが\nやみから　あらわれよう…。',
+    'わははは…っ。ぐふっ！',
+    'おひめさま:\nでこやまさん ありがとう。\nさあ いきましょう！',
+    'みんなのまつ\nがれふあるどのおしろへ！',
+    'おおさま:おお でこやま！\nよくぞ まおうを たおした！\nそなたこそ まことの ゆうしゃ！',
+    'これからは でんせつの\nゆうしゃ デコとして\nこのよに そのなを\nのこすがよい！',
+    'そして　かした　50Gは\nりしをつけて\nかえすがよい！',
+    'Fin',
   ],
 
 };

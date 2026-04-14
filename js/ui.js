@@ -144,6 +144,12 @@ const UI = (() => {
     elStatusMp.textContent = `MP:${mpStr}/${mmStr}`;
     const elGold = document.getElementById('status-gold');
     if (elGold) elGold.textContent = `G:${String(player.gold).padStart(4)}`;
+    // 毒状態表示
+    const elName = document.getElementById('status-name');
+    if (elName) {
+      elName.textContent = player.poisoned ? 'でこやま[どく]' : 'でこやま';
+      elName.style.color = player.poisoned ? '#cc44ff' : '';
+    }
   }
 
   // ── 戦闘メニュー ─────────────────────────────────────────
@@ -237,6 +243,7 @@ const UI = (() => {
         }
         Game.buyItem(itemId);
         elShopTitle.textContent = `${shop.name}　（${player.gold}Ｇ）`;
+        Sound.buy();
         showMessage(`${item.name}を\nかいました！`, null);
       });
       elShopList.appendChild(btn);
@@ -273,13 +280,20 @@ const UI = (() => {
   }
 
   function _showYesNo(onYes, onNo) {
-    // 簡易YES/NOをメッセージウィンドウに追記
-    showMessage('「はい」・・・タップ\n「いいえ」・・・もう一度タップ', () => {
-      // 1回目タップ→YES
-      if (onYes) onYes();
-      MapEngine.setMoveLock(false);
-    });
-    // 実装簡略化：タップ=YES
+    const elMsg = document.getElementById('message-text');
+    const elHint = document.getElementById('message-tap-hint');
+    elHint.classList.add('hidden');
+    elMsg.innerHTML =
+      '<div style="display:flex;gap:16px;justify-content:center;margin-top:8px">' +
+      '<button class="battle-btn" id="_yn-yes" style="flex:1;padding:10px">はい</button>' +
+      '<button class="battle-btn" id="_yn-no"  style="flex:1;padding:10px">やめる</button>' +
+      '</div>';
+    function doYes(e) { e.preventDefault(); e.stopPropagation(); if (onYes) onYes(); MapEngine.setMoveLock(false); }
+    function doNo(e)  { e.preventDefault(); e.stopPropagation(); if (onNo)  onNo();  MapEngine.setMoveLock(false); }
+    document.getElementById('_yn-yes').addEventListener('click', doYes);
+    document.getElementById('_yn-yes').addEventListener('touchstart', doYes, { passive: false });
+    document.getElementById('_yn-no').addEventListener('click', doNo);
+    document.getElementById('_yn-no').addEventListener('touchstart', doNo, { passive: false });
   }
 
   // ── ステータス確認オーバーレイ ────────────────────────────
@@ -460,20 +474,25 @@ const UI = (() => {
         elText.style.opacity = '1';
 
         if (isLast) {
-          elText.style.fontSize = '24px';
+          elText.style.fontSize = '48px';
           elText.style.textAlign = 'center';
           elText.style.color = '#f8e800';
-          return; // おわり表示で終了
+          elText.style.fontFamily = "'Great Vibes', cursive";
+          elText.style.letterSpacing = '4px';
+          elText.style.transition = 'opacity 2s';
+          return; // Fin表示で終了
         }
 
-        elHint.classList.remove('hidden');
-
-        function onTap(e) {
-          if (e) e.preventDefault();
-          nextLine();
-        }
-        cont.addEventListener('click', onTap, { once: true });
-        cont.addEventListener('touchstart', onTap, { once: true, passive: false });
+        // 読み飛ばし防止：3秒後にタップ受付開始
+        setTimeout(() => {
+          elHint.classList.remove('hidden');
+          function onTap(e) {
+            if (e) e.preventDefault();
+            nextLine();
+          }
+          cont.addEventListener('click', onTap, { once: true });
+          cont.addEventListener('touchstart', onTap, { once: true, passive: false });
+        }, 3000);
       }, 300);
     }
     nextLine();

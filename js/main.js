@@ -20,6 +20,7 @@ const PLAYER_INIT = () => ({
   shield : null,
   spells : [],
   items  : ['herb','herb'], // 初期アイテム
+  poisoned: false,
 });
 
 // ── ゲームグローバル状態 ─────────────────────────────────────
@@ -54,6 +55,7 @@ const Game = (() => {
 
   // ── タイトル画面 ──────────────────────────────────────────
   function _showTitle() {
+    Sound.title();
     UI.showScene('title');
 
     // 画面のどこをタップしてもゲーム開始
@@ -91,6 +93,7 @@ const Game = (() => {
   // ── エンディング ──────────────────────────────────────────
   function startEnding() {
     MapEngine.setMoveLock(true);
+    Sound.ending();
     UI.showEnding(GameData.ENDING_LINES, () => {
       // エンディング終了→タイトルに戻る
       setTimeout(() => {
@@ -112,7 +115,9 @@ const Game = (() => {
         player.gold -= cost;
         player.hp   = player.maxHp;
         player.mp   = player.maxMp;
+        player.poisoned = false;
         UI.updateStatus(player);
+        Sound.inn();
         UI.showMessage(
           'ゆっくり　やすんだ。\nHPと　MPが　かいふくした！',
           null
@@ -332,6 +337,9 @@ const Game = (() => {
     return !!localStorage.getItem('dekoyama_save');
   }
 
+  function setPoison(v) { player.poisoned = !!v; UI.updateStatus(player); }
+  function isPoisoned() { return !!player.poisoned; }
+
   function getPlayer() { return player; }
 
   // ── エントリーポイント ────────────────────────────────────
@@ -357,6 +365,8 @@ const Game = (() => {
     saveGame,
     loadGame,
     hasSaveData,
+    setPoison,
+    isPoisoned,
   };
 
 })();

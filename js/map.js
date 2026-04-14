@@ -15,7 +15,10 @@ const MapEngine = (() => {
     stepCount    : 0,      // エンカウントカウンタ
     openedChests : {},     // { mapId_x_y: true }
     clearedBoss  : {},     // { bossId: true }
+    torchLife    : 0,      // たいまつ残り歩数
   };
+
+  const TORCH_MAX = 40;   // たいまつ1本の持続歩数
 
   // ── Canvas設定 ────────────────────────────────────────────
   let canvas, ctx;
@@ -56,6 +59,12 @@ const MapEngine = (() => {
     state.currentMapId = mapId;
     state.playerX = (destX !== undefined) ? destX : mapDef.startX;
     state.playerY = (destY !== undefined) ? destY : mapDef.startY;
+    // ダンジョン進入時：たいまつ自動消費
+    if (mapDef.isDungeon && !_isDungeonBossCleared()) {
+      _tryLightTorch(true);
+    } else {
+      state.torchLife = 0;
+    }
     // シーンが表示済みの状態で呼ばれるため、ここで正しいサイズを取得する
     _resizeCanvas();
     _centerCamera();
@@ -153,11 +162,42 @@ const MapEngine = (() => {
   }
 
   function _afterMove() {
+    const map    = _currentMap();
     const tileId = _getTile(state.playerX, state.playerY);
+
+    // ダンジョン内たいまつ消費
+    if (map.isDungeon && !_isDungeonBossCleared()) {
+      if (state.torchLife > 0) {
+        state.torchLife--;
+        if (state.torchLife === 0) {
+          // 消えた → 予備があれば自動点火
+          if (!_tryLightTorch(false)) {
+            UI.showMessage('たいまつが　きえてしまった！', null);
+          }
+        }
+        render(); // 明るさ更新
+      }
+    }
+
+    // フィールド毒ダメージ（毎歩1ダメージ）
+    if (Game.isPoisoned()) {
+      Game.takeDamage(1);
+      if (Game.getPlayer().hp <= 0) {
+        // 毒死→復活
+        UI.showMessage('どくで　たおれてしまった…', () => {
+          Game.revive();
+          Game.setPoison(false);
+          loadMap('throne_room', 4, 8);
+          UI.showNpcDialog([
+            'おお　でこやまよ。\nどくには　きをつけよ。',
+          ]);
+        });
+        return;
+      }
+    }
 
     // エンカウント判定
     if (GameData.ENCOUNTER_TILES.includes(tileId)) {
-      const map = _currentMap();
       const rate = map.encounter_rate || 0;
       state.stepCount++;
       // 4歩以上歩いたら確率エンカウント
@@ -169,10 +209,43 @@ const MapEngine = (() => {
     }
   }
 
+  // ── たいまつ点火 ─────────────────────────────────────────
+  function _tryLightTorch(isEntry) {
+    const player = Game.getPlayer();
+    if (player.items.includes('torch')) {
+      Game.removeItem('torch');
+      state.torchLife = TORCH_MAX;
+      if (!isEntry) {
+        UI.showMessage('つぎの　たいまつに\nひをつけた！', null);
+      }
+      return true;
+    }
+    state.torchLife = 0;
+    if (isEntry) {
+      // 入った時にたいまつがない警告は少し遅延
+      setTimeout(() => {
+        UI.showMessage('たいまつがない！\nまっくらだ…', null);
+      }, 400);
+    }
+    return false;
+  }
+
+  // ── ダンジョンボス撃破チェック ───────────────────────────
+  function _isDungeonBossCleared() {
+    const map = _currentMap();
+    if (!map.events) return false;
+    for (const ev of map.events) {
+      if (ev.type === 'boss' && state.clearedBoss[ev.bossId]) return true;
+    }
+    return false;
+  }
+
   function _triggerEncounter() {
     const map     = _currentMap();
+    const pLv = Game.getPlayer().level;
     const enemies = Object.values(GameData.ENEMIES).filter(e =>
-      e.area && e.area.includes(map.id) && !e.isBoss
+      e.area && e.area.includes(map.id) && !e.isBoss &&
+      (!e.minLv || pLv >= e.minLv - 2)
     );
     if (enemies.length === 0) return;
     const enemy = enemies[Math.floor(Math.random() * enemies.length)];
@@ -203,6 +276,7 @@ const MapEngine = (() => {
         setTimeout(() => {
           loadMap(ev.dest, ev.destX, ev.destY);
           if (typeof UI !== 'undefined') {
+            Sound.teleport();
             UI.showMessage(_mapTransitionMsg(ev.dest));
           }
         }, 200);
@@ -220,6 +294,7 @@ const MapEngine = (() => {
         const item = GameData.ITEMS[ev.item];
         if (typeof Game !== 'undefined') Game.addItem(ev.item);
         if (typeof UI !== 'undefined') {
+          Sound.chest();
           let msg = `たからばこをあけた！\n${item.name}を てにいれた！`;
           // 鍵アイテムには用途ヒントを追加
           if (ev.item === 'iron_key') {
@@ -404,6 +479,43 @@ const MapEngine = (() => {
     const px = (state.playerX - state.cameraX) * tileSize;
     const py = (state.playerY - state.cameraY) * tileSize;
     _drawPlayer(ctx, px, py, tileSize);
+
+    // ダンジョン暗闇オーバーレイ
+    if (map.isDungeon && !_isDungeonBossCleared()) {
+      _renderDarkness(tileSize, viewH);
+    }
+  }
+
+  // ── 暗闇描画 ─────────────────────────────────────────────
+  function _renderDarkness(tileSize, viewH) {
+    // たいまつの明るさ半径（タイル単位）
+    const radius = state.torchLife > 0
+      ? 1.5 + 3.5 * (state.torchLife / TORCH_MAX)  // 1.5〜5.0
+      : 0.8;                                        // たいまつなし：ほぼ足元のみ
+
+    for (let row = 0; row < viewH; row++) {
+      for (let col = 0; col < VIEW_W; col++) {
+        const mx = state.cameraX + col;
+        const my = state.cameraY + row;
+        const dx = mx - state.playerX;
+        const dy = my - state.playerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        let alpha;
+        if (dist <= radius - 0.5) {
+          alpha = 0;                              // 明るい
+        } else if (dist <= radius + 0.5) {
+          alpha = (dist - radius + 0.5);          // グラデーション
+        } else {
+          alpha = 1;                              // 真っ暗
+        }
+
+        if (alpha > 0) {
+          ctx.fillStyle = `rgba(0,0,0,${Math.min(1, alpha)})`;
+          ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
+        }
+      }
+    }
   }
 
   function _drawTile(ctx, x, y, size, tileId, mx, my) {
