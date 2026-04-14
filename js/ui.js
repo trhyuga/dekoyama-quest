@@ -476,18 +476,35 @@ const UI = (() => {
     const elHint = document.getElementById('ending-tap-hint');
     const cont   = document.getElementById('ending-content');
     let i = 0;
+    let canTap = false;
 
-    // 全テキストを順番に表示（フェードイン風）
+    function onTap(e) {
+      if (e) e.preventDefault();
+      if (!canTap) return;
+      canTap = false;
+      nextLine();
+    }
+    function onTouchTap(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      onTap(e);
+    }
+
+    cont.addEventListener('touchstart', onTouchTap, { passive: false });
+    cont.addEventListener('click', onTap);
+
     function nextLine() {
       if (i >= lines.length) {
+        cont.removeEventListener('touchstart', onTouchTap);
+        cont.removeEventListener('click', onTap);
         if (onFinish) onFinish();
         return;
       }
+      canTap = false;
       elText.style.opacity = '0';
       elHint.classList.add('hidden');
 
       const full = lines[i++];
-      // 最後の「おわり」は特別演出
       const isLast = (i === lines.length);
 
       setTimeout(() => {
@@ -502,18 +519,15 @@ const UI = (() => {
           elText.style.fontFamily = "'Great Vibes', cursive";
           elText.style.letterSpacing = '4px';
           elText.style.transition = 'opacity 2s';
-          return; // Fin表示で終了
+          cont.removeEventListener('touchstart', onTouchTap);
+          cont.removeEventListener('click', onTap);
+          return;
         }
 
-        // 読み飛ばし防止：3秒後にタップ受付開始
+        // 3秒後にタップ受付開始
         setTimeout(() => {
+          canTap = true;
           elHint.classList.remove('hidden');
-          function onTap(e) {
-            if (e) e.preventDefault();
-            nextLine();
-          }
-          cont.addEventListener('click', onTap, { once: true });
-          cont.addEventListener('touchstart', onTap, { once: true, passive: false });
         }, 3000);
       }, 300);
     }
