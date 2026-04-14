@@ -258,6 +258,7 @@ const GameData = {
       width: 14,
       height: 14,
       encounter_rate: 0.22,
+      isDungeon: true,
       data: [
         6,6,6,6,6,6,6,6,6,6,6,6,6,6,
         6,7,7,7,7,6,6,6,6,6,6,6,6,6,
@@ -294,6 +295,7 @@ const GameData = {
       width: 14,
       height: 16,
       encounter_rate: 0.24,
+      isDungeon: true,
       data: [
         6,6,6,6,6,6,6,6,6,6,6,6,6,6,
         6,7,7,7,7,6,6,6,6,6,6,6,6,6,
@@ -328,6 +330,7 @@ const GameData = {
       width: 16,
       height: 18,
       encounter_rate: 0.28,
+      isDungeon: true,
       data: [
         6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
         6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,6,
