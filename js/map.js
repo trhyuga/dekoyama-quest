@@ -1206,20 +1206,23 @@ const MapEngine = (() => {
           ctx.fillRect(x + 1, y + s - 4, 3, 3);
           ctx.fillRect(x + s - 4, y + s - 4, 3, 3);
         } else {
-          // 城下町：明るい石床（薄いグレー大理石）
-          ctx.fillStyle = isLight ? '#d2d2e0' : '#bebece';
+          // 城下町：温かみのある茶色の土道
+          ctx.fillStyle = isLight ? '#c4a070' : '#b89060';
           ctx.fillRect(x, y, s, s);
-          // 大理石の細かい筋
-          ctx.strokeStyle = `rgba(${isLight ? '155,155,185' : '125,125,160'},${0.18 + r1*0.14})`;
-          ctx.lineWidth = 0.6;
-          ctx.beginPath();
-          ctx.moveTo(x, y + r2*s*0.8);
-          ctx.quadraticCurveTo(x + r3*s, y + r1*s, x + s, y + (1-r2)*s*0.7 + s*0.15);
-          ctx.stroke();
-          // 石板目地
-          ctx.strokeStyle = 'rgba(60,60,90,0.45)';
-          ctx.lineWidth = 1.2;
-          ctx.strokeRect(x + 1.5, y + 1.5, s - 3, s - 3);
+          // 土の質感
+          ctx.fillStyle = `rgba(90,60,20,${0.08 + r1*0.10})`;
+          ctx.fillRect(x + r2*s*0.6, y + r3*s*0.5, s*0.3, s*0.25);
+          // 小石
+          if (r1 > 0.7) {
+            ctx.fillStyle = 'rgba(100,80,50,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(x+r2*s*0.7+s*0.1, y+r3*s*0.6+s*0.15, s*0.04, s*0.03, 0, 0, Math.PI*2);
+            ctx.fill();
+          }
+          // 目地線
+          ctx.strokeStyle = 'rgba(80,55,25,0.25)';
+          ctx.lineWidth = 0.8;
+          ctx.strokeRect(x + 1, y + 1, s - 2, s - 2);
         }
         // 床の光沢ハイライト
         ctx.fillStyle = 'rgba(255,255,255,0.10)';
@@ -1315,15 +1318,26 @@ const MapEngine = (() => {
         ctx.fillRect(x, y + s*0.96, s, s*0.04);
 
       } else {
-        // 城内建物タイル（石造りの建物壁）
-        ctx.fillStyle = '#444455';
+        // 城下町：ショップ周辺の緑の地面
+        const shade = 0.85 + r1*0.15;
+        ctx.fillStyle = `rgb(${Math.floor(50*shade)},${Math.floor(115*shade)},${Math.floor(38*shade)})`;
         ctx.fillRect(x, y, s, s);
-        ctx.fillStyle = 'rgba(180,180,220,0.1)';
-        ctx.fillRect(x, y, s, s*0.06);
+        // 草の質感
+        ctx.fillStyle = `rgba(70,150,45,${0.2 + r2*0.2})`;
+        ctx.fillRect(x + r1*s*0.5, y + r3*s*0.4, s*0.35, s*0.3);
+        if (r2 > 0.6) {
+          ctx.fillStyle = 'rgba(90,170,50,0.3)';
+          ctx.beginPath();
+          ctx.moveTo(x+r1*s*0.7+s*0.1, y+r3*s*0.6+s*0.1);
+          ctx.lineTo(x+r1*s*0.7+s*0.08, y+r3*s*0.6+s*0.22);
+          ctx.lineTo(x+r1*s*0.7+s*0.14, y+r3*s*0.6+s*0.22);
+          ctx.closePath();
+          ctx.fill();
+        }
       }
     } else if (tileId === T.ROAD) {
-      // 道（石畳の道）
-      ctx.fillStyle = '#5a5a40';
+      // 道（土の道）
+      ctx.fillStyle = '#a08050';
       ctx.fillRect(x, y, s, s);
       ctx.strokeStyle = 'rgba(0,0,0,0.35)';
       ctx.lineWidth = 1;
@@ -1904,85 +1918,67 @@ const MapEngine = (() => {
   // ── 城アイコン（城・王の間入口） ────────────────────────────
   function _drawCastleIcon(ctx, x, y, size) {
     const s = size;
-    // === 地面（土色） ===
-    ctx.fillStyle = '#8a7048';
+    // === 地面 ===
+    ctx.fillStyle = '#48803a';
     ctx.fillRect(x, y, s, s);
 
-    // === 木（左奥） ===
-    ctx.fillStyle = '#5a3820';
-    ctx.fillRect(x + s*0.04, y + s*0.30, s*0.06, s*0.25);
-    ctx.fillStyle = '#2a6e1a';
-    ctx.beginPath();
-    ctx.arc(x + s*0.07, y + s*0.24, s*0.12, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#1e5a10';
-    ctx.beginPath();
-    ctx.arc(x + s*0.03, y + s*0.28, s*0.09, 0, Math.PI*2);
-    ctx.fill();
+    // === 城壁 ===
+    ctx.fillStyle = '#a8a098';
+    ctx.fillRect(x + s*0.04, y + s*0.52, s*0.92, s*0.44);
+    ctx.fillStyle = '#8a8478';
+    ctx.fillRect(x + s*0.04, y + s*0.52, s*0.92, s*0.04);
+    // 銃眼
+    ctx.fillStyle = '#606058';
+    for (let i = 0; i < 6; i++) {
+      ctx.fillRect(x + s*0.07 + i*s*0.15, y + s*0.46, s*0.06, s*0.08);
+    }
 
-    // === 木（右奥） ===
-    ctx.fillStyle = '#5a3820';
-    ctx.fillRect(x + s*0.88, y + s*0.32, s*0.06, s*0.22);
-    ctx.fillStyle = '#2a6e1a';
+    // === 左の塔 ===
+    ctx.fillStyle = '#a8a098';
+    ctx.fillRect(x + s*0.04, y + s*0.24, s*0.20, s*0.72);
+    ctx.fillStyle = '#2040a0';
     ctx.beginPath();
-    ctx.arc(x + s*0.91, y + s*0.26, s*0.11, 0, Math.PI*2);
-    ctx.fill();
-
-    // === 奥の石塔（小さめ） ===
-    ctx.fillStyle = '#a09080';
-    ctx.fillRect(x + s*0.20, y + s*0.12, s*0.14, s*0.35);
-    ctx.fillStyle = '#8a4422';
-    ctx.beginPath();
-    ctx.moveTo(x + s*0.27, y + s*0.04);
-    ctx.lineTo(x + s*0.18, y + s*0.15);
-    ctx.lineTo(x + s*0.36, y + s*0.15);
+    ctx.moveTo(x + s*0.14, y + s*0.06);
+    ctx.lineTo(x + s*0.01, y + s*0.28);
+    ctx.lineTo(x + s*0.27, y + s*0.28);
     ctx.closePath();
     ctx.fill();
 
-    // === メインの建物（茶壁） ===
-    ctx.fillStyle = '#b89060';
-    ctx.fillRect(x + s*0.22, y + s*0.42, s*0.56, s*0.48);
-    // 屋根（茶色の三角）
-    ctx.fillStyle = '#7a4422';
+    // === 右の塔 ===
+    ctx.fillStyle = '#a8a098';
+    ctx.fillRect(x + s*0.76, y + s*0.24, s*0.20, s*0.72);
+    ctx.fillStyle = '#2040a0';
     ctx.beginPath();
-    ctx.moveTo(x + s*0.50, y + s*0.24);
-    ctx.lineTo(x + s*0.18, y + s*0.45);
-    ctx.lineTo(x + s*0.82, y + s*0.45);
+    ctx.moveTo(x + s*0.86, y + s*0.06);
+    ctx.lineTo(x + s*0.73, y + s*0.28);
+    ctx.lineTo(x + s*0.99, y + s*0.28);
     ctx.closePath();
     ctx.fill();
-    // 屋根ハイライト
-    ctx.fillStyle = '#905530';
+
+    // === 中央天守 ===
+    ctx.fillStyle = '#b8b0a8';
+    ctx.fillRect(x + s*0.30, y + s*0.18, s*0.40, s*0.38);
+    ctx.fillStyle = '#1838a0';
     ctx.beginPath();
-    ctx.moveTo(x + s*0.50, y + s*0.24);
-    ctx.lineTo(x + s*0.34, y + s*0.35);
-    ctx.lineTo(x + s*0.50, y + s*0.35);
+    ctx.moveTo(x + s*0.50, y + s*0.01);
+    ctx.lineTo(x + s*0.25, y + s*0.22);
+    ctx.lineTo(x + s*0.75, y + s*0.22);
     ctx.closePath();
     ctx.fill();
 
     // === 窓（黄色く光る） ===
     ctx.fillStyle = '#e8c840';
-    ctx.fillRect(x + s*0.30, y + s*0.52, s*0.10, s*0.10);
-    ctx.fillRect(x + s*0.60, y + s*0.52, s*0.10, s*0.10);
-    // 窓枠
-    ctx.strokeStyle = '#6a4020';
-    ctx.lineWidth = 0.8;
-    ctx.strokeRect(x + s*0.30, y + s*0.52, s*0.10, s*0.10);
-    ctx.strokeRect(x + s*0.60, y + s*0.52, s*0.10, s*0.10);
+    ctx.fillRect(x + s*0.42, y + s*0.28, s*0.07, s*0.07);
+    ctx.fillRect(x + s*0.52, y + s*0.28, s*0.07, s*0.07);
+    ctx.fillRect(x + s*0.08, y + s*0.34, s*0.07, s*0.07);
+    ctx.fillRect(x + s*0.84, y + s*0.34, s*0.07, s*0.07);
 
-    // === 扉 ===
-    ctx.fillStyle = '#5a3010';
-    ctx.fillRect(x + s*0.43, y + s*0.68, s*0.14, s*0.22);
+    // === 城門 ===
+    ctx.fillStyle = '#3a2200';
+    ctx.fillRect(x + s*0.40, y + s*0.64, s*0.20, s*0.32);
     ctx.beginPath();
-    ctx.arc(x + s*0.50, y + s*0.68, s*0.07, Math.PI, 0);
+    ctx.arc(x + s*0.50, y + s*0.64, s*0.10, Math.PI, 0);
     ctx.fill();
-
-    // === 手前の柵（木の柵） ===
-    ctx.fillStyle = '#6a5030';
-    for (let i = 0; i < 5; i++) {
-      ctx.fillRect(x + s*0.05 + i*s*0.20, y + s*0.88, s*0.04, s*0.12);
-    }
-    ctx.fillRect(x + s*0.03, y + s*0.90, s*0.94, s*0.025);
-    ctx.fillRect(x + s*0.03, y + s*0.95, s*0.94, s*0.025);
   }
 
   // ── 魔王城アイコン（暗い城・赤く光る窓） ──────────────────
