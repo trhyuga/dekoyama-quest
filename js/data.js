@@ -619,7 +619,7 @@ const GameData = {
     },
     dark_knight: {
       id:'dark_knight', name:'あんこくきし',
-      hp:55, atk:66, def:16,
+      hp:55, atk:66, def:52,
       exp:24, gold:160,
       area:['dungeon2'],
       minLv:6, maxLv:7,
@@ -639,7 +639,7 @@ const GameData = {
     },
     hell_guard: {
       id:'hell_guard', name:'ヘルガード',
-      hp:70, atk:95, def:20,
+      hp:70, atk:95, def:82,
       exp:28, gold:200,
       area:['maou_castle'],
       minLv:7, maxLv:8,
