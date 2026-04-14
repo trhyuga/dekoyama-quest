@@ -487,6 +487,12 @@ const MapEngine = (() => {
                 _drawDarkCastleIcon(ctx, sx, sy, tileSize);
               }
               // 魔王城は dungeon2_boss 撃破前は表示しない
+            } else if (d === 'dungeon1') {
+              _drawCaveIcon(ctx, sx, sy, tileSize);
+            } else if (d === 'dungeon2') {
+              _drawTowerIcon(ctx, sx, sy, tileSize);
+            } else if (d === 'desert_town') {
+              _drawDesertTownIcon(ctx, sx, sy, tileSize);
             } else {
               _drawBuildingIcon(ctx, sx, sy, tileSize);
             }
@@ -2002,6 +2008,148 @@ const MapEngine = (() => {
   }
 
   // ── 建物アイコン（一般的な家・店） ──────────────────────────
+  // ── くさのどうくつアイコン（洞窟入口） ─────────────────────
+  function _drawCaveIcon(ctx, x, y, size) {
+    const s = size;
+    // 岩山
+    ctx.fillStyle = '#5a4a3a';
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.08, y + s*0.95);
+    ctx.lineTo(x + s*0.20, y + s*0.18);
+    ctx.quadraticCurveTo(x + s*0.50, y - s*0.05, x + s*0.80, y + s*0.18);
+    ctx.lineTo(x + s*0.92, y + s*0.95);
+    ctx.closePath();
+    ctx.fill();
+    // 岩のハイライト
+    ctx.fillStyle = '#7a6a5a';
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.25, y + s*0.22);
+    ctx.quadraticCurveTo(x + s*0.50, y + s*0.05, x + s*0.75, y + s*0.22);
+    ctx.lineTo(x + s*0.60, y + s*0.38);
+    ctx.lineTo(x + s*0.40, y + s*0.38);
+    ctx.closePath();
+    ctx.fill();
+    // 洞窟の穴（暗いアーチ）
+    ctx.fillStyle = '#0a0008';
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.60, s*0.24, Math.PI, 0);
+    ctx.lineTo(x + s*0.74, y + s*0.95);
+    ctx.lineTo(x + s*0.26, y + s*0.95);
+    ctx.closePath();
+    ctx.fill();
+    // 穴の縁
+    ctx.strokeStyle = '#3a2a1a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.60, s*0.25, Math.PI, 0);
+    ctx.stroke();
+    // 穴の中の不気味な光
+    ctx.fillStyle = 'rgba(80,255,80,0.15)';
+    ctx.beginPath();
+    ctx.ellipse(x + s*0.50, y + s*0.68, s*0.12, s*0.08, 0, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // ── まのとうアイコン（暗い塔） ────────────────────────────
+  function _drawTowerIcon(ctx, x, y, size) {
+    const s = size;
+    // 塔本体
+    ctx.fillStyle = '#2a1a30';
+    ctx.fillRect(x + s*0.30, y + s*0.20, s*0.40, s*0.80);
+    // 上に向かって少し細くなる壁
+    ctx.fillStyle = '#221828';
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.25, y + s*0.95);
+    ctx.lineTo(x + s*0.32, y + s*0.20);
+    ctx.lineTo(x + s*0.68, y + s*0.20);
+    ctx.lineTo(x + s*0.75, y + s*0.95);
+    ctx.closePath();
+    ctx.fill();
+    // 尖り屋根
+    ctx.fillStyle = '#3a0a40';
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.50, y - s*0.02);
+    ctx.lineTo(x + s*0.26, y + s*0.24);
+    ctx.lineTo(x + s*0.74, y + s*0.24);
+    ctx.closePath();
+    ctx.fill();
+    // 屋根の先端
+    ctx.fillStyle = '#ff3300';
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.01, s*0.04, 0, Math.PI*2);
+    ctx.fill();
+    // 窓（赤く光る）
+    ctx.fillStyle = '#cc2200';
+    ctx.fillRect(x + s*0.43, y + s*0.34, s*0.14, s*0.10);
+    ctx.fillStyle = '#aa1100';
+    ctx.fillRect(x + s*0.43, y + s*0.54, s*0.14, s*0.10);
+    // 窓の光のグロウ
+    ctx.fillStyle = 'rgba(255,50,0,0.15)';
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.39, s*0.12, 0, Math.PI*2);
+    ctx.fill();
+    // 扉
+    ctx.fillStyle = '#110008';
+    ctx.fillRect(x + s*0.40, y + s*0.74, s*0.20, s*0.21);
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.74, s*0.10, Math.PI, 0);
+    ctx.fill();
+    // レンガ線
+    ctx.strokeStyle = '#1a1020';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < 6; i++) {
+      const ly = y + s*0.28 + i*s*0.11;
+      ctx.beginPath();
+      ctx.moveTo(x + s*0.28, ly);
+      ctx.lineTo(x + s*0.72, ly);
+      ctx.stroke();
+    }
+  }
+
+  // ── あらのの町アイコン（砂漠の町） ────────────────────────
+  function _drawDesertTownIcon(ctx, x, y, size) {
+    const s = size;
+    // メインの砂色の建物（ドーム屋根）
+    ctx.fillStyle = '#c8a862';
+    ctx.fillRect(x + s*0.15, y + s*0.45, s*0.45, s*0.50);
+    // ドーム屋根
+    ctx.fillStyle = '#d4b872';
+    ctx.beginPath();
+    ctx.arc(x + s*0.375, y + s*0.45, s*0.225, Math.PI, 0);
+    ctx.fill();
+    // 小さい建物（右）
+    ctx.fillStyle = '#b89850';
+    ctx.fillRect(x + s*0.58, y + s*0.55, s*0.30, s*0.40);
+    // 小さいドーム
+    ctx.fillStyle = '#c8a860';
+    ctx.beginPath();
+    ctx.arc(x + s*0.73, y + s*0.55, s*0.15, Math.PI, 0);
+    ctx.fill();
+    // 窓（暗い穴）
+    ctx.fillStyle = '#3a2810';
+    ctx.fillRect(x + s*0.28, y + s*0.55, s*0.10, s*0.10);
+    ctx.fillRect(x + s*0.65, y + s*0.62, s*0.08, s*0.08);
+    // 扉（アーチ型）
+    ctx.fillStyle = '#2a1808';
+    ctx.fillRect(x + s*0.32, y + s*0.75, s*0.12, s*0.20);
+    ctx.beginPath();
+    ctx.arc(x + s*0.38, y + s*0.75, s*0.06, Math.PI, 0);
+    ctx.fill();
+    // ヤシの木（左端）
+    ctx.fillStyle = '#6a4a20';
+    ctx.fillRect(x + s*0.02, y + s*0.40, s*0.05, s*0.55);
+    ctx.fillStyle = '#22880a';
+    ctx.beginPath();
+    ctx.ellipse(x + s*0.045, y + s*0.35, s*0.10, s*0.08, -0.3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(x + s*0.06, y + s*0.32, s*0.10, s*0.06, 0.4, 0, Math.PI*2);
+    ctx.fill();
+    // 影
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.fillRect(x + s*0.15, y + s*0.90, s*0.73, s*0.05);
+  }
+
   function _drawBuildingIcon(ctx, x, y, size) {
     const m = size * 0.15;
     // 壁
