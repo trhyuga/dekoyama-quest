@@ -81,118 +81,718 @@ const Battle = (() => {
     ctx.ellipse(W/2, H*0.88, W*0.28, H*0.06, 0, 0, Math.PI*2);
     ctx.fill();
 
-    // 敵の色
     const col  = enemy.color || '#884488';
     const col2 = _darken(col, 0.6);
-
-    if (enemy.isBoss) {
-      _drawBossSprite(ctx, W, H, col, col2, enemy);
-    } else {
-      _drawNormalSprite(ctx, W, H, col, col2, enemy);
-    }
+    const fn   = _spriteFns[enemy.id];
+    if (fn) { fn(ctx, W, H, col, col2); }
+    else if (enemy.isBoss) { _spriteFns._boss(ctx, W, H, col, col2); }
+    else { _spriteFns._default(ctx, W, H, col, col2); }
   }
 
-  function _drawNormalSprite(ctx, W, H, col, col2, enemy) {
-    const cx = W / 2;
-    const cy = H * 0.5;
-    const r  = Math.min(W, H) * 0.28;
+  // ── 個別スプライト関数マップ ────────────────────────────
+  const _spriteFns = {
 
-    // 体（丸）
-    ctx.fillStyle = col;
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, r, r * 1.1, 0, 0, Math.PI * 2);
-    ctx.fill();
-    // ハイライト
-    ctx.fillStyle = _lighten(col, 1.4);
-    ctx.beginPath();
-    ctx.ellipse(cx - r*0.25, cy - r*0.3, r*0.35, r*0.25, -0.3, 0, Math.PI*2);
-    ctx.fill();
-    // 目
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.ellipse(cx-r*0.3, cy-r*0.1, r*0.18, r*0.2, 0,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx+r*0.3, cy-r*0.1, r*0.18, r*0.2, 0,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#111';
-    ctx.beginPath(); ctx.ellipse(cx-r*0.28, cy-r*0.1, r*0.1, r*0.12,0,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx+r*0.32, cy-r*0.1, r*0.1, r*0.12,0,0,Math.PI*2); ctx.fill();
-    // 口
-    ctx.strokeStyle = col2;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(cx, cy + r*0.25, r*0.2, 0.1, Math.PI - 0.1);
-    ctx.stroke();
-    // 触手・足
-    for (let i = 0; i < 3; i++) {
-      const ox = cx + (i - 1) * r * 0.55;
+    // ── スライム ─────────────────────────────────────────
+    slime(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.52, r=Math.min(W,H)*0.30;
+      // しずく型の体
       ctx.fillStyle = col;
       ctx.beginPath();
-      ctx.ellipse(ox, cy + r * 1.05, r*0.12, r*0.22, (i-1)*0.2, 0, Math.PI*2);
+      ctx.moveTo(cx, cy - r*1.2);
+      ctx.quadraticCurveTo(cx + r*1.1, cy - r*0.2, cx + r*0.8, cy + r*0.5);
+      ctx.quadraticCurveTo(cx, cy + r*1.1, cx - r*0.8, cy + r*0.5);
+      ctx.quadraticCurveTo(cx - r*1.1, cy - r*0.2, cx, cy - r*1.2);
       ctx.fill();
-    }
-  }
-
-  function _drawBossSprite(ctx, W, H, col, col2, enemy) {
-    const cx = W / 2;
-    const cy = H * 0.48;
-    const r  = Math.min(W, H) * 0.34;
-
-    // 体
-    ctx.fillStyle = col;
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, r, r * 1.15, 0, 0, Math.PI * 2);
-    ctx.fill();
-    // 外殻
-    ctx.strokeStyle = col2;
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    // ハイライト
-    ctx.fillStyle = _lighten(col, 1.35);
-    ctx.beginPath();
-    ctx.ellipse(cx - r*0.22, cy - r*0.28, r*0.3, r*0.22, -0.4, 0, Math.PI*2);
-    ctx.fill();
-    // 角（2本）
-    ctx.fillStyle = col2;
-    [[cx-r*0.35, cy-r, -0.3],[cx+r*0.35, cy-r, 0.3]].forEach(([hx,hy,rot])=>{
-      ctx.save();
-      ctx.translate(hx, hy);
-      ctx.rotate(rot);
+      // ハイライト
+      ctx.fillStyle = _lighten(col, 1.5);
       ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(-r*0.15, -r*0.45);
-      ctx.lineTo(r*0.15, -r*0.45);
+      ctx.ellipse(cx - r*0.2, cy - r*0.4, r*0.25, r*0.18, -0.3, 0, Math.PI*2);
+      ctx.fill();
+      // 目
+      ctx.fillStyle = '#111';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.28, cy-r*0.05, r*0.08, r*0.12, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.28, cy-r*0.05, r*0.08, r*0.12, 0,0,Math.PI*2); ctx.fill();
+      // にっこり口
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy + r*0.15, r*0.18, 0.2, Math.PI - 0.2);
+      ctx.stroke();
+    },
+
+    // ── ドラキー ─────────────────────────────────────────
+    drakee(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.48, r=Math.min(W,H)*0.18;
+      // 翼（左）
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.5, cy);
+      ctx.quadraticCurveTo(cx - r*3.2, cy - r*1.8, cx - r*2.5, cy + r*0.5);
+      ctx.quadraticCurveTo(cx - r*1.8, cy - r*0.2, cx - r*1.2, cy + r*0.8);
+      ctx.quadraticCurveTo(cx - r*0.8, cy + r*0.1, cx - r*0.3, cy + r*0.5);
       ctx.closePath();
       ctx.fill();
-      ctx.restore();
-    });
-    // 目（怒り目）
-    ctx.fillStyle = '#ffee00';
-    ctx.beginPath(); ctx.ellipse(cx-r*0.32,cy-r*0.15, r*0.2, r*0.14,0,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx+r*0.32,cy-r*0.15, r*0.2, r*0.14,0,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#cc0000';
-    ctx.beginPath(); ctx.ellipse(cx-r*0.3, cy-r*0.15, r*0.11, r*0.11,0,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx+r*0.32,cy-r*0.15, r*0.11, r*0.11,0,0,Math.PI*2); ctx.fill();
-    // 眉（怒り）
-    ctx.strokeStyle = col2;
-    ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(cx-r*0.5, cy-r*0.32); ctx.lineTo(cx-r*0.15, cy-r*0.25); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx+r*0.5, cy-r*0.32); ctx.lineTo(cx+r*0.15, cy-r*0.25); ctx.stroke();
-    // 口（牙あり）
-    ctx.fillStyle = '#111';
-    ctx.beginPath();
-    ctx.moveTo(cx - r*0.35, cy + r*0.2);
-    ctx.quadraticCurveTo(cx, cy + r*0.55, cx + r*0.35, cy + r*0.2);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.moveTo(cx-r*0.2,cy+r*0.2); ctx.lineTo(cx-r*0.12,cy+r*0.38); ctx.lineTo(cx-r*0.04,cy+r*0.2); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(cx+r*0.04,cy+r*0.2); ctx.lineTo(cx+r*0.12,cy+r*0.38); ctx.lineTo(cx+r*0.2,cy+r*0.2); ctx.fill();
-    // 腕
-    ctx.fillStyle = col;
-    [[-1,1],[1,1]].forEach(([sx,sy])=>{
+      // 翼（右）
       ctx.beginPath();
-      ctx.ellipse(cx+sx*r*1.05, cy+sy*r*0.1, r*0.18, r*0.3, sx*0.4, 0, Math.PI*2);
+      ctx.moveTo(cx + r*0.5, cy);
+      ctx.quadraticCurveTo(cx + r*3.2, cy - r*1.8, cx + r*2.5, cy + r*0.5);
+      ctx.quadraticCurveTo(cx + r*1.8, cy - r*0.2, cx + r*1.2, cy + r*0.8);
+      ctx.quadraticCurveTo(cx + r*0.8, cy + r*0.1, cx + r*0.3, cy + r*0.5);
+      ctx.closePath();
       ctx.fill();
-    });
-  }
+      // 体（丸い）
+      ctx.fillStyle = _lighten(col, 1.2);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + r*0.3, r*0.9, r*1.0, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 耳
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.5, cy - r*0.5);
+      ctx.lineTo(cx - r*0.9, cy - r*1.5);
+      ctx.lineTo(cx - r*0.1, cy - r*0.3);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx + r*0.5, cy - r*0.5);
+      ctx.lineTo(cx + r*0.9, cy - r*1.5);
+      ctx.lineTo(cx + r*0.1, cy - r*0.3);
+      ctx.fill();
+      // 目
+      ctx.fillStyle = '#ffee00';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.35,cy+r*0.1, r*0.18,r*0.22, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.35,cy+r*0.1, r*0.18,r*0.22, 0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#111';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.32,cy+r*0.12, r*0.09,r*0.12, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.38,cy+r*0.12, r*0.09,r*0.12, 0,0,Math.PI*2); ctx.fill();
+      // 牙
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.15, cy + r*0.55);
+      ctx.lineTo(cx - r*0.05, cy + r*0.85);
+      ctx.lineTo(cx + r*0.05, cy + r*0.55);
+      ctx.fill();
+    },
+
+    // ── ゴースト ─────────────────────────────────────────
+    ghost(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.42, r=Math.min(W,H)*0.26;
+      // 体（上半身は丸、下は波打つ裾）
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, Math.PI, 0);
+      ctx.lineTo(cx + r, cy + r*1.3);
+      // 波打つ裾
+      for (let i = 0; i < 5; i++) {
+        const px = cx + r - (2*r/5)*(i+0.5);
+        const py = cy + r*1.3 + ((i%2===0)?r*0.3:-r*0.1);
+        ctx.quadraticCurveTo(cx + r - (2*r/5)*i - r*0.2, py, px, cy + r*1.3);
+      }
+      ctx.lineTo(cx - r, cy);
+      ctx.closePath();
+      ctx.fill();
+      // 半透明のぼんやり感
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.fill();
+      // 目（黒い穴）
+      ctx.fillStyle = '#111';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.3, cy-r*0.05, r*0.12, r*0.18, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.3, cy-r*0.05, r*0.12, r*0.18, 0,0,Math.PI*2); ctx.fill();
+      // 口（開いた穴）
+      ctx.beginPath(); ctx.ellipse(cx, cy+r*0.35, r*0.12, r*0.15, 0,0,Math.PI*2); ctx.fill();
+    },
+
+    // ── ワイバーン ───────────────────────────────────────
+    wyvern(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.50, r=Math.min(W,H)*0.22;
+      const col2 = _darken(col, 0.6);
+      // 翼（左）
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.6, cy - r*0.3);
+      ctx.lineTo(cx - r*3.0, cy - r*2.0);
+      ctx.lineTo(cx - r*2.2, cy - r*0.5);
+      ctx.lineTo(cx - r*1.8, cy - r*1.2);
+      ctx.lineTo(cx - r*1.2, cy - r*0.2);
+      ctx.closePath();
+      ctx.fill();
+      // 翼（右）
+      ctx.beginPath();
+      ctx.moveTo(cx + r*0.6, cy - r*0.3);
+      ctx.lineTo(cx + r*3.0, cy - r*2.0);
+      ctx.lineTo(cx + r*2.2, cy - r*0.5);
+      ctx.lineTo(cx + r*1.8, cy - r*1.2);
+      ctx.lineTo(cx + r*1.2, cy - r*0.2);
+      ctx.closePath();
+      ctx.fill();
+      // 体
+      ctx.fillStyle = _lighten(col, 1.15);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + r*0.2, r*0.9, r*1.1, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 首
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.25, cy - r*0.6);
+      ctx.quadraticCurveTo(cx, cy - r*1.8, cx + r*0.15, cy - r*1.5);
+      ctx.lineTo(cx + r*0.35, cy - r*0.5);
+      ctx.closePath();
+      ctx.fill();
+      // 頭
+      ctx.beginPath();
+      ctx.ellipse(cx + r*0.05, cy - r*1.55, r*0.35, r*0.28, -0.2, 0, Math.PI*2);
+      ctx.fill();
+      // 目
+      ctx.fillStyle = '#ff3300';
+      ctx.beginPath(); ctx.ellipse(cx+r*0.15, cy-r*1.6, r*0.1, r*0.08, 0,0,Math.PI*2); ctx.fill();
+      // 尻尾
+      ctx.strokeStyle = col2;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + r*1.2);
+      ctx.quadraticCurveTo(cx + r*1.5, cy + r*1.8, cx + r*2.0, cy + r*1.0);
+      ctx.stroke();
+      // 爪
+      ctx.fillStyle = col2;
+      ctx.beginPath();
+      ctx.ellipse(cx - r*0.4, cy + r*1.2, r*0.15, r*0.25, 0.2, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx + r*0.4, cy + r*1.2, r*0.15, r*0.25, -0.2, 0, Math.PI*2);
+      ctx.fill();
+    },
+
+    // ── スケルトン ─────────────────────────────────────────
+    skeleton(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.35, r=Math.min(W,H)*0.15;
+      // 頭蓋骨
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, r*1.0, r*1.1, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 目の穴
+      ctx.fillStyle = '#111';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.35, cy-r*0.1, r*0.22, r*0.28, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.35, cy-r*0.1, r*0.22, r*0.28, 0,0,Math.PI*2); ctx.fill();
+      // 鼻の穴
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + r*0.2);
+      ctx.lineTo(cx - r*0.12, cy + r*0.45);
+      ctx.lineTo(cx + r*0.12, cy + r*0.45);
+      ctx.closePath();
+      ctx.fill();
+      // 歯
+      ctx.fillStyle = col;
+      ctx.fillRect(cx - r*0.45, cy + r*0.55, r*0.9, r*0.25);
+      ctx.fillStyle = '#111';
+      for (let i=0; i<4; i++) {
+        ctx.fillRect(cx - r*0.4 + i*r*0.22, cy + r*0.55, r*0.02, r*0.25);
+      }
+      // 背骨
+      ctx.fillStyle = col;
+      ctx.fillRect(cx - r*0.12, cy + r*1.2, r*0.24, r*3.5);
+      // 肋骨
+      for (let i=0; i<3; i++) {
+        const ry = cy + r*1.5 + i*r*0.7;
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cx - r*0.12, ry);
+        ctx.quadraticCurveTo(cx - r*0.8, ry + r*0.3, cx - r*0.6, ry + r*0.5);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx + r*0.12, ry);
+        ctx.quadraticCurveTo(cx + r*0.8, ry + r*0.3, cx + r*0.6, ry + r*0.5);
+        ctx.stroke();
+      }
+      // 剣
+      ctx.fillStyle = '#aaaaaa';
+      ctx.fillRect(cx + r*1.2, cy - r*0.5, r*0.15, r*3.5);
+      ctx.fillStyle = '#8B6914';
+      ctx.fillRect(cx + r*0.9, cy + r*0.3, r*0.6, r*0.2);
+    },
+
+    // ── ゾンビ ───────────────────────────────────────────
+    zombie(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.38, r=Math.min(W,H)*0.16;
+      const col2 = _darken(col, 0.7);
+      // 体（前かがみ）
+      ctx.fillStyle = col2;
+      ctx.beginPath();
+      ctx.ellipse(cx + r*0.2, cy + r*2.0, r*0.9, r*1.8, 0.15, 0, Math.PI*2);
+      ctx.fill();
+      // ボロ布
+      ctx.fillStyle = '#554433';
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.5, cy + r*1.0);
+      ctx.lineTo(cx + r*0.9, cy + r*0.8);
+      ctx.lineTo(cx + r*1.0, cy + r*3.5);
+      ctx.lineTo(cx - r*0.3, cy + r*3.8);
+      ctx.lineTo(cx - r*0.7, cy + r*3.2);
+      ctx.closePath();
+      ctx.fill();
+      // 頭
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, r*0.9, r*1.0, -0.2, 0, Math.PI*2);
+      ctx.fill();
+      // 目（左は閉じ、右は丸）
+      ctx.fillStyle = '#111';
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(cx-r*0.5,cy-r*0.1); ctx.lineTo(cx-r*0.15,cy+r*0.05); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.35,cy-r*0.05, r*0.15,r*0.18, 0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#990000';
+      ctx.beginPath(); ctx.ellipse(cx+r*0.35,cy-r*0.05, r*0.08,r*0.1, 0,0,Math.PI*2); ctx.fill();
+      // 口（開いてうめく）
+      ctx.fillStyle = '#331111';
+      ctx.beginPath(); ctx.ellipse(cx+r*0.1,cy+r*0.5, r*0.2,r*0.3, 0.1,0,Math.PI*2); ctx.fill();
+      // 腕（だらり）
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx-r*1.0, cy+r*2.0, r*0.2, r*1.2, 0.3, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx+r*1.2, cy+r*1.5, r*0.2, r*1.0, -0.4, 0, Math.PI*2);
+      ctx.fill();
+    },
+
+    // ── オーク ───────────────────────────────────────────
+    orc(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.50, r=Math.min(W,H)*0.24;
+      const col2 = _darken(col, 0.65);
+      // 体（ずんぐり）
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + r*0.4, r*1.05, r*1.2, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 腰巻き
+      ctx.fillStyle = '#554422';
+      ctx.fillRect(cx - r*0.9, cy + r*1.0, r*1.8, r*0.5);
+      // 頭
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - r*0.55, r*0.7, r*0.6, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 耳（豚耳）
+      ctx.fillStyle = col2;
+      ctx.beginPath(); ctx.ellipse(cx-r*0.65,cy-r*0.7, r*0.2,r*0.25, -0.3,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.65,cy-r*0.7, r*0.2,r*0.25, 0.3,0,Math.PI*2); ctx.fill();
+      // 鼻（豚鼻）
+      ctx.fillStyle = col2;
+      ctx.beginPath(); ctx.ellipse(cx,cy-r*0.35, r*0.25,r*0.18, 0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#222';
+      ctx.beginPath(); ctx.arc(cx-r*0.08, cy-r*0.35, r*0.06, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+r*0.08, cy-r*0.35, r*0.06, 0, Math.PI*2); ctx.fill();
+      // 目（怒り）
+      ctx.fillStyle = '#ffcc00';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.3, cy-r*0.65, r*0.12,r*0.1, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.3, cy-r*0.65, r*0.12,r*0.1, 0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#111';
+      ctx.beginPath(); ctx.arc(cx-r*0.3, cy-r*0.65, r*0.06, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+r*0.3, cy-r*0.65, r*0.06, 0, Math.PI*2); ctx.fill();
+      // 牙
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.moveTo(cx-r*0.2,cy-r*0.15); ctx.lineTo(cx-r*0.12,cy-r*0.0); ctx.lineTo(cx-r*0.04,cy-r*0.15);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx+r*0.04,cy-r*0.15); ctx.lineTo(cx+r*0.12,cy-r*0.0); ctx.lineTo(cx+r*0.2,cy-r*0.15);
+      ctx.fill();
+      // こん棒
+      ctx.fillStyle = '#6B4226';
+      ctx.save();
+      ctx.translate(cx + r*1.2, cy - r*0.3);
+      ctx.rotate(0.5);
+      ctx.fillRect(-r*0.1, -r*1.5, r*0.22, r*2.2);
+      ctx.fillStyle = '#5A3520';
+      ctx.beginPath(); ctx.ellipse(0, -r*1.5, r*0.25, r*0.3, 0,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    },
+
+    // ── あんこくきし ─────────────────────────────────────
+    dark_knight(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.38, r=Math.min(W,H)*0.18;
+      const col2 = _darken(col, 0.6);
+      // マント
+      ctx.fillStyle = '#1a0033';
+      ctx.beginPath();
+      ctx.moveTo(cx - r*1.2, cy - r*0.5);
+      ctx.quadraticCurveTo(cx - r*1.5, cy + r*3.0, cx - r*0.5, cy + r*3.5);
+      ctx.lineTo(cx + r*0.5, cy + r*3.5);
+      ctx.quadraticCurveTo(cx + r*1.5, cy + r*3.0, cx + r*1.2, cy - r*0.5);
+      ctx.closePath();
+      ctx.fill();
+      // 鎧体
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + r*1.0, r*0.85, r*1.3, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 鎧の装飾線
+      ctx.strokeStyle = _lighten(col, 1.4);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy + r*2.2); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.7, cy + r*0.6);
+      ctx.lineTo(cx + r*0.7, cy + r*0.6);
+      ctx.stroke();
+      // ヘルメット
+      ctx.fillStyle = col2;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - r*0.4, r*0.65, r*0.7, 0, 0, Math.PI*2);
+      ctx.fill();
+      // バイザー（スリット目）
+      ctx.fillStyle = '#000';
+      ctx.fillRect(cx - r*0.5, cy - r*0.55, r*1.0, r*0.15);
+      // バイザー内の赤い目
+      ctx.fillStyle = '#ff0000';
+      ctx.beginPath(); ctx.arc(cx - r*0.2, cy - r*0.48, r*0.06, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx + r*0.2, cy - r*0.48, r*0.06, 0, Math.PI*2); ctx.fill();
+      // 兜の飾り
+      ctx.fillStyle = '#990033';
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - r*1.1);
+      ctx.lineTo(cx - r*0.12, cy - r*0.6);
+      ctx.lineTo(cx + r*0.12, cy - r*0.6);
+      ctx.closePath();
+      ctx.fill();
+      // 剣
+      ctx.fillStyle = '#888';
+      ctx.save();
+      ctx.translate(cx + r*1.3, cy);
+      ctx.rotate(-0.3);
+      ctx.fillRect(-r*0.06, -r*2.5, r*0.12, r*3.0);
+      ctx.fillStyle = '#666';
+      ctx.fillRect(-r*0.25, -r*0.1, r*0.5, r*0.15);
+      ctx.restore();
+    },
+
+    // ── デスバット ─────────────────────────────────────────
+    death_bat(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.45, r=Math.min(W,H)*0.22;
+      // 大きな翼（左）
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.4, cy);
+      ctx.lineTo(cx - r*3.5, cy - r*1.2);
+      ctx.quadraticCurveTo(cx - r*2.8, cy + r*0.3, cx - r*2.0, cy - r*0.5);
+      ctx.quadraticCurveTo(cx - r*1.5, cy + r*0.5, cx - r*1.0, cy + r*0.2);
+      ctx.closePath();
+      ctx.fill();
+      // 大きな翼（右）
+      ctx.beginPath();
+      ctx.moveTo(cx + r*0.4, cy);
+      ctx.lineTo(cx + r*3.5, cy - r*1.2);
+      ctx.quadraticCurveTo(cx + r*2.8, cy + r*0.3, cx + r*2.0, cy - r*0.5);
+      ctx.quadraticCurveTo(cx + r*1.5, cy + r*0.5, cx + r*1.0, cy + r*0.2);
+      ctx.closePath();
+      ctx.fill();
+      // 体
+      ctx.fillStyle = _lighten(col, 1.3);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + r*0.2, r*0.7, r*0.9, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 目（赤く光る）
+      ctx.fillStyle = '#ff0000';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.25, cy, r*0.15,r*0.12, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.25, cy, r*0.15,r*0.12, 0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ff8888';
+      ctx.beginPath(); ctx.arc(cx-r*0.22, cy-r*0.02, r*0.05, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+r*0.28, cy-r*0.02, r*0.05, 0, Math.PI*2); ctx.fill();
+      // 牙
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.moveTo(cx-r*0.2,cy+r*0.35); ctx.lineTo(cx-r*0.1,cy+r*0.7); ctx.lineTo(cx,cy+r*0.35);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx,cy+r*0.35); ctx.lineTo(cx+r*0.1,cy+r*0.7); ctx.lineTo(cx+r*0.2,cy+r*0.35);
+      ctx.fill();
+      // 足（爪）
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.ellipse(cx-r*0.3,cy+r*1.0, r*0.1,r*0.2, 0.2,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.3,cy+r*1.0, r*0.1,r*0.2, -0.2,0,Math.PI*2); ctx.fill();
+    },
+
+    // ── ヘルガード ───────────────────────────────────────
+    hell_guard(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.38, r=Math.min(W,H)*0.20;
+      const col2 = _darken(col, 0.6);
+      // 体（鎧）
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + r*0.8, r*1.0, r*1.5, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 肩アーマー
+      ctx.fillStyle = col2;
+      ctx.beginPath(); ctx.ellipse(cx-r*1.1,cy+r*0.1, r*0.4,r*0.3, -0.3,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*1.1,cy+r*0.1, r*0.4,r*0.3, 0.3,0,Math.PI*2); ctx.fill();
+      // 肩のスパイク
+      ctx.fillStyle = '#555';
+      ctx.beginPath(); ctx.moveTo(cx-r*1.1,cy-r*0.15); ctx.lineTo(cx-r*1.2,cy-r*0.6); ctx.lineTo(cx-r*0.9,cy-r*0.15); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx+r*1.1,cy-r*0.15); ctx.lineTo(cx+r*1.2,cy-r*0.6); ctx.lineTo(cx+r*0.9,cy-r*0.15); ctx.fill();
+      // 頭（角付き兜）
+      ctx.fillStyle = '#333';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - r*0.6, r*0.6, r*0.65, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 角
+      ctx.fillStyle = '#aa3300';
+      ctx.beginPath(); ctx.moveTo(cx-r*0.4,cy-r*1.1); ctx.lineTo(cx-r*0.7,cy-r*1.8); ctx.lineTo(cx-r*0.2,cy-r*1.0); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx+r*0.4,cy-r*1.1); ctx.lineTo(cx+r*0.7,cy-r*1.8); ctx.lineTo(cx+r*0.2,cy-r*1.0); ctx.fill();
+      // 目（不気味な光）
+      ctx.fillStyle = '#00ff66';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.22,cy-r*0.65, r*0.12,r*0.08, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.22,cy-r*0.65, r*0.12,r*0.08, 0,0,Math.PI*2); ctx.fill();
+      // 盾（左手）
+      ctx.fillStyle = '#666';
+      ctx.beginPath();
+      ctx.moveTo(cx-r*1.6, cy+r*0.3);
+      ctx.lineTo(cx-r*1.9, cy-r*0.3);
+      ctx.lineTo(cx-r*1.3, cy-r*0.3);
+      ctx.lineTo(cx-r*1.1, cy+r*0.3);
+      ctx.lineTo(cx-r*1.5, cy+r*0.8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#444'; ctx.lineWidth=1.5; ctx.stroke();
+      // 斧（右手）
+      ctx.fillStyle = '#777';
+      ctx.save();
+      ctx.translate(cx + r*1.4, cy - r*0.2);
+      ctx.rotate(-0.2);
+      ctx.fillRect(-r*0.06, -r*2.0, r*0.12, r*3.0);
+      ctx.fillStyle = '#555';
+      ctx.beginPath();
+      ctx.moveTo(r*0.06, -r*1.8);
+      ctx.lineTo(r*0.5, -r*1.4);
+      ctx.lineTo(r*0.06, -r*1.0);
+      ctx.fill();
+      ctx.restore();
+    },
+
+    // ══════════════════════════════════════════
+    //  ボス
+    // ══════════════════════════════════════════
+
+    // ── アームライオン ───────────────────────────────────
+    dungeon1_boss(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.42, r=Math.min(W,H)*0.28;
+      const col2 = _darken(col, 0.6);
+      // たてがみ
+      ctx.fillStyle = col2;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - r*0.15, r*1.15, r*1.0, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 体
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + r*0.5, r*0.95, r*1.1, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 顔
+      ctx.fillStyle = _lighten(col, 1.3);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - r*0.2, r*0.6, r*0.55, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 目（獣の目）
+      ctx.fillStyle = '#ffcc00';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.22,cy-r*0.3, r*0.14,r*0.1, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.22,cy-r*0.3, r*0.14,r*0.1, 0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#111';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.22,cy-r*0.3, r*0.06,r*0.1, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.22,cy-r*0.3, r*0.06,r*0.1, 0,0,Math.PI*2); ctx.fill();
+      // 鼻
+      ctx.fillStyle = '#222';
+      ctx.beginPath(); ctx.ellipse(cx,cy-r*0.08, r*0.1,r*0.07, 0,0,Math.PI*2); ctx.fill();
+      // 口と牙
+      ctx.fillStyle = '#330000';
+      ctx.beginPath();
+      ctx.moveTo(cx-r*0.3,cy+r*0.08);
+      ctx.quadraticCurveTo(cx,cy+r*0.35, cx+r*0.3,cy+r*0.08);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.moveTo(cx-r*0.15,cy+r*0.08); ctx.lineTo(cx-r*0.08,cy+r*0.25); ctx.lineTo(cx-r*0.01,cy+r*0.08); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx+r*0.01,cy+r*0.08); ctx.lineTo(cx+r*0.08,cy+r*0.25); ctx.lineTo(cx+r*0.15,cy+r*0.08); ctx.fill();
+      // 巨大な腕
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx - r*1.3, cy + r*0.5, r*0.4, r*0.8, 0.3, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx + r*1.3, cy + r*0.5, r*0.4, r*0.8, -0.3, 0, Math.PI*2);
+      ctx.fill();
+      // 爪
+      ctx.fillStyle = '#ddd';
+      [-1,1].forEach(s => {
+        for (let i=0;i<3;i++) {
+          ctx.beginPath();
+          ctx.moveTo(cx+s*(r*1.3+r*0.3), cy+r*1.1+i*r*0.15);
+          ctx.lineTo(cx+s*(r*1.3+r*0.7), cy+r*1.15+i*r*0.15);
+          ctx.lineTo(cx+s*(r*1.3+r*0.3), cy+r*1.2+i*r*0.15);
+          ctx.fill();
+        }
+      });
+    },
+
+    // ── ダークドラゴン ───────────────────────────────────
+    dungeon2_boss(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.48, r=Math.min(W,H)*0.25;
+      const col2 = _darken(col, 0.5);
+      // 翼（左）
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(cx-r*0.8, cy-r*0.5);
+      ctx.lineTo(cx-r*3.2, cy-r*2.5);
+      ctx.lineTo(cx-r*2.5, cy-r*1.0);
+      ctx.lineTo(cx-r*2.0, cy-r*1.8);
+      ctx.lineTo(cx-r*1.5, cy-r*0.5);
+      ctx.lineTo(cx-r*1.2, cy-r*1.0);
+      ctx.lineTo(cx-r*0.8, cy-r*0.2);
+      ctx.closePath();
+      ctx.fill();
+      // 翼（右）
+      ctx.beginPath();
+      ctx.moveTo(cx+r*0.8, cy-r*0.5);
+      ctx.lineTo(cx+r*3.2, cy-r*2.5);
+      ctx.lineTo(cx+r*2.5, cy-r*1.0);
+      ctx.lineTo(cx+r*2.0, cy-r*1.8);
+      ctx.lineTo(cx+r*1.5, cy-r*0.5);
+      ctx.lineTo(cx+r*1.2, cy-r*1.0);
+      ctx.lineTo(cx+r*0.8, cy-r*0.2);
+      ctx.closePath();
+      ctx.fill();
+      // 体
+      ctx.fillStyle = _lighten(col, 1.3);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy+r*0.3, r*1.0, r*1.2, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = col2; ctx.lineWidth=2; ctx.stroke();
+      // 腹の鱗模様
+      ctx.fillStyle = _lighten(col, 1.6);
+      for (let i=0; i<4; i++) {
+        ctx.beginPath();
+        ctx.ellipse(cx, cy-r*0.1+i*r*0.35, r*0.45-i*0.03, r*0.12, 0, 0, Math.PI*2);
+        ctx.fill();
+      }
+      // 首と頭
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(cx-r*0.3, cy-r*0.7);
+      ctx.quadraticCurveTo(cx-r*0.2, cy-r*2.0, cx, cy-r*1.8);
+      ctx.quadraticCurveTo(cx+r*0.2, cy-r*2.0, cx+r*0.3, cy-r*0.7);
+      ctx.closePath();
+      ctx.fill();
+      // 頭
+      ctx.beginPath();
+      ctx.ellipse(cx, cy-r*1.9, r*0.45, r*0.32, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 目
+      ctx.fillStyle = '#ff2200';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.18,cy-r*1.95, r*0.12,r*0.08, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.18,cy-r*1.95, r*0.12,r*0.08, 0,0,Math.PI*2); ctx.fill();
+      // 口から火
+      ctx.fillStyle = '#ff6600';
+      ctx.beginPath();
+      ctx.moveTo(cx-r*0.15, cy-r*1.6);
+      ctx.quadraticCurveTo(cx, cy-r*1.2, cx+r*0.15, cy-r*1.6);
+      ctx.fill();
+      ctx.fillStyle = '#ffcc00';
+      ctx.beginPath();
+      ctx.moveTo(cx-r*0.08, cy-r*1.6);
+      ctx.quadraticCurveTo(cx, cy-r*1.3, cx+r*0.08, cy-r*1.6);
+      ctx.fill();
+      // 尻尾
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy+r*1.4);
+      ctx.quadraticCurveTo(cx+r*1.5, cy+r*2.0, cx+r*2.2, cy+r*1.2);
+      ctx.stroke();
+    },
+
+    // ── まおう ───────────────────────────────────────────
+    maou(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.40, r=Math.min(W,H)*0.26;
+      const col2 = _darken(col, 0.5);
+      // マント
+      ctx.fillStyle = '#1a0011';
+      ctx.beginPath();
+      ctx.moveTo(cx-r*1.5, cy-r*0.8);
+      ctx.quadraticCurveTo(cx-r*2.0, cy+r*2.5, cx-r*1.0, cy+r*3.0);
+      ctx.lineTo(cx+r*1.0, cy+r*3.0);
+      ctx.quadraticCurveTo(cx+r*2.0, cy+r*2.5, cx+r*1.5, cy-r*0.8);
+      ctx.closePath();
+      ctx.fill();
+      // マント裏地（赤）
+      ctx.fillStyle = '#440000';
+      ctx.beginPath();
+      ctx.moveTo(cx-r*1.3, cy);
+      ctx.quadraticCurveTo(cx-r*1.5, cy+r*2.2, cx-r*0.8, cy+r*2.8);
+      ctx.lineTo(cx-r*0.3, cy+r*1.0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx+r*1.3, cy);
+      ctx.quadraticCurveTo(cx+r*1.5, cy+r*2.2, cx+r*0.8, cy+r*2.8);
+      ctx.lineTo(cx+r*0.3, cy+r*1.0);
+      ctx.closePath();
+      ctx.fill();
+      // 体
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy+r*0.6, r*0.85, r*1.3, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 顔
+      ctx.fillStyle = _lighten(col, 1.3);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy-r*0.4, r*0.6, r*0.65, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 角（大きく2本）
+      ctx.fillStyle = '#333';
+      ctx.beginPath(); ctx.moveTo(cx-r*0.35,cy-r*0.9); ctx.lineTo(cx-r*0.8,cy-r*2.0); ctx.lineTo(cx-r*0.1,cy-r*0.8); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx+r*0.35,cy-r*0.9); ctx.lineTo(cx+r*0.8,cy-r*2.0); ctx.lineTo(cx+r*0.1,cy-r*0.8); ctx.fill();
+      // 目（邪悪に光る）
+      ctx.fillStyle = '#ffee00';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.25,cy-r*0.5, r*0.16,r*0.10, -0.15,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.25,cy-r*0.5, r*0.16,r*0.10, 0.15,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = col2;
+      ctx.beginPath(); ctx.ellipse(cx-r*0.25,cy-r*0.5, r*0.08,r*0.10, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.25,cy-r*0.5, r*0.08,r*0.10, 0,0,Math.PI*2); ctx.fill();
+      // 眉（怒り）
+      ctx.strokeStyle = '#333'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(cx-r*0.5,cy-r*0.7); ctx.lineTo(cx-r*0.1,cy-r*0.58); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+r*0.5,cy-r*0.7); ctx.lineTo(cx+r*0.1,cy-r*0.58); ctx.stroke();
+      // 口（不敵な笑み＋牙）
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.moveTo(cx-r*0.35,cy-r*0.1);
+      ctx.quadraticCurveTo(cx,cy+r*0.15, cx+r*0.35,cy-r*0.1);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.moveTo(cx-r*0.25,cy-r*0.1); ctx.lineTo(cx-r*0.18,cy+r*0.05); ctx.lineTo(cx-r*0.11,cy-r*0.1); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx+r*0.11,cy-r*0.1); ctx.lineTo(cx+r*0.18,cy+r*0.05); ctx.lineTo(cx+r*0.25,cy-r*0.1); ctx.fill();
+      // 宝玉（胸元）
+      ctx.fillStyle = '#aa00ff';
+      ctx.beginPath(); ctx.arc(cx, cy+r*0.2, r*0.15, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#dd88ff';
+      ctx.beginPath(); ctx.arc(cx-r*0.04, cy+r*0.16, r*0.05, 0, Math.PI*2); ctx.fill();
+    },
+
+    // ── デフォルト（未定義の敵用） ───────────────────────
+    _default(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.5, r=Math.min(W,H)*0.28;
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.ellipse(cx,cy,r,r*1.1,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.3,cy-r*0.1,r*0.15,r*0.18,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.3,cy-r*0.1,r*0.15,r*0.18,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#111';
+      ctx.beginPath(); ctx.arc(cx-r*0.28,cy-r*0.1,r*0.08,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+r*0.32,cy-r*0.1,r*0.08,0,Math.PI*2); ctx.fill();
+    },
+    _boss(ctx, W, H, col) {
+      _spriteFns._default(ctx,W,H,col);
+    },
+  }; // end _spriteFns
 
   // ── 色操作ユーティリティ ─────────────────────────────────
   function _parseColor(hex) {
