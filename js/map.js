@@ -471,6 +471,8 @@ const MapEngine = (() => {
               _drawQueenIcon(ctx, sx, sy, tileSize);
             } else if (ev.npcId === 'adventurer') {
               _drawAdventurerIcon(ctx, sx, sy, tileSize);
+            } else if (ev.npcId === 'guard1' || ev.npcId === 'guard2') {
+              _drawGuardIcon(ctx, sx, sy, tileSize);
             } else {
               _drawNpcIcon(ctx, sx, sy, tileSize);
             }
@@ -580,6 +582,10 @@ const MapEngine = (() => {
     }
     if (mapId === 'castle_town' || mapId === 'throne_room') {
       _drawCastleTile(ctx, x, y, size, tileId, mx, my);
+      return;
+    }
+    if (mapId === 'world') {
+      _drawWorldTile(ctx, x, y, size, tileId, mx, my);
       return;
     }
 
@@ -1109,56 +1115,111 @@ const MapEngine = (() => {
       ctx.fillRect(x + 1, y + bh - 1.5, s - 2, 1.5);
       ctx.fillRect(x + s - 2.5, y + 1, 1.5, s - 2);
 
-      // 王城らしい紋様（確率で縦ライン装飾）
-      if (r1 > 0.65) {
-        ctx.fillStyle = 'rgba(180,160,100,0.15)';
+      // 王城らしい装飾
+      if (isThroneRoom && (mx === 1 || mx === 8)) {
+        // 柱の金色縦ライン
+        ctx.fillStyle = 'rgba(200,170,60,0.48)';
+        ctx.fillRect(x + s*0.43, y, s*0.14, s);
+        ctx.fillStyle = 'rgba(220,190,80,0.22)';
+        ctx.fillRect(x + s*0.38, y, s*0.24, s);
+      } else if (isThroneRoom && my === 0 && (mx === 3 || mx === 6)) {
+        // バナー（王旗）
+        ctx.fillStyle = '#6611aa';
+        ctx.fillRect(x + s*0.30, y + s*0.08, s*0.40, s*0.75);
+        ctx.fillStyle = '#8833cc';
+        ctx.fillRect(x + s*0.34, y + s*0.08, s*0.14, s*0.65);
+        // 旗竿
+        ctx.fillStyle = '#cc9900';
+        ctx.fillRect(x + s*0.48, y, s*0.04, s*0.10);
+        // 王冠紋章
+        ctx.fillStyle = '#ddaa00';
+        ctx.fillRect(x + s*0.36, y + s*0.25, s*0.28, s*0.06);
+        ctx.fillRect(x + s*0.37, y + s*0.18, s*0.07, s*0.09);
+        ctx.fillRect(x + s*0.48, y + s*0.15, s*0.07, s*0.12);
+        ctx.fillRect(x + s*0.56, y + s*0.18, s*0.07, s*0.09);
+      } else if (r1 > 0.65) {
+        ctx.fillStyle = 'rgba(180,160,100,0.12)';
         ctx.fillRect(x + r2*s*0.7 + s*0.1, y, s*0.04, s);
       }
 
     } else if (tileId === T.FLOOR) {
-      // 王城の床：大理石風（市松模様）
-      const isLight = (mx + my) % 2 === 0;
-      if (isThroneRoom) {
-        // 王の間：より豪華な紫がかった大理石
-        ctx.fillStyle = isLight ? '#3a3050' : '#2a2240';
+      // 赤じゅうたん（throne_room の中央通路 mx=4,5 / my=3..8）
+      const isCarpet = isThroneRoom && mx >= 4 && mx <= 5 && my >= 3 && my <= 8;
+
+      if (isCarpet) {
+        // 赤いカーペット本体
+        ctx.fillStyle = '#7a0c0c';
         ctx.fillRect(x, y, s, s);
-        // 大理石の筋
-        ctx.strokeStyle = `rgba(${isLight ? '120,100,180' : '80,60,140'},${0.2 + r1*0.2})`;
+        ctx.fillStyle = '#9e1414';
+        ctx.fillRect(x + s*0.08, y + s*0.08, s*0.84, s*0.84);
+        // 中央のやや明るい赤
+        ctx.fillStyle = '#b01a1a';
+        ctx.fillRect(x + s*0.18, y + s*0.18, s*0.64, s*0.64);
+        // 金の縁取り（外側）
+        ctx.strokeStyle = '#ddaa00';
+        ctx.lineWidth = 2.2;
+        ctx.strokeRect(x + s*0.07, y + s*0.07, s*0.86, s*0.86);
+        // 金の縁取り（内側細線）
+        ctx.strokeStyle = 'rgba(200,160,30,0.55)';
         ctx.lineWidth = 0.8;
-        ctx.beginPath();
-        ctx.moveTo(x + r2*s, y);
-        ctx.quadraticCurveTo(x + r3*s, y + r1*s, x + (1-r2)*s, y + s);
-        ctx.stroke();
-        // 金の目地
-        ctx.strokeStyle = 'rgba(200,170,60,0.45)';
-        ctx.lineWidth = 1.2;
-        ctx.strokeRect(x + 1.5, y + 1.5, s - 3, s - 3);
-        // 四隅に金の点
-        ctx.fillStyle = 'rgba(200,170,60,0.5)';
-        ctx.fillRect(x + 1, y + 1, 3, 3);
-        ctx.fillRect(x + s - 4, y + 1, 3, 3);
-        ctx.fillRect(x + 1, y + s - 4, 3, 3);
-        ctx.fillRect(x + s - 4, y + s - 4, 3, 3);
-      } else {
-        // 城下町：落ち着いた石床
-        ctx.fillStyle = isLight ? '#484858' : '#3c3c4c';
-        ctx.fillRect(x, y, s, s);
-        // 大理石の細かい筋
-        ctx.strokeStyle = `rgba(${isLight ? '140,140,170' : '100,100,130'},${0.15 + r1*0.15})`;
+        ctx.strokeRect(x + s*0.20, y + s*0.20, s*0.60, s*0.60);
+        // じゅうたんの繊維感（細い縦線）
+        ctx.strokeStyle = 'rgba(90,4,4,0.35)';
         ctx.lineWidth = 0.6;
-        ctx.beginPath();
-        ctx.moveTo(x, y + r2*s*0.8);
-        ctx.quadraticCurveTo(x + r3*s, y + r1*s, x + s, y + (1-r2)*s*0.7 + s*0.15);
-        ctx.stroke();
-        // 石板目地
-        ctx.strokeStyle = 'rgba(20,20,30,0.6)';
-        ctx.lineWidth = 1.2;
-        ctx.strokeRect(x + 1.5, y + 1.5, s - 3, s - 3);
+        for (let fi = 0; fi < 5; fi++) {
+          const fx = x + s*(0.14 + fi * 0.16);
+          ctx.beginPath();
+          ctx.moveTo(fx, y + s*0.09);
+          ctx.lineTo(fx, y + s*0.91);
+          ctx.stroke();
+        }
+        // 光沢ハイライト
+        ctx.fillStyle = 'rgba(220,60,60,0.12)';
+        ctx.fillRect(x + s*0.08, y + s*0.08, s*0.84, s*0.04);
+      } else {
+        const isLight = (mx + my) % 2 === 0;
+        if (isThroneRoom) {
+          // 王の間：明るい大理石床（紫がかった白）
+          ctx.fillStyle = isLight ? '#dcd4ee' : '#cac0e0';
+          ctx.fillRect(x, y, s, s);
+          // 大理石の筋
+          ctx.strokeStyle = `rgba(${isLight ? '180,165,230' : '150,135,210'},${0.22 + r1*0.20})`;
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(x + r2*s, y);
+          ctx.quadraticCurveTo(x + r3*s, y + r1*s, x + (1-r2)*s, y + s);
+          ctx.stroke();
+          // 金の目地
+          ctx.strokeStyle = 'rgba(200,170,60,0.55)';
+          ctx.lineWidth = 1.2;
+          ctx.strokeRect(x + 1.5, y + 1.5, s - 3, s - 3);
+          // 四隅に金の点
+          ctx.fillStyle = 'rgba(200,170,60,0.62)';
+          ctx.fillRect(x + 1, y + 1, 3, 3);
+          ctx.fillRect(x + s - 4, y + 1, 3, 3);
+          ctx.fillRect(x + 1, y + s - 4, 3, 3);
+          ctx.fillRect(x + s - 4, y + s - 4, 3, 3);
+        } else {
+          // 城下町：明るい石床（薄いグレー大理石）
+          ctx.fillStyle = isLight ? '#d2d2e0' : '#bebece';
+          ctx.fillRect(x, y, s, s);
+          // 大理石の細かい筋
+          ctx.strokeStyle = `rgba(${isLight ? '155,155,185' : '125,125,160'},${0.18 + r1*0.14})`;
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(x, y + r2*s*0.8);
+          ctx.quadraticCurveTo(x + r3*s, y + r1*s, x + s, y + (1-r2)*s*0.7 + s*0.15);
+          ctx.stroke();
+          // 石板目地
+          ctx.strokeStyle = 'rgba(60,60,90,0.45)';
+          ctx.lineWidth = 1.2;
+          ctx.strokeRect(x + 1.5, y + 1.5, s - 3, s - 3);
+        }
+        // 床の光沢ハイライト
+        ctx.fillStyle = 'rgba(255,255,255,0.10)';
+        ctx.fillRect(x + 2, y + 2, s - 4, 2);
+        ctx.fillRect(x + 2, y + 2, 2, s - 4);
       }
-      // 床の光沢ハイライト（共通）
-      ctx.fillStyle = 'rgba(255,255,255,0.06)';
-      ctx.fillRect(x + 2, y + 2, s - 4, 2);
-      ctx.fillRect(x + 2, y + 2, 2, s - 4);
 
     } else if (tileId === T.TOWN) {
       // 城内建物タイル（石造りの建物壁）
@@ -1190,6 +1251,240 @@ const MapEngine = (() => {
     ctx.strokeRect(x, y, s, s);
     if (tileId === T.CHEST) _drawChestIcon(ctx, x, y, s);
     if (tileId === T.STAIR) _drawStairIcon(ctx, x, y, s);
+  }
+
+  // ── フィールドマップ（ワールド）タイル ────────────────────────
+  function _drawWorldTile(ctx, x, y, size, tileId, mx, my) {
+    const T = GameData.TILE;
+    const s = size;
+    const seed = mx * 31 + my * 17;
+    const r1 = _tileRand(seed, 1103515245);
+    const r2 = _tileRand(seed, 214013);
+    const r3 = _tileRand(seed + 5, 1664525);
+
+    if (tileId === T.GRASS) {
+      // 草地ベース
+      const shade = 0.78 + r1 * 0.22;
+      ctx.fillStyle = `rgb(${Math.floor(52*shade)},${Math.floor(128*shade)},${Math.floor(36*shade)})`;
+      ctx.fillRect(x, y, s, s);
+      // 草の葉（細いブレード）
+      const bladeCount = 2 + Math.floor(r2 * 3);
+      for (let i = 0; i < bladeCount; i++) {
+        const bx = x + _tileRand(seed + i*7, 214013) * s * 0.82 + s*0.05;
+        const by = y + _tileRand(seed + i*7, 1664525) * s * 0.55 + s*0.28;
+        const bh = s * (0.11 + _tileRand(seed + i*7, 1103515245) * 0.09);
+        ctx.fillStyle = `rgba(82,175,50,${0.55 + _tileRand(seed+i*13,214013)*0.35})`;
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(bx - s*0.025, by + bh);
+        ctx.lineTo(bx + s*0.025, by + bh);
+        ctx.closePath();
+        ctx.fill();
+      }
+      // まれに小花
+      if (r3 > 0.84) {
+        ctx.fillStyle = '#ffffaa';
+        ctx.beginPath();
+        ctx.arc(x + r1*s*0.8 + s*0.05, y + r2*s*0.65 + s*0.05, s*0.038, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+    } else if (tileId === T.TREE) {
+      // 暗い森ベース
+      ctx.fillStyle = '#183a10';
+      ctx.fillRect(x, y, s, s);
+      // 木の幹
+      const tx = x + s*0.40 + r1*s*0.18;
+      const ty = y + s*0.60;
+      ctx.fillStyle = '#5a3820';
+      ctx.fillRect(tx, ty, s*0.15, s*0.38);
+      // 葉っぱ（複数円）
+      const tcx = tx + s*0.075;
+      ctx.fillStyle = '#286418';
+      ctx.beginPath();
+      ctx.arc(tcx, ty - s*0.10, s*0.26, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#1e5010';
+      ctx.beginPath();
+      ctx.arc(tcx - s*0.14, ty + s*0.02, s*0.19, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(tcx + s*0.14, ty + s*0.02, s*0.19, 0, Math.PI*2);
+      ctx.fill();
+      // 葉ハイライト（明るい緑）
+      ctx.fillStyle = '#3a8820';
+      ctx.beginPath();
+      ctx.arc(tcx - s*0.07, ty - s*0.18, s*0.12, 0, Math.PI*2);
+      ctx.fill();
+
+    } else if (tileId === T.MOUNTAIN) {
+      // 山ベース（岩盤色）
+      ctx.fillStyle = '#706050';
+      ctx.fillRect(x, y, s, s);
+      // 山の本体（茶灰色）
+      ctx.fillStyle = '#8e7660';
+      ctx.beginPath();
+      ctx.moveTo(x, y + s);
+      ctx.lineTo(x + s*0.24, y + s*0.38);
+      ctx.lineTo(x + s*0.50, y + s*0.58);
+      ctx.lineTo(x + s*0.64, y + s*0.16);
+      ctx.lineTo(x + s*0.80, y + s*0.42);
+      ctx.lineTo(x + s, y + s);
+      ctx.closePath();
+      ctx.fill();
+      // 山の影面（右側暗く）
+      ctx.fillStyle = 'rgba(0,0,0,0.22)';
+      ctx.beginPath();
+      ctx.moveTo(x + s*0.64, y + s*0.16);
+      ctx.lineTo(x + s*0.80, y + s*0.42);
+      ctx.lineTo(x + s, y + s);
+      ctx.lineTo(x + s*0.64, y + s);
+      ctx.closePath();
+      ctx.fill();
+      // 雪（主峰）
+      ctx.fillStyle = '#f2f2fa';
+      ctx.beginPath();
+      ctx.moveTo(x + s*0.64, y + s*0.16);
+      ctx.lineTo(x + s*0.55, y + s*0.34);
+      ctx.lineTo(x + s*0.73, y + s*0.34);
+      ctx.closePath();
+      ctx.fill();
+      // 雪（小峰）
+      ctx.beginPath();
+      ctx.moveTo(x + s*0.24, y + s*0.38);
+      ctx.lineTo(x + s*0.18, y + s*0.50);
+      ctx.lineTo(x + s*0.30, y + s*0.50);
+      ctx.closePath();
+      ctx.fill();
+      // 岩の稜線ハイライト
+      ctx.strokeStyle = 'rgba(200,185,160,0.35)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(x + s*0.24, y + s*0.38);
+      ctx.lineTo(x + s*0.64, y + s*0.16);
+      ctx.stroke();
+
+    } else if (tileId === T.WATER) {
+      // 海/川ベース（青）
+      const wShade = 0.84 + r1*0.16;
+      ctx.fillStyle = `rgb(${Math.floor(28*wShade)},${Math.floor(95*wShade)},${Math.floor(175*wShade)})`;
+      ctx.fillRect(x, y, s, s);
+      // ベジェ曲線の波（2本）
+      ctx.strokeStyle = `rgba(180,225,255,${0.32 + r2*0.28})`;
+      ctx.lineWidth = 1.3;
+      const wy1 = y + r2*s*0.30 + s*0.18;
+      ctx.beginPath();
+      ctx.moveTo(x, wy1);
+      ctx.bezierCurveTo(x + s*0.28, wy1 - s*0.055, x + s*0.52, wy1 + s*0.065, x + s*0.78, wy1 - s*0.03);
+      ctx.bezierCurveTo(x + s*0.90, wy1 - s*0.055, x + s, wy1, x + s, wy1);
+      ctx.stroke();
+      const wy2 = wy1 + s*(0.26 + r3*0.14);
+      ctx.beginPath();
+      ctx.moveTo(x, wy2);
+      ctx.bezierCurveTo(x + s*0.32, wy2 + s*0.055, x + s*0.62, wy2 - s*0.05, x + s, wy2 + s*0.025);
+      ctx.stroke();
+      // キラキラ
+      if (r1 > 0.76) {
+        ctx.fillStyle = 'rgba(225,245,255,0.72)';
+        ctx.fillRect(x + r3*s*0.78 + s*0.06, y + r2*s*0.58 + s*0.08, s*0.042, s*0.042);
+      }
+
+    } else if (tileId === T.SAND) {
+      // 砂漠ベース（温かい黄土色）
+      const sShade = 0.84 + r1*0.16;
+      ctx.fillStyle = `rgb(${Math.floor(212*sShade)},${Math.floor(175*sShade)},${Math.floor(88*sShade)})`;
+      ctx.fillRect(x, y, s, s);
+      // 風紋（2本の波線）
+      ctx.strokeStyle = 'rgba(165,135,58,0.52)';
+      ctx.lineWidth = 0.8;
+      const sw1 = y + r2*s*0.32 + s*0.16;
+      ctx.beginPath();
+      ctx.moveTo(x, sw1);
+      ctx.quadraticCurveTo(x + s*0.50, sw1 - s*0.052*r3, x + s, sw1 + s*0.042);
+      ctx.stroke();
+      const sw2 = sw1 + s*(0.28 + r1*0.12);
+      ctx.beginPath();
+      ctx.moveTo(x, sw2);
+      ctx.quadraticCurveTo(x + s*0.50, sw2 + s*0.048*r3, x + s, sw2 - s*0.032);
+      ctx.stroke();
+      // 砂粒ドット
+      ctx.fillStyle = 'rgba(160,122,52,0.65)';
+      ctx.fillRect(x + r1*s*0.84, y + r2*s*0.72, s*0.042, s*0.042);
+      ctx.fillRect(x + r2*s*0.48, y + r3*s*0.44, s*0.034, s*0.034);
+
+    } else if (tileId === T.ROAD) {
+      // 踏み固められた土路
+      const rdShade = 0.86 + r1*0.14;
+      ctx.fillStyle = `rgb(${Math.floor(148*rdShade)},${Math.floor(118*rdShade)},${Math.floor(72*rdShade)})`;
+      ctx.fillRect(x, y, s, s);
+      // 轍（わだち）2本の溝
+      ctx.fillStyle = 'rgba(75,55,28,0.42)';
+      ctx.fillRect(x + s*0.19, y, s*0.09, s);
+      ctx.fillRect(x + s*0.72, y, s*0.09, s);
+      // 草のはみ出し（端）
+      ctx.fillStyle = 'rgba(55,108,28,0.28)';
+      ctx.fillRect(x, y, s*0.14, s);
+      ctx.fillRect(x + s*0.86, y, s*0.14, s);
+      // 小石
+      if (r2 > 0.50) {
+        ctx.fillStyle = 'rgba(98,88,65,0.52)';
+        ctx.beginPath();
+        ctx.ellipse(x + r1*s*0.55+s*0.22, y + r3*s*0.58+s*0.18, s*0.038, s*0.024, r2*Math.PI, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+    } else if (tileId === T.TOWN) {
+      // 町タイル（俯瞰の家）
+      ctx.fillStyle = '#7e6238';
+      ctx.fillRect(x, y, s, s);
+      // 屋根（赤茶三角）
+      ctx.fillStyle = '#be4e26';
+      ctx.beginPath();
+      ctx.moveTo(x + s*0.50, y + s*0.04);
+      ctx.lineTo(x + s*0.09, y + s*0.44);
+      ctx.lineTo(x + s*0.91, y + s*0.44);
+      ctx.closePath();
+      ctx.fill();
+      // 屋根ハイライト（左面）
+      ctx.fillStyle = '#d85e30';
+      ctx.beginPath();
+      ctx.moveTo(x + s*0.50, y + s*0.04);
+      ctx.lineTo(x + s*0.26, y + s*0.32);
+      ctx.lineTo(x + s*0.40, y + s*0.30);
+      ctx.closePath();
+      ctx.fill();
+      // 建物本体
+      ctx.fillStyle = '#c8a66a';
+      ctx.fillRect(x + s*0.12, y + s*0.42, s*0.76, s*0.52);
+      // 窓（青ガラス）
+      ctx.fillStyle = '#7aacca';
+      ctx.fillRect(x + s*0.20, y + s*0.52, s*0.20, s*0.16);
+      ctx.fillRect(x + s*0.60, y + s*0.52, s*0.20, s*0.16);
+      // 窓枠
+      ctx.strokeStyle = '#5a4028';
+      ctx.lineWidth = 1.0;
+      ctx.strokeRect(x + s*0.20, y + s*0.52, s*0.20, s*0.16);
+      ctx.strokeRect(x + s*0.60, y + s*0.52, s*0.20, s*0.16);
+      // 扉
+      ctx.fillStyle = '#6a3810';
+      ctx.fillRect(x + s*0.40, y + s*0.62, s*0.20, s*0.32);
+
+    } else if (tileId === T.FLOOR) {
+      // 石畳（特殊床）
+      const shade = 0.78 + r1*0.22;
+      ctx.fillStyle = `rgb(${Math.floor(155*shade)},${Math.floor(150*shade)},${Math.floor(135*shade)})`;
+      ctx.fillRect(x, y, s, s);
+      ctx.strokeStyle = 'rgba(80,70,55,0.42)';
+      ctx.lineWidth = 1.0;
+      ctx.strokeRect(x + 2, y + 2, s - 4, s - 4);
+
+    } else {
+      _drawDefaultTile(ctx, x, y, s, tileId);
+      return;
+    }
+    ctx.strokeStyle = 'rgba(0,0,0,0.11)';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(x, y, s, s);
   }
 
   function _drawChestIcon(ctx, x, y, size) {
@@ -1437,6 +1732,79 @@ const MapEngine = (() => {
     ctx.fillStyle = '#333';
     ctx.fillRect(cx - s*0.07, y + s*0.27, s*0.04, s*0.04);
     ctx.fillRect(cx + s*0.03, y + s*0.27, s*0.04, s*0.04);
+  }
+
+  // ── 近衛兵アイコン（板金鎧・槍・赤い羽飾り兜） ─────────────────
+  function _drawGuardIcon(ctx, x, y, size) {
+    const s = size, cx = x + s / 2;
+
+    // 槍の柄（後ろに描く）
+    ctx.fillStyle = '#7a6040';
+    ctx.fillRect(cx + s*0.20, y + s*0.04, s*0.055, s*0.80);
+    // 槍穂先
+    ctx.fillStyle = '#c8d8e8';
+    ctx.beginPath();
+    ctx.moveTo(cx + s*0.228, y + s*0.04);
+    ctx.lineTo(cx + s*0.178, y + s*0.17);
+    ctx.lineTo(cx + s*0.278, y + s*0.17);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = 'rgba(200,220,240,0.6)';
+    ctx.fillRect(cx + s*0.215, y + s*0.14, s*0.025, s*0.04);
+
+    // 鎧胴体（プレートアーマー）
+    ctx.fillStyle = '#7a8e9e';
+    ctx.fillRect(x + s*0.27, y + s*0.44, s*0.46, s*0.38);
+    // 鎧ハイライト（左上）
+    ctx.fillStyle = '#9ab4c8';
+    ctx.fillRect(x + s*0.27, y + s*0.44, s*0.46, s*0.055);
+    ctx.fillRect(x + s*0.27, y + s*0.44, s*0.055, s*0.30);
+    // 鎧の縦分割ライン
+    ctx.fillStyle = 'rgba(40,55,70,0.42)';
+    ctx.fillRect(cx - s*0.035, y + s*0.44, s*0.07, s*0.38);
+    // 腰帯（深紅）
+    ctx.fillStyle = '#991818';
+    ctx.fillRect(x + s*0.27, y + s*0.73, s*0.46, s*0.065);
+
+    // 頭（肌色）
+    ctx.fillStyle = '#f0c068';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.30, s*0.165, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 鉄兜（プレート）
+    ctx.fillStyle = '#7a8e9e';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.245, s*0.205, Math.PI, 0);
+    ctx.fill();
+    ctx.fillRect(x + s*0.255, y + s*0.245, s*0.49, s*0.08);
+    // 兜ハイライト
+    ctx.fillStyle = '#9ab4c8';
+    ctx.fillRect(x + s*0.31, y + s*0.12, s*0.08, s*0.13);
+    // 兜の目庇（鍔）
+    ctx.fillStyle = '#5e7080';
+    ctx.fillRect(x + s*0.255, y + s*0.315, s*0.49, s*0.042);
+    // 兜の額当て（細線）
+    ctx.fillStyle = 'rgba(40,55,70,0.45)';
+    ctx.fillRect(cx - s*0.025, y + s*0.12, s*0.05, s*0.18);
+
+    // 羽飾り（赤いプリューム）
+    ctx.fillStyle = '#cc1e1e';
+    ctx.beginPath();
+    ctx.moveTo(cx + s*0.05, y + s*0.05);
+    ctx.bezierCurveTo(cx + s*0.22, y - s*0.02, cx + s*0.34, y + s*0.12, cx + s*0.12, y + s*0.22);
+    ctx.bezierCurveTo(cx + s*0.18, y + s*0.14, cx + s*0.08, y + s*0.09, cx + s*0.05, y + s*0.05);
+    ctx.fill();
+    ctx.fillStyle = '#ee3838';
+    ctx.beginPath();
+    ctx.moveTo(cx + s*0.05, y + s*0.05);
+    ctx.bezierCurveTo(cx + s*0.17, y + s*0.00, cx + s*0.25, y + s*0.12, cx + s*0.10, y + s*0.19);
+    ctx.fill();
+
+    // 目
+    ctx.fillStyle = '#222';
+    ctx.fillRect(cx - s*0.08, y + s*0.27, s*0.045, s*0.045);
+    ctx.fillRect(cx + s*0.035, y + s*0.27, s*0.045, s*0.045);
   }
 
   // ── 城アイコン（城・王の間入口） ────────────────────────────
