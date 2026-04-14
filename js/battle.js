@@ -1025,6 +1025,7 @@ const Battle = (() => {
     const enemy  = bstate.enemy;
     let atkBonus = 0;
     if (bstate.bossId === 'maou' && player.weapon === 'holy_sword') atkBonus = 20;
+    if (bstate.bossId === 'maou' && player.weapon === 'kings_sword') atkBonus = 30;
 
     // かいしんのいちげき判定（1/16 ≈ 6%）
     const isCrit = Math.random() < 1/16;
@@ -1096,9 +1097,10 @@ const Battle = (() => {
       UI.showMessage(`${item.name}をつかった！\nHPが　${item.power}　かいふくした！`, () => _enemyTurn());
     } else if (item.effect === 'mp_heal') {
       Game.removeItem(itemId);
-      Game.healMp(item.power);
+      const healAmt = item.power > 0 ? item.power : Math.floor(Game.getPlayer().maxMp * 0.8);
+      Game.healMp(healAmt);
       Sound.heal();
-      UI.showMessage(`${item.name}をつかった！\nMPが　${item.power}　かいふくした！`, () => _enemyTurn());
+      UI.showMessage(`${item.name}をつかった！\nMPが　${healAmt}　かいふくした！`, () => _enemyTurn());
     } else if (item.effect === 'cure_poison') {
       Game.removeItem(itemId);
       Game.setPoison(false);
@@ -1216,6 +1218,21 @@ const Battle = (() => {
     bstate.active = false;
     UI.showBattleMenu(false);
     Sound.death();
+    // 真の魔王戦 or 魔王戦での死亡→魔王城入口に戻す（魔王は消えない）
+    if (bstate.bossId === 'maou') {
+      UI.showMessage('でこやまは　しんでしまった…', () => {
+        _hideBattleScreen();
+        Game.revive();
+        MapEngine.loadMap('maou_castle', 7, 13);
+        MapEngine.setMoveLock(false);
+        setTimeout(() => {
+          UI.showNpcDialog([
+            'しかし　でこやまは\nあきらめなかった…！',
+          ]);
+        }, 300);
+      });
+      return;
+    }
     UI.showMessage('でこやまは　しんでしまった…', () => {
       _hideBattleScreen();
       Game.revive();

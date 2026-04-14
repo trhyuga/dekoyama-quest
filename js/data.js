@@ -189,7 +189,7 @@ const GameData = {
         { x:5, y:8, type:'npc', npcId:'npc_desert_town' },
         { x:11, y:6, type:'npc', npcId:'npc_manotou' },
         // 友好スライム（条件付き表示）
-        { x:1, y:8, type:'npc', npcId:'friendly_slime' },
+        { x:0, y:15, type:'npc', npcId:'friendly_slime' },
       ],
     },
 
@@ -512,8 +512,8 @@ const GameData = {
       id:'magic_water', name:'まほうのみず',
       price:40, sellPrice:20,
       type:'consumable',
-      effect:'mp_heal', power:20,
-      desc:'MPを20かいふくする',
+      effect:'mp_heal', power:0,
+      desc:'MPを8わりかいふくする',
     },
     elixir: {
       id:'elixir', name:'エリクサー',
