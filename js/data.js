@@ -181,7 +181,7 @@ const GameData = {
         { x:7, y:6, type:'shop', shopId:'item_shop1' },
         { x:7, y:7, type:'shop', shopId:'item_shop1' },
         // 情報屋
-        { x:3, y:6, type:'npc', npcId:'info1' },
+        { x:4, y:6, type:'npc', npcId:'info1' },
         // 追加の町人たち
         { x:5, y:4, type:'npc', npcId:'npc_ghost_poison' },
         { x:9, y:4, type:'npc', npcId:'npc_antidote' },
