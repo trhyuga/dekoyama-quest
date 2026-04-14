@@ -297,10 +297,11 @@ const Game = (() => {
   }
 
   function revive() {
-    // 復活：HP/MP全回復・金半減
-    player.hp   = player.maxHp;
-    player.mp   = player.maxMp;
-    player.gold = Math.floor(player.gold / 2);
+    // 復活：HP/MP全回復・毒解除・金半減
+    player.hp       = player.maxHp;
+    player.mp       = player.maxMp;
+    player.poisoned = false;
+    player.gold     = Math.floor(player.gold / 2);
     UI.updateStatus(player);
   }
 
