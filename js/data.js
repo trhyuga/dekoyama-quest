@@ -591,7 +591,7 @@ const GameData = {
     skeleton: {
       id:'skeleton', name:'スケルトン',
       hp:22, atk:28, def:6,
-      exp:10, gold:70,
+      exp:10, gold:42,
       area:['dungeon1'],
       minLv:3, maxLv:5,
       color:'#ddddaa',
@@ -600,7 +600,7 @@ const GameData = {
     zombie: {
       id:'zombie', name:'ゾンビ',
       hp:30, atk:32, def:8,
-      exp:12, gold:90,
+      exp:12, gold:54,
       area:['dungeon1'],
       minLv:4, maxLv:5,
       color:'#668844',
@@ -653,7 +653,7 @@ const GameData = {
     dungeon1_boss: {
       id:'dungeon1_boss', name:'アームライオン',
       hp:80, atk:36, def:10,
-      exp:40, gold:300,
+      exp:40, gold:180,
       area:[], isBoss:true,
       color:'#aa6600',
       spells:[],
