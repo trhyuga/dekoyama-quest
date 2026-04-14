@@ -1318,15 +1318,15 @@ const MapEngine = (() => {
         ctx.fillRect(x, y + s*0.96, s, s*0.04);
 
       } else {
-        // 城下町：ショップ周辺の緑の地面
+        // 城下町：ショップ周辺の緑の地面（黄緑寄り）
         const shade = 0.85 + r1*0.15;
-        ctx.fillStyle = `rgb(${Math.floor(50*shade)},${Math.floor(115*shade)},${Math.floor(38*shade)})`;
+        ctx.fillStyle = `rgb(${Math.floor(68*shade)},${Math.floor(120*shade)},${Math.floor(42*shade)})`;
         ctx.fillRect(x, y, s, s);
         // 草の質感
-        ctx.fillStyle = `rgba(70,150,45,${0.2 + r2*0.2})`;
+        ctx.fillStyle = `rgba(95,155,50,${0.2 + r2*0.2})`;
         ctx.fillRect(x + r1*s*0.5, y + r3*s*0.4, s*0.35, s*0.3);
         if (r2 > 0.6) {
-          ctx.fillStyle = 'rgba(90,170,50,0.3)';
+          ctx.fillStyle = 'rgba(110,170,55,0.3)';
           ctx.beginPath();
           ctx.moveTo(x+r1*s*0.7+s*0.1, y+r3*s*0.6+s*0.1);
           ctx.lineTo(x+r1*s*0.7+s*0.08, y+r3*s*0.6+s*0.22);
