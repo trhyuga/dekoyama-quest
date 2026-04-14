@@ -33,6 +33,7 @@ const Game = (() => {
   let _deathCount       = 0;
   let _trueMaouDefeats  = 0;  // 真の魔王に負けた回数
   let _defSeedGiven     = 0;  // まもりのたねをもらった回数
+  let _healBoosted      = false; // 回復魔法強化済み
   let _queenElixirGiven = false;
   let _kingSwordGiven   = false;
 
@@ -86,6 +87,7 @@ const Game = (() => {
       _kingSwordGiven    = false;
       _trueMaouDefeats   = 0;
       _defSeedGiven      = 0;
+      _healBoosted       = false;
       _startOpening();
     }
     function onStartTouch(e) {
@@ -456,7 +458,7 @@ const Game = (() => {
       version: 1,
       player: JSON.parse(JSON.stringify(player)),
       map:    MapEngine.getMapState(),
-      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven, deathCount: _deathCount, queenElixirGiven: _queenElixirGiven, kingSwordGiven: _kingSwordGiven, trueMaouDefeats: _trueMaouDefeats, defSeedGiven: _defSeedGiven },
+      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven, deathCount: _deathCount, queenElixirGiven: _queenElixirGiven, kingSwordGiven: _kingSwordGiven, trueMaouDefeats: _trueMaouDefeats, defSeedGiven: _defSeedGiven, healBoosted: _healBoosted },
     };
     try {
       localStorage.setItem('dekoyama_save', JSON.stringify(data));
@@ -482,6 +484,7 @@ const Game = (() => {
       _kingSwordGiven    = data.flags ? !!data.flags.kingSwordGiven   : false;
       _trueMaouDefeats   = data.flags ? (data.flags.trueMaouDefeats || 0) : 0;
       _defSeedGiven      = data.flags ? (data.flags.defSeedGiven   || 0) : 0;
+      _healBoosted       = data.flags ? !!data.flags.healBoosted : false;
       UI.updateStatus(player);
       UI.showScene('game');
       setTimeout(() => {
@@ -533,6 +536,9 @@ const Game = (() => {
     isSpellDoubled,
     getFriendlySlimeDialog,
     addTrueMaouDefeat: () => { _trueMaouDefeats++; },
+    hasTrueMaouDefeats: () => _trueMaouDefeats > 0,
+    boostHeal: () => { _healBoosted = true; },
+    isHealBoosted: () => _healBoosted,
   };
 
 })();

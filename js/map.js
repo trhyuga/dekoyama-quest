@@ -414,6 +414,16 @@ const MapEngine = (() => {
                   Game.doubleSpellPower();
                   UI.showMessage('じゅもんの　ちからが\n２ばいに　なった！', null);
                 });
+              } else if (Game.hasTrueMaouDefeats() && !Game.isHealBoosted()) {
+                UI.showNpcDialog([
+                  'なんだ　まだ\nまおうごときに\nまけているのか。',
+                  'こんかいの　ゆうしゃは\nほんとに　しょぼいな。',
+                  'しかたないから\nかいふくまほうも\nきょうかしてやろう。',
+                ], () => {
+                  Game.boostHeal();
+                  Sound.heal();
+                  UI.showMessage('ホイミと　ベホイミの\nかいふくりょくが\n３わりましに　なった！', null);
+                });
               } else {
                 UI.showNpcDialog(['またきたか　ゆうしゃよ。\nはやく　まおうを　たおせ！'], null);
               }

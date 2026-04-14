@@ -1070,7 +1070,8 @@ const Battle = (() => {
     }
     Game.useMp(spell.mp);
     if (spell.type === 'heal') {
-      const heal = _rand(spell.power[0], spell.power[1]);
+      let heal = _rand(spell.power[0], spell.power[1]);
+      if (Game.isHealBoosted()) heal = Math.floor(heal * 1.3);
       Game.healHp(heal);
       Sound.heal();
       UI.showMessage(`${spell.name}！\nでこやまの　HPが　${heal}　かいふくした！`, () => _enemyTurn());
