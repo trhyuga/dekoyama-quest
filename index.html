@@ -13,20 +13,34 @@
 
     <!-- ========== タイトル画面 ========== -->
     <div id="scene-title" class="scene active">
-      <div class="title-top-space"></div>
-      <div class="title-logo-box">
-        <div class="title-logo-line1">DEKOYAMA</div>
-        <div class="title-logo-line2">QUEST</div>
-      </div>
-      <div class="title-mid-space"></div>
-      <div class="title-menu-box">
-        <div class="window-border">
-          <div class="menu-item" id="menu-start">
-            <span class="cursor">▶</span>ぼうけんをはじめる
+      <!-- 星空・城シルエット背景 -->
+      <canvas id="title-bg-canvas"></canvas>
+      <!-- 前景コンテンツ -->
+      <div class="title-content">
+        <div class="title-logo-wrap">
+          <div class="title-deco-line">
+            <span class="deco-gem">◆</span>
+            <span class="deco-hr"></span>
+            <span class="deco-gem">◆</span>
+          </div>
+          <div class="title-logo-line1">DEKOYAMA</div>
+          <div class="title-logo-line2">QUEST</div>
+          <div class="title-deco-line">
+            <span class="deco-gem">◆</span>
+            <span class="deco-hr"></span>
+            <span class="deco-gem">◆</span>
           </div>
         </div>
-      </div>
-      <div class="title-bottom">
+        <!-- 紋章 -->
+        <canvas id="title-emblem-canvas"></canvas>
+        <!-- メニュー -->
+        <div class="title-menu-box">
+          <div class="window-border title-window">
+            <div class="menu-item" id="menu-start">
+              <span class="cursor">▶</span>ぼうけんをはじめる
+            </div>
+          </div>
+        </div>
         <div class="title-copyright">©2026 tr soft</div>
       </div>
     </div>
@@ -166,11 +180,12 @@
   </div><!-- /#game-wrapper -->
 
   <!-- JS読み込み -->
-  <script src="js/data.js?v=6"></script>
-  <script src="js/sound.js?v=6"></script>
-  <script src="js/ui.js?v=6"></script>
-  <script src="js/map.js?v=6"></script>
-  <script src="js/battle.js?v=6"></script>
-  <script src="js/main.js?v=6"></script>
+  <script src="js/data.js?v=7"></script>
+  <script src="js/sound.js?v=7"></script>
+  <script src="js/title.js?v=7"></script>
+  <script src="js/ui.js?v=7"></script>
+  <script src="js/map.js?v=7"></script>
+  <script src="js/battle.js?v=7"></script>
+  <script src="js/main.js?v=7"></script>
 </body>
 </html>

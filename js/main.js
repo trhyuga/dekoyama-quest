@@ -58,9 +58,15 @@ const Game = (() => {
     Sound.title();
     UI.showScene('title');
 
+    // タイトル画面アニメーション起動
+    setTimeout(() => {
+      if (typeof TitleScreen !== 'undefined') TitleScreen.init();
+    }, 30);
+
     // 画面のどこをタップしてもゲーム開始
     const sceneEl = document.getElementById('scene-title');
     function onStart() {
+      if (typeof TitleScreen !== 'undefined') TitleScreen.stop();
       sceneEl.removeEventListener('click',      onStart);
       sceneEl.removeEventListener('touchstart', onStartTouch);
       player = PLAYER_INIT();

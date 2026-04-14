@@ -89,100 +89,132 @@ body {
    タイトル画面
    ======================================== */
 #scene-title {
-  background: var(--bg-dark);
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-}
-
-.title-top-space {
-  height: 8vh;
-}
-
-.title-logo-box {
-  text-align: center;
-  line-height: 1.05;
-  border: none;
-  outline: none;
-  padding: 20px 10px;
-  background: transparent;
-  width: 100%;
   position: relative;
+  background: #020215;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+/* 星空・城シルエット背景 canvas */
+#title-bg-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+/* 前景コンテンツラッパー */
+.title-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 10px;
+  padding: 12px 16px;
+  box-sizing: border-box;
+}
+
+/* ロゴ全体 */
+.title-logo-wrap {
+  text-align: center;
+  line-height: 1.0;
+}
+
+/* ロゴ上下の装飾ライン */
+.title-deco-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 5px 0;
+}
+.deco-gem {
+  font-size: 10px;
+  color: #d4aa00;
+  text-shadow: 0 0 6px rgba(212,170,0,0.8);
+}
+.deco-hr {
+  display: inline-block;
+  width: 90px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #d4aa00 25%, #f0d060 50%, #d4aa00 75%, transparent);
 }
 
 /* ドラクエ風タイトルアニメーション */
 @keyframes title-shine {
-  0%,100% {
+  0%, 100% {
     text-shadow:
-      /* ゴールド外枠 */
-      -2px -2px 0 #D4A830,
-       2px -2px 0 #D4A830,
-      -2px  2px 0 #D4A830,
-       2px  2px 0 #D4A830,
-       0   -2px 0 #D4A830,
-       0    2px 0 #D4A830,
-      -2px  0   0 #D4A830,
-       2px  0   0 #D4A830,
-      /* 3D奥行き */
-       3px  3px 0 #3A1060,
-       4px  4px 0 #2E0A50,
-       5px  5px 0 #220840,
-       6px  6px 2px rgba(0,0,0,0.6),
-      /* グロウ */
-       0 0 10px rgba(200,160,60,0.3);
+      -2px -2px 0 #8b6200,
+       2px -2px 0 #8b6200,
+      -2px  2px 0 #8b6200,
+       2px  2px 0 #8b6200,
+       3px  3px 0 #150830,
+       4px  4px 0 #0e0520,
+       5px  5px 2px rgba(0,0,0,0.75),
+       0 0 8px  rgba(212,170,0,0.20);
   }
   50% {
     text-shadow:
-      -2px -2px 0 #F0D050,
-       2px -2px 0 #F0D050,
-      -2px  2px 0 #F0D050,
-       2px  2px 0 #F0D050,
-       0   -2px 0 #F0D050,
-       0    2px 0 #F0D050,
-      -2px  0   0 #F0D050,
-       2px  0   0 #F0D050,
-       3px  3px 0 #3A1060,
-       4px  4px 0 #2E0A50,
-       5px  5px 0 #220840,
-       6px  6px 2px rgba(0,0,0,0.6),
-       0 0 20px rgba(240,200,80,0.5),
-       0 0 40px rgba(200,160,60,0.2);
+      -2px -2px 0 #d4aa00,
+       2px -2px 0 #d4aa00,
+      -2px  2px 0 #d4aa00,
+       2px  2px 0 #d4aa00,
+       3px  3px 0 #150830,
+       4px  4px 0 #0e0520,
+       5px  5px 2px rgba(0,0,0,0.75),
+       0 0 16px rgba(255,220,40,0.55),
+       0 0 36px rgba(200,150,0,0.25);
   }
 }
 
 .title-logo-line1 {
   font-family: 'Cinzel', serif;
   font-weight: 900;
-  font-size: 44px;
-  color: #7B3FA8;
-  letter-spacing: 3px;
-  animation: title-shine 3s ease-in-out infinite;
-  -webkit-text-stroke: 1px #D4A830;
+  font-size: clamp(36px, 8.5vw, 52px);
+  color: #f0d060;
+  letter-spacing: 5px;
+  -webkit-text-stroke: 1px #a07800;
   paint-order: stroke fill;
+  animation: title-shine 3s ease-in-out infinite;
 }
 
 .title-logo-line2 {
   font-family: 'Cinzel', serif;
   font-weight: 900;
-  font-size: 56px;
-  color: #7B3FA8;
-  letter-spacing: 8px;
-  margin-top: 2px;
-  animation: title-shine 3s ease-in-out infinite 0.5s;
-  -webkit-text-stroke: 1.5px #D4A830;
+  font-size: clamp(46px, 11vw, 66px);
+  color: #f0d060;
+  letter-spacing: 10px;
+  margin-top: -2px;
+  -webkit-text-stroke: 1.5px #a07800;
   paint-order: stroke fill;
+  animation: title-shine 3s ease-in-out infinite 0.5s;
 }
 
-.title-mid-space {
-  height: 6vh;
+/* 紋章 canvas */
+#title-emblem-canvas {
+  display: block;
+  filter: drop-shadow(0 0 8px rgba(212,170,0,0.5));
 }
 
+/* メニューボックス */
 .title-menu-box {
-  width: 90%;
+  width: 88%;
+  max-width: 310px;
 }
 
-.title-menu-box .window-border {
-  padding: 14px 20px;
+.title-window {
+  padding: 13px 22px;
+  background: rgba(2, 2, 28, 0.88) !important;
+  border-color: #c8980a !important;
+  outline-color: #3a2800 !important;
+  box-shadow: 0 0 14px rgba(200,150,0,0.35), inset 0 0 18px rgba(0,0,50,0.5);
+  text-align: center;
 }
 
 .menu-item {
@@ -194,21 +226,15 @@ body {
 }
 
 .menu-item .cursor {
-  color: var(--white);
+  color: #f0d060;
   margin-right: 6px;
   animation: blink 0.8s step-start infinite;
 }
 
-.title-bottom {
-  height: 10vh;
-  display: flex;
-  align-items: flex-end;
-  padding-bottom: 16px;
-}
-
+/* コピーライト */
 .title-copyright {
   font-size: var(--fs-sm);
-  color: var(--gray);
+  color: #665544;
   letter-spacing: 1px;
 }
 
