@@ -243,6 +243,7 @@ const UI = (() => {
         }
         Game.buyItem(itemId);
         elShopTitle.textContent = `${shop.name}　（${player.gold}Ｇ）`;
+        Sound.buy();
         showMessage(`${item.name}を\nかいました！`, null);
       });
       elShopList.appendChild(btn);

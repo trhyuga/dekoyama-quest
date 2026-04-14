@@ -828,6 +828,8 @@ const Battle = (() => {
     MapEngine.setMoveLock(true);
     _showBattleScreen(bstate.enemy);
 
+    if (isBoss) Sound.bossEncounter(); else Sound.encounter();
+
     const msg = isBoss
       ? `${enemyDef.name}が\nあらわれた！`
       : `${enemyDef.name}に\nであった！`;
@@ -841,6 +843,7 @@ const Battle = (() => {
     if (Game.isPoisoned() && bstate.active) {
       const pdmg = _rand(3, 6);
       Game.takeDamage(pdmg);
+      Sound.poisonTick();
       UI.showMessage(`どくで　${pdmg}の　ダメージ！`, () => {
         if (Game.getPlayer().hp <= 0) { _playerDead(); return; }
         bstate.waitingCmd = true;
@@ -873,6 +876,7 @@ const Battle = (() => {
     bstate.enemyHp -= dmg;
     _updateHpBar(bstate.enemyHp, bstate.enemyMaxHp);
 
+    Sound.attack();
     UI.showMessage(`でこやまの　こうげき！\n${enemy.name}に　${dmg}の　ダメージ！`, () => {
       if (bstate.enemyHp <= 0) {
         _enemyDead();
@@ -898,11 +902,13 @@ const Battle = (() => {
     if (spell.type === 'heal') {
       const heal = _rand(spell.power[0], spell.power[1]);
       Game.healHp(heal);
+      Sound.heal();
       UI.showMessage(`${spell.name}！\nでこやまの　HPが　${heal}　かいふくした！`, () => _enemyTurn());
     } else if (spell.type === 'attack') {
       const dmg = _rand(spell.power[0], spell.power[1]);
       bstate.enemyHp -= dmg;
       _updateHpBar(bstate.enemyHp, bstate.enemyMaxHp);
+      Sound.magicAttack();
       UI.showMessage(`${spell.name}！\n${bstate.enemy.name}に　${dmg}の　ダメージ！`, () => {
         if (bstate.enemyHp <= 0) _enemyDead(); else _enemyTurn();
       });
@@ -916,14 +922,17 @@ const Battle = (() => {
     if (item.effect === 'heal') {
       Game.removeItem(itemId);
       Game.healHp(item.power);
+      Sound.heal();
       UI.showMessage(`${item.name}をつかった！\nHPが　${item.power}　かいふくした！`, () => _enemyTurn());
     } else if (item.effect === 'mp_heal') {
       Game.removeItem(itemId);
       Game.healMp(item.power);
+      Sound.heal();
       UI.showMessage(`${item.name}をつかった！\nMPが　${item.power}　かいふくした！`, () => _enemyTurn());
     } else if (item.effect === 'cure_poison') {
       Game.removeItem(itemId);
       Game.setPoison(false);
+      Sound.curePoison();
       UI.showMessage(`${item.name}をつかった！\nどくが　なおった！`, () => _enemyTurn());
     } else {
       UI.showMessage('いまは　つかえない。', () => _waitCommand());
@@ -937,8 +946,10 @@ const Battle = (() => {
       return;
     }
     if (Math.random() < 0.70) {
+      Sound.runOk();
       UI.showMessage('うまく　にげきれた！', () => _endBattle(false));
     } else {
+      Sound.runFail();
       UI.showMessage('しかし　まわりこまれた！', () => _enemyTurn());
     }
   }
@@ -963,12 +974,14 @@ const Battle = (() => {
   }
 
   function _applyPlayerDamage(dmg, msg) {
+    Sound.hit();
     Game.takeDamage(dmg);
     const enemy = bstate.enemy;
     // 毒判定（40%の確率）
     if (enemy.poison && !Game.isPoisoned() && Math.random() < 0.4) {
       Game.setPoison(true);
       UI.showMessage(msg, () => {
+        Sound.poison();
         UI.showMessage('どくに　おかされた！', () => {
           if (Game.getPlayer().hp <= 0) _playerDead();
           else _waitCommand();
@@ -985,6 +998,7 @@ const Battle = (() => {
   // ── 敵撃破 ────────────────────────────────────────────────
   function _enemyDead() {
     const enemy = bstate.enemy;
+    Sound.victory();
     let msg = `${enemy.name}を　たおした！\n${enemy.exp}の　けいけんちと\n${enemy.gold}ゴールドをてにいれた！`;
     if (enemy.dropItem) {
       Game.addItem(enemy.dropItem);
@@ -997,6 +1011,7 @@ const Battle = (() => {
       if (gains) {
         const lv = Game.getPlayer().level;
         const newSpell = _checkNewSpell(lv);
+        Sound.levelUp();
         let lvMsg = `レベルが　あがった！\nレベル ${lv}に　なった！\n`;
         lvMsg += `HP+${gains.hpGain}　MP+${gains.mpGain}\n`;
         lvMsg += `こうげき+${gains.atkGain}　まもり+${gains.defGain}`;
@@ -1012,6 +1027,7 @@ const Battle = (() => {
   function _playerDead() {
     bstate.active = false;
     UI.showBattleMenu(false);
+    Sound.death();
     UI.showMessage('でこやまは　しんでしまった…', () => {
       _hideBattleScreen();
       Game.revive();

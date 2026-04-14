@@ -276,6 +276,7 @@ const MapEngine = (() => {
         setTimeout(() => {
           loadMap(ev.dest, ev.destX, ev.destY);
           if (typeof UI !== 'undefined') {
+            Sound.teleport();
             UI.showMessage(_mapTransitionMsg(ev.dest));
           }
         }, 200);
@@ -293,6 +294,7 @@ const MapEngine = (() => {
         const item = GameData.ITEMS[ev.item];
         if (typeof Game !== 'undefined') Game.addItem(ev.item);
         if (typeof UI !== 'undefined') {
+          Sound.chest();
           let msg = `たからばこをあけた！\n${item.name}を てにいれた！`;
           // 鍵アイテムには用途ヒントを追加
           if (ev.item === 'iron_key') {
