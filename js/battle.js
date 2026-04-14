@@ -872,12 +872,22 @@ const Battle = (() => {
     const enemy  = bstate.enemy;
     let atkBonus = 0;
     if (bstate.bossId === 'maou' && player.weapon === 'holy_sword') atkBonus = 20;
-    const dmg = _calcDamage(player.atk + atkBonus, enemy.def);
+
+    // かいしんのいちげき判定（1/16 ≈ 6%）
+    const isCrit = Math.random() < 1/16;
+    let dmg;
+    if (isCrit) {
+      // DEF無視・攻撃力そのまま（±25%のブレあり）
+      const base = player.atk + atkBonus;
+      const vary = Math.floor(base * 0.15);
+      dmg = base - vary + Math.floor(Math.random() * (vary * 2 + 1));
+    } else {
+      dmg = _calcDamage(player.atk + atkBonus, enemy.def);
+    }
     bstate.enemyHp -= dmg;
     _updateHpBar(bstate.enemyHp, bstate.enemyMaxHp);
 
-    Sound.attack();
-    UI.showMessage(`でこやまの　こうげき！\n${enemy.name}に　${dmg}の　ダメージ！`, () => {
+    function _afterAtk() {
       if (bstate.enemyHp <= 0) {
         _enemyDead();
       } else if (bstate.isBoss && enemy.phase2Hp && bstate.enemyHp <= enemy.phase2Hp && !bstate.phase2) {
@@ -886,7 +896,15 @@ const Battle = (() => {
       } else {
         _enemyTurn();
       }
-    });
+    }
+
+    if (isCrit) {
+      Sound.critical();
+      UI.showMessage(`でこやまの　こうげき！\nかいしんの　いちげき！！\n${enemy.name}に　${dmg}の　ダメージ！`, _afterAtk);
+    } else {
+      Sound.attack();
+      UI.showMessage(`でこやまの　こうげき！\n${enemy.name}に　${dmg}の　ダメージ！`, _afterAtk);
+    }
   }
 
   // ── プレイヤー：呪文 ─────────────────────────────────────
@@ -968,9 +986,21 @@ const Battle = (() => {
         return;
       }
     }
+    // つうこんのいちげき判定（通常1/16、ボス1/10）
+    const critRate = bstate.isBoss ? 1/10 : 1/16;
+    const isEnemyCrit = Math.random() < critRate;
     const atkMult = bstate.phase2 ? 1.3 : 1.0;
-    const dmg = _calcDamage(Math.floor(enemy.atk * atkMult), player.def);
-    _applyPlayerDamage(dmg, `${enemy.name}の　こうげき！\nでこやまは　${dmg}の　ダメージをうけた！`);
+
+    if (isEnemyCrit) {
+      // DEFの半分しか効かない + ATK1.5倍
+      const rawAtk = Math.floor(enemy.atk * atkMult * 1.5);
+      const dmg = _calcDamage(rawAtk, Math.floor(player.def * 0.5));
+      Sound.enemyCritical();
+      _applyPlayerDamage(dmg, `${enemy.name}の　つうこんの　いちげき！！\nでこやまは　${dmg}の　ダメージをうけた！`);
+    } else {
+      const dmg = _calcDamage(Math.floor(enemy.atk * atkMult), player.def);
+      _applyPlayerDamage(dmg, `${enemy.name}の　こうげき！\nでこやまは　${dmg}の　ダメージをうけた！`);
+    }
   }
 
   function _applyPlayerDamage(dmg, msg) {

@@ -234,6 +234,29 @@ const Sound = (() => {
     }
   }
 
+  // ── かいしんのいちげき ───────────────────────────────────
+  function critical() {
+    const c = _getCtx();
+    const t = c.currentTime;
+    _noise(0.06, 0.15, t);
+    _tone(800, 0.06, 'square', 0.15, t);
+    _tone(1200, 0.06, 'square', 0.15, t + 0.05);
+    _tone(1600, 0.1, 'square', 0.18, t + 0.1);
+    _noise(0.1, 0.12, t + 0.12);
+    _tone(2000, 0.15, 'square', 0.12, t + 0.15);
+  }
+
+  // ── つうこんのいちげき ──────────────────────────────────
+  function enemyCritical() {
+    const c = _getCtx();
+    const t = c.currentTime;
+    _tone(300, 0.08, 'sawtooth', 0.18, t);
+    _noise(0.15, 0.18, t + 0.05);
+    _tone(150, 0.12, 'sawtooth', 0.2, t + 0.1);
+    _noise(0.2, 0.15, t + 0.15);
+    _tone(80, 0.25, 'sawtooth', 0.15, t + 0.2);
+  }
+
   // ── 逃げる失敗 ──────────────────────────────────────────
   function runFail() {
     const c = _getCtx();
@@ -253,7 +276,8 @@ const Sound = (() => {
 
   return {
     cursor, encounter, bossEncounter,
-    attack, hit, magicAttack, heal,
+    attack, hit, critical, enemyCritical,
+    magicAttack, heal,
     poison, poisonTick, curePoison,
     victory, levelUp, death,
     chest, buy, inn, teleport,
