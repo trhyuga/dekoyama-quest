@@ -31,6 +31,8 @@ const Game = (() => {
   let _queenItemGiven   = false;
   let _spellPowerDoubled = false;
   let _deathCount       = 0;
+  let _trueMaouDefeats  = 0;  // 真の魔王に負けた回数
+  let _defSeedGiven     = 0;  // まもりのたねをもらった回数
   let _queenElixirGiven = false;
   let _kingSwordGiven   = false;
 
@@ -82,6 +84,8 @@ const Game = (() => {
       _deathCount        = 0;
       _queenElixirGiven  = false;
       _kingSwordGiven    = false;
+      _trueMaouDefeats   = 0;
+      _defSeedGiven      = 0;
       _startOpening();
     }
     function onStartTouch(e) {
@@ -366,6 +370,25 @@ const Game = (() => {
         }
       };
     }
+    // 真の魔王に負けた回数 > まもりのたねをもらった回数 → もらえる
+    if (_trueMaouDefeats > _defSeedGiven) {
+      _defSeedGiven++;
+      return {
+        lines: [
+          'まおうごときに　たおされるなんて\nなさけない　ゆうしゃね。',
+          'むすめがぶじか　しんぱいだわ。',
+          'おうけにつたわる\nまもりのたねを\nひとつぶ　あげるから\nのみなさい。',
+          'まもりが　つよくなる　かわりに\nかおが　ぶたみたいに\nすこし　ぶさいくに\nなるのよ。',
+          'まぁ　でこやまなら\nいいわよね？',
+        ],
+        onClose: () => {
+          player.def += 3;
+          UI.updateStatus(player);
+          Sound.heal();
+          UI.showMessage('まもりのたねを　のんだ！\nぼうぎょりょくが　３あがった！', null);
+        }
+      };
+    }
     return {
       lines: ['たびに　きをつけて\nでこやまよ。'],
       onClose: null
@@ -433,7 +456,7 @@ const Game = (() => {
       version: 1,
       player: JSON.parse(JSON.stringify(player)),
       map:    MapEngine.getMapState(),
-      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven, deathCount: _deathCount, queenElixirGiven: _queenElixirGiven, kingSwordGiven: _kingSwordGiven },
+      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven, deathCount: _deathCount, queenElixirGiven: _queenElixirGiven, kingSwordGiven: _kingSwordGiven, trueMaouDefeats: _trueMaouDefeats, defSeedGiven: _defSeedGiven },
     };
     try {
       localStorage.setItem('dekoyama_save', JSON.stringify(data));
@@ -457,6 +480,8 @@ const Game = (() => {
       _deathCount        = data.flags ? (data.flags.deathCount || 0) : 0;
       _queenElixirGiven  = data.flags ? !!data.flags.queenElixirGiven : false;
       _kingSwordGiven    = data.flags ? !!data.flags.kingSwordGiven   : false;
+      _trueMaouDefeats   = data.flags ? (data.flags.trueMaouDefeats || 0) : 0;
+      _defSeedGiven      = data.flags ? (data.flags.defSeedGiven   || 0) : 0;
       UI.updateStatus(player);
       UI.showScene('game');
       setTimeout(() => {
@@ -507,6 +532,7 @@ const Game = (() => {
     doubleSpellPower,
     isSpellDoubled,
     getFriendlySlimeDialog,
+    addTrueMaouDefeat: () => { _trueMaouDefeats++; },
   };
 
 })();

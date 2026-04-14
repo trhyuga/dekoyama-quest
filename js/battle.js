@@ -1221,6 +1221,7 @@ const Battle = (() => {
     Sound.death();
     // 真の魔王戦 or 魔王戦での死亡→城に戻す
     if (bstate.bossId === 'maou') {
+      if (bstate.trueMaou) Game.addTrueMaouDefeat();
       UI.showMessage('でこやまは　しんでしまった…', () => {
         _hideBattleScreen();
         Game.revive();
