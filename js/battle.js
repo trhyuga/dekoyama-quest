@@ -875,15 +875,8 @@ const Battle = (() => {
 
     // かいしんのいちげき判定（1/16 ≈ 6%）
     const isCrit = Math.random() < 1/16;
-    let dmg;
-    if (isCrit) {
-      // DEF無視・攻撃力そのまま（±25%のブレあり）
-      const base = player.atk + atkBonus;
-      const vary = Math.floor(base * 0.15);
-      dmg = base - vary + Math.floor(Math.random() * (vary * 2 + 1));
-    } else {
-      dmg = _calcDamage(player.atk + atkBonus, enemy.def);
-    }
+    const normalDmg = _calcDamage(player.atk + atkBonus, enemy.def);
+    const dmg = isCrit ? normalDmg * 2 : normalDmg;
     bstate.enemyHp -= dmg;
     _updateHpBar(bstate.enemyHp, bstate.enemyMaxHp);
 
