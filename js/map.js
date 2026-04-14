@@ -86,7 +86,8 @@ const MapEngine = (() => {
     const halfW = Math.floor(VIEW_W / 2);
     const halfH = Math.floor(viewH  / 2);
     state.cameraX = Math.max(0, Math.min(state.playerX - halfW, map.width  - VIEW_W));
-    state.cameraY = Math.max(0, Math.min(state.playerY - halfH, map.height - viewH));
+    // 下端に1タイル余裕を持たせ、最下行がタップしやすいようにする
+    state.cameraY = Math.max(0, Math.min(state.playerY - halfH, Math.max(0, map.height - viewH + 1)));
   }
 
   // ── タップ処理 ────────────────────────────────────────────
