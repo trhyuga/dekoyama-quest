@@ -186,11 +186,20 @@ const MapEngine = (() => {
     if (Game.isPoisoned()) {
       Game.takeDamage(1);
       if (Game.getPlayer().hp <= 0) {
-        // 毒死→復活
+        // どくけしそうがあればHP1で踏みとどまる
+        if (Game.getPlayer().items.includes('antidote')) {
+          Game.removeItem('antidote');
+          Game.setPoison(false);
+          Game.healHp(1);
+          Sound.curePoison();
+          UI.showMessage('どくで　たおれそうになったが\nどくけしそうを　つかって\nなんとか　もちこたえた！', null);
+          return;
+        }
+        // どくけしそうなし→死に戻り
         UI.showMessage('どくで　たおれてしまった…', () => {
           Game.revive();
           Game.setPoison(false);
-          loadMap('throne_room', 4, 8);
+          loadMap('throne_room', 5, 5);
           UI.showNpcDialog([
             'おお　でこやまよ。\nどくには　きをつけよ。',
           ]);
