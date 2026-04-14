@@ -167,10 +167,10 @@ const GameData = {
         // 城門を出る→ワールドマップ
         { x:7, y:15, type:'teleport', dest:'world', destX:5, destY:4 },
         // 王の間（城入口：2×2タイル全部を城アイコンに）
-        { x:2, y:2, type:'teleport', dest:'throne_room', destX:4, destY:8 },
-        { x:2, y:3, type:'teleport', dest:'throne_room', destX:4, destY:8 },
-        { x:3, y:2, type:'teleport', dest:'throne_room', destX:4, destY:8 },
-        { x:3, y:3, type:'teleport', dest:'throne_room', destX:4, destY:8 },
+        { x:2, y:2, type:'teleport', dest:'throne_room', destX:5, destY:5 },
+        { x:2, y:3, type:'teleport', dest:'throne_room', destX:5, destY:5 },
+        { x:3, y:2, type:'teleport', dest:'throne_room', destX:5, destY:5 },
+        { x:3, y:3, type:'teleport', dest:'throne_room', destX:5, destY:5 },
         // 武器屋
         { x:7, y:2, type:'shop', shopId:'weapon_shop1' },
         { x:7, y:3, type:'shop', shopId:'weapon_shop1' },
@@ -210,7 +210,7 @@ const GameData = {
         6,7,7,7,7,5,7,7,7,6,
         6,6,6,6,6,5,6,6,6,6,
       ],
-      startX: 4, startY: 8,
+      startX: 5, startY: 5,
       events: [
         // 王様
         { x:5, y:3, type:'npc', npcId:'king' },

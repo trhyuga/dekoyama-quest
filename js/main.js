@@ -94,7 +94,7 @@ const Game = (() => {
       UI.updateStatus(player);
       setTimeout(() => {
         MapEngine.resize();
-        MapEngine.loadMap('throne_room', 4, 8);
+        MapEngine.loadMap('throne_room', 5, 5);
         UI.showMessage('おうさまに　はなしかけてみよう。', null);
       }, 50);
     });

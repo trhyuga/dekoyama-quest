@@ -1222,11 +1222,99 @@ const MapEngine = (() => {
       }
 
     } else if (tileId === T.TOWN) {
-      // 城内建物タイル（石造りの建物壁）
-      ctx.fillStyle = '#444455';
-      ctx.fillRect(x, y, s, s);
-      ctx.fillStyle = 'rgba(180,180,220,0.1)';
-      ctx.fillRect(x, y, s, s*0.06);
+      if (isThroneRoom && my === 3) {
+        // ══ 玉座（背もたれ部）──
+        const tcx = x + s * 0.5;
+        // 台座プラットフォーム（金縁）
+        ctx.fillStyle = '#8a6a00';
+        ctx.fillRect(x, y, s, s);
+        // 金のフレーム外側
+        ctx.fillStyle = '#cc9a00';
+        ctx.fillRect(x + s*0.06, y + s*0.04, s*0.88, s*0.92);
+        // 明るい金縁ライン
+        ctx.strokeStyle = '#ffe040';
+        ctx.lineWidth = 2.0;
+        ctx.strokeRect(x + s*0.06, y + s*0.04, s*0.88, s*0.92);
+        // 紫のビロードクッション（背もたれ）
+        ctx.fillStyle = '#4a0e99';
+        ctx.fillRect(x + s*0.12, y + s*0.08, s*0.76, s*0.82);
+        // クッション内側ハイライト（左上）
+        ctx.fillStyle = '#6622bb';
+        ctx.fillRect(x + s*0.12, y + s*0.08, s*0.76, s*0.07);
+        ctx.fillRect(x + s*0.12, y + s*0.08, s*0.07, s*0.72);
+        // クッション内側シャドウ（右下）
+        ctx.fillStyle = 'rgba(0,0,0,0.30)';
+        ctx.fillRect(x + s*0.12, y + s*0.82, s*0.76, s*0.08);
+        ctx.fillRect(x + s*0.81, y + s*0.08, s*0.07, s*0.82);
+        // 上部の王冠装飾（3本の突起）
+        ctx.fillStyle = '#ffcc22';
+        ctx.fillRect(tcx - s*0.24, y - s*0.01, s*0.48, s*0.08);
+        ctx.fillRect(tcx - s*0.24, y - s*0.08, s*0.10, s*0.09);
+        ctx.fillRect(tcx - s*0.05, y - s*0.13, s*0.10, s*0.14);
+        ctx.fillRect(tcx + s*0.14, y - s*0.08, s*0.10, s*0.09);
+        // 突起先端の宝石
+        ctx.fillStyle = '#ff3344';
+        ctx.beginPath();
+        ctx.arc(tcx, y - s*0.10, s*0.038, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#ffcc22';
+        ctx.beginPath();
+        ctx.arc(tcx - s*0.19, y - s*0.05, s*0.026, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(tcx + s*0.19, y - s*0.05, s*0.026, 0, Math.PI*2);
+        ctx.fill();
+        // 肘掛け（両サイド）
+        ctx.fillStyle = '#bb8800';
+        ctx.fillRect(x + s*0.02, y + s*0.40, s*0.10, s*0.40);
+        ctx.fillRect(x + s*0.88, y + s*0.40, s*0.10, s*0.40);
+        // 肘掛けハイライト
+        ctx.fillStyle = '#ffdd44';
+        ctx.fillRect(x + s*0.02, y + s*0.40, s*0.10, s*0.04);
+        ctx.fillRect(x + s*0.88, y + s*0.40, s*0.10, s*0.04);
+
+      } else if (isThroneRoom && my === 4) {
+        // ══ 玉座（座面・台座部）──
+        // 台座ベース（暗い金）
+        ctx.fillStyle = '#6a5000';
+        ctx.fillRect(x, y, s, s);
+        // 座面フレーム（金）
+        ctx.fillStyle = '#cc9a00';
+        ctx.fillRect(x + s*0.06, y + s*0.04, s*0.88, s*0.56);
+        ctx.strokeStyle = '#ffe040';
+        ctx.lineWidth = 2.0;
+        ctx.strokeRect(x + s*0.06, y + s*0.04, s*0.88, s*0.56);
+        // 深紅のクッション（座面）
+        ctx.fillStyle = '#881212';
+        ctx.fillRect(x + s*0.12, y + s*0.08, s*0.76, s*0.46);
+        // クッションハイライト
+        ctx.fillStyle = '#aa1e1e';
+        ctx.fillRect(x + s*0.12, y + s*0.08, s*0.76, s*0.06);
+        ctx.fillRect(x + s*0.12, y + s*0.08, s*0.06, s*0.38);
+        // ボタン（中央）
+        ctx.fillStyle = '#ffcc22';
+        ctx.beginPath();
+        ctx.arc(x + s*0.50, y + s*0.30, s*0.048, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#cc9900';
+        ctx.beginPath();
+        ctx.arc(x + s*0.50, y + s*0.30, s*0.024, 0, Math.PI*2);
+        ctx.fill();
+        // 台座の段（下部）
+        ctx.fillStyle = '#bb8800';
+        ctx.fillRect(x, y + s*0.62, s, s*0.38);
+        ctx.fillStyle = '#ffdd44';
+        ctx.fillRect(x, y + s*0.62, s, s*0.04);
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.fillRect(x, y + s*0.96, s, s*0.04);
+
+      } else {
+        // 城内建物タイル（石造りの建物壁）
+        ctx.fillStyle = '#444455';
+        ctx.fillRect(x, y, s, s);
+        ctx.fillStyle = 'rgba(180,180,220,0.1)';
+        ctx.fillRect(x, y, s, s*0.06);
+      }
     } else if (tileId === T.ROAD) {
       // 道（石畳の道）
       ctx.fillStyle = '#5a5a40';
