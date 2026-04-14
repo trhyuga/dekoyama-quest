@@ -1197,7 +1197,8 @@ const Battle = (() => {
     UI.showMessage(msg, () => {
       const gains = Game.gainExp(enemy.exp);
       Game.gainGold(enemy.gold);
-      if (bstate.bossId) MapEngine.setBossCleared(bstate.bossId);
+      // 魔王は真の魔王戦が残るかもしれないので、ここではクリアしない
+      if (bstate.bossId && bstate.bossId !== 'maou') MapEngine.setBossCleared(bstate.bossId);
       if (gains) {
         const lv = Game.getPlayer().level;
         const newSpell = _checkNewSpell(lv);
@@ -1218,17 +1219,26 @@ const Battle = (() => {
     bstate.active = false;
     UI.showBattleMenu(false);
     Sound.death();
-    // 真の魔王戦 or 魔王戦での死亡→魔王城入口に戻す（魔王は消えない）
+    // 真の魔王戦 or 魔王戦での死亡→城に戻す
     if (bstate.bossId === 'maou') {
       UI.showMessage('でこやまは　しんでしまった…', () => {
         _hideBattleScreen();
         Game.revive();
-        MapEngine.loadMap('maou_castle', 7, 13);
+        MapEngine.loadMap('throne_room', 5, 5);
         MapEngine.setMoveLock(false);
         setTimeout(() => {
-          UI.showNpcDialog([
-            'しかし　でこやまは\nあきらめなかった…！',
-          ]);
+          const hasKingSword = Game.getPlayer().weapon === 'kings_sword';
+          if (bstate.trueMaou && !hasKingSword) {
+            UI.showNpcDialog([
+              'おお　でこやまよ。\nまおうは　しんの　ちからを\nみせたか…。',
+              'おうさまに　はなしかけよ。\nでんせつの　けんが\nちからを　かしてくれるだろう。',
+            ]);
+          } else {
+            UI.showNpcDialog([
+              'おお　でこやまよ。\nしんで　しまうとは\nなさけない',
+              'かねは　はんぶん\nもらってゆく\nじょほほ',
+            ]);
+          }
         }, 300);
       });
       return;
@@ -1282,6 +1292,7 @@ const Battle = (() => {
     _hideBattleScreen();
     MapEngine.setMoveLock(false);
     if (won && bstate.bossId === 'maou') {
+      MapEngine.setBossCleared('maou');
       setTimeout(() => Game.startEnding(), 500);
     } else {
       UI.clearMessage();
