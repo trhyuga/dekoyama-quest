@@ -75,6 +75,7 @@ const Game = (() => {
       _kingGoldGiven     = false;
       _queenItemGiven    = false;
       _spellPowerDoubled = false;
+      _slimeGiftGiven    = false;
       _startOpening();
     }
     function onStartTouch(e) {
@@ -342,6 +343,43 @@ const Game = (() => {
     };
   }
 
+  let _slimeGiftGiven = false;
+
+  function getFriendlySlimeDialog() {
+    // Lv2未満 or dungeon2_boss撃破後 → 表示しない
+    if (player.level < 2 || MapEngine.isBossCleared('dungeon2_boss')) return null;
+
+    if (!MapEngine.isBossCleared('dungeon1_boss')) {
+      // 草の洞窟のボス前 → せいどうのたて
+      if (!_slimeGiftGiven) {
+        _slimeGiftGiven = true;
+        return {
+          lines: ['いじめないでくれよー\nいいもの　あげるからさー'],
+          onClose: () => {
+            addItem('bronze_shield');
+            Sound.chest();
+            UI.showMessage('スライムから\nせいどうのたてを　もらった！', null);
+          }
+        };
+      }
+      return { lines: ['ぼくは　いいスライムだよー\nいじめないでね。'], onClose: null };
+    } else {
+      // 草の洞窟クリア後、まのとうボス前 → みかがみのたて
+      if (!_slimeGiftGiven || _slimeGiftGiven === 'bronze') {
+        _slimeGiftGiven = 'mirror';
+        return {
+          lines: ['おお　つよくなったね！\nこれも　あげるよー'],
+          onClose: () => {
+            addItem('mirror_shield');
+            Sound.chest();
+            UI.showMessage('スライムから\nみかがみのたてを　もらった！', null);
+          }
+        };
+      }
+      return { lines: ['まのとうには　きをつけてねー\nドラゴンが　いるよー'], onClose: null };
+    }
+  }
+
   function doubleSpellPower() {
     _spellPowerDoubled = true;
   }
@@ -365,7 +403,7 @@ const Game = (() => {
       version: 1,
       player: JSON.parse(JSON.stringify(player)),
       map:    MapEngine.getMapState(),
-      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled },
+      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven },
     };
     try {
       localStorage.setItem('dekoyama_save', JSON.stringify(data));
@@ -385,6 +423,7 @@ const Game = (() => {
       _kingGoldGiven     = data.flags ? data.flags.kingGoldGiven     : false;
       _queenItemGiven    = data.flags ? data.flags.queenItemGiven    : false;
       _spellPowerDoubled = data.flags ? data.flags.spellPowerDoubled : false;
+      _slimeGiftGiven    = data.flags ? data.flags.slimeGiftGiven    : false;
       UI.updateStatus(player);
       UI.showScene('game');
       setTimeout(() => {
@@ -434,6 +473,7 @@ const Game = (() => {
     getItemPrice,
     doubleSpellPower,
     isSpellDoubled,
+    getFriendlySlimeDialog,
   };
 
 })();

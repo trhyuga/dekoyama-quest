@@ -208,6 +208,9 @@ const MapEngine = (() => {
       }
     }
 
+    // イベントタイル上ではエンカウントしない（NPC等と戦闘の競合防止）
+    if (_getEvent(state.playerX, state.playerY)) return;
+
     // エンカウント判定
     if (GameData.ENCOUNTER_TILES.includes(tileId)) {
       const rate = map.encounter_rate || 0;
@@ -377,6 +380,11 @@ const MapEngine = (() => {
             } else if (ev.npcId === 'queen') {
               const qd = Game.getQueenDialog();
               UI.showNpcDialog(qd.lines, qd.onClose);
+            } else if (ev.npcId === 'friendly_slime') {
+              const sd = Game.getFriendlySlimeDialog();
+              if (sd) {
+                UI.showNpcDialog(sd.lines, sd.onClose);
+              }
             } else if (ev.npcId === 'adventurer') {
               if (!Game.isSpellDoubled()) {
                 UI.showNpcDialog(GameData.NPC.adventurer, () => {
@@ -481,6 +489,11 @@ const MapEngine = (() => {
               _drawQueenIcon(ctx, sx, sy, tileSize);
             } else if (ev.npcId === 'adventurer') {
               _drawAdventurerIcon(ctx, sx, sy, tileSize);
+            } else if (ev.npcId === 'friendly_slime') {
+              // Lv2以上かつdungeon2_boss未撃破の時だけ表示
+              if (Game.getPlayer().level >= 2 && !state.clearedBoss['dungeon2_boss']) {
+                _drawFriendlySlimeIcon(ctx, sx, sy, tileSize);
+              }
             } else if (ev.npcId === 'guard1' || ev.npcId === 'guard2') {
               _drawGuardIcon(ctx, sx, sy, tileSize);
             } else {
@@ -1853,6 +1866,34 @@ const MapEngine = (() => {
   }
 
   // ── 近衛兵アイコン（板金鎧・槍・赤い羽飾り兜） ─────────────────
+  // ── 友好スライムアイコン ─────────────────────────────────
+  function _drawFriendlySlimeIcon(ctx, x, y, size) {
+    const s = size, cx = x + s/2;
+    // しずく型の体（青）
+    ctx.fillStyle = '#4488ff';
+    ctx.beginPath();
+    ctx.moveTo(cx, y + s*0.15);
+    ctx.quadraticCurveTo(cx + s*0.38, y + s*0.30, cx + s*0.32, y + s*0.65);
+    ctx.quadraticCurveTo(cx, y + s*0.82, cx - s*0.32, y + s*0.65);
+    ctx.quadraticCurveTo(cx - s*0.38, y + s*0.30, cx, y + s*0.15);
+    ctx.fill();
+    // ハイライト
+    ctx.fillStyle = '#88bbff';
+    ctx.beginPath();
+    ctx.ellipse(cx - s*0.08, y + s*0.32, s*0.10, s*0.07, -0.3, 0, Math.PI*2);
+    ctx.fill();
+    // 目（にっこり）
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.arc(cx - s*0.10, y + s*0.42, s*0.04, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + s*0.10, y + s*0.42, s*0.04, 0, Math.PI*2); ctx.fill();
+    // 口（笑顔）
+    ctx.strokeStyle = '#111';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.52, s*0.07, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+  }
+
   function _drawGuardIcon(ctx, x, y, size) {
     const s = size, cx = x + s / 2;
 

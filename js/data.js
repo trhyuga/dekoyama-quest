@@ -188,6 +188,8 @@ const GameData = {
         { x:13, y:4, type:'npc', npcId:'npc_torch' },
         { x:5, y:8, type:'npc', npcId:'npc_desert_town' },
         { x:11, y:6, type:'npc', npcId:'npc_manotou' },
+        // 友好スライム（条件付き表示）
+        { x:1, y:8, type:'npc', npcId:'friendly_slime' },
       ],
     },
 
@@ -548,6 +550,18 @@ const GameData = {
       price:60, sellPrice:30,
       type:'shield', def:4,
       desc:'ぼうぎょりょく+4',
+    },
+    bronze_shield: {
+      id:'bronze_shield', name:'せいどうのたて',
+      price:0, sellPrice:40,
+      type:'shield', def:7,
+      desc:'ぼうぎょりょく+7',
+    },
+    mirror_shield: {
+      id:'mirror_shield', name:'みかがみのたて',
+      price:0, sellPrice:80,
+      type:'shield', def:13,
+      desc:'ぼうぎょりょく+13',
     },
     iron_shield: {
       id:'iron_shield', name:'てつのたて',
