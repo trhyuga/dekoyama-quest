@@ -1904,47 +1904,99 @@ const MapEngine = (() => {
   // ── 城アイコン（城・王の間入口） ────────────────────────────
   function _drawCastleIcon(ctx, x, y, size) {
     const s = size;
-    // 左の塔
-    ctx.fillStyle = '#aaaabc';
-    ctx.fillRect(x + s*0.04, y + s*0.30, s*0.23, s*0.70);
-    // 右の塔
-    ctx.fillRect(x + s*0.73, y + s*0.30, s*0.23, s*0.70);
-    // 中央の壁
-    ctx.fillRect(x + s*0.22, y + s*0.44, s*0.56, s*0.56);
-    // 中央の高い塔
-    ctx.fillStyle = '#9999ab';
-    ctx.fillRect(x + s*0.35, y + s*0.10, s*0.30, s*0.38);
-    // 影ライン（奥行き感）
-    ctx.fillStyle = '#77778a';
-    ctx.fillRect(x + s*0.04, y + s*0.30, s*0.23, s*0.04);
-    ctx.fillRect(x + s*0.73, y + s*0.30, s*0.23, s*0.04);
-    ctx.fillRect(x + s*0.22, y + s*0.44, s*0.56, s*0.04);
-    ctx.fillRect(x + s*0.35, y + s*0.10, s*0.30, s*0.04);
-    // 銃眼（左塔）
-    ctx.fillStyle = '#555566';
-    ctx.fillRect(x + s*0.04, y + s*0.22, s*0.08, s*0.10);
-    ctx.fillRect(x + s*0.16, y + s*0.22, s*0.08, s*0.10);
-    // 銃眼（右塔）
-    ctx.fillRect(x + s*0.73, y + s*0.22, s*0.08, s*0.10);
-    ctx.fillRect(x + s*0.85, y + s*0.22, s*0.08, s*0.10);
-    // 銃眼（中央塔）
-    ctx.fillRect(x + s*0.35, y + s*0.02, s*0.07, s*0.10);
-    ctx.fillRect(x + s*0.46, y + s*0.02, s*0.07, s*0.10);
-    ctx.fillRect(x + s*0.57, y + s*0.02, s*0.07, s*0.10);
-    // 窓（中央塔）
-    ctx.fillStyle = '#334488';
-    ctx.fillRect(x + s*0.42, y + s*0.18, s*0.16, s*0.14);
-    // 窓（左塔）
-    ctx.fillStyle = '#334488';
-    ctx.fillRect(x + s*0.08, y + s*0.36, s*0.10, s*0.10);
-    // 窓（右塔）
-    ctx.fillRect(x + s*0.82, y + s*0.36, s*0.10, s*0.10);
-    // 門（アーチ型）
-    ctx.fillStyle = '#221100';
-    ctx.fillRect(x + s*0.40, y + s*0.62, s*0.20, s*0.38);
+    // === 城壁（外壁） ===
+    ctx.fillStyle = '#b8b0a0';
+    ctx.fillRect(x + s*0.02, y + s*0.55, s*0.96, s*0.45);
+    // 城壁の影
+    ctx.fillStyle = '#908878';
+    ctx.fillRect(x + s*0.02, y + s*0.55, s*0.96, s*0.04);
+
+    // === 左の丸塔 ===
+    ctx.fillStyle = '#a8a090';
+    ctx.fillRect(x + s*0.02, y + s*0.28, s*0.22, s*0.72);
+    // 塔の屋根（とんがり・青）
+    ctx.fillStyle = '#2244aa';
     ctx.beginPath();
-    ctx.arc(x + s*0.50, y + s*0.62, s*0.10, Math.PI, 0);
+    ctx.moveTo(x + s*0.13, y + s*0.08);
+    ctx.lineTo(x - s*0.01, y + s*0.32);
+    ctx.lineTo(x + s*0.27, y + s*0.32);
+    ctx.closePath();
     ctx.fill();
+    // 旗竿＋旗
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.13, y + s*0.08);
+    ctx.lineTo(x + s*0.13, y - s*0.02);
+    ctx.stroke();
+    ctx.fillStyle = '#dd2222';
+    ctx.fillRect(x + s*0.13, y - s*0.02, s*0.10, s*0.06);
+
+    // === 右の丸塔 ===
+    ctx.fillStyle = '#a8a090';
+    ctx.fillRect(x + s*0.76, y + s*0.28, s*0.22, s*0.72);
+    // 塔の屋根
+    ctx.fillStyle = '#2244aa';
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.87, y + s*0.08);
+    ctx.lineTo(x + s*0.73, y + s*0.32);
+    ctx.lineTo(x + s*1.01, y + s*0.32);
+    ctx.closePath();
+    ctx.fill();
+    // 旗竿＋旗
+    ctx.strokeStyle = '#666';
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.87, y + s*0.08);
+    ctx.lineTo(x + s*0.87, y - s*0.02);
+    ctx.stroke();
+    ctx.fillStyle = '#dd2222';
+    ctx.fillRect(x + s*0.87, y - s*0.02, s*0.10, s*0.06);
+
+    // === 中央の天守 ===
+    ctx.fillStyle = '#c0b8a8';
+    ctx.fillRect(x + s*0.30, y + s*0.22, s*0.40, s*0.40);
+    // 天守の屋根（大きい青屋根）
+    ctx.fillStyle = '#1838a0';
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.50, y + s*0.02);
+    ctx.lineTo(x + s*0.24, y + s*0.26);
+    ctx.lineTo(x + s*0.76, y + s*0.26);
+    ctx.closePath();
+    ctx.fill();
+    // 屋根のハイライト
+    ctx.fillStyle = '#2850c0';
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.50, y + s*0.02);
+    ctx.lineTo(x + s*0.37, y + s*0.14);
+    ctx.lineTo(x + s*0.50, y + s*0.14);
+    ctx.closePath();
+    ctx.fill();
+
+    // === 窓 ===
+    // 天守の窓（黄色く光る）
+    ctx.fillStyle = '#eecc44';
+    ctx.fillRect(x + s*0.42, y + s*0.32, s*0.07, s*0.08);
+    ctx.fillRect(x + s*0.52, y + s*0.32, s*0.07, s*0.08);
+    // 左塔の窓
+    ctx.fillRect(x + s*0.08, y + s*0.38, s*0.07, s*0.07);
+    // 右塔の窓
+    ctx.fillRect(x + s*0.84, y + s*0.38, s*0.07, s*0.07);
+
+    // === 城門（アーチ） ===
+    ctx.fillStyle = '#3a2200';
+    ctx.fillRect(x + s*0.38, y + s*0.68, s*0.24, s*0.32);
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.68, s*0.12, Math.PI, 0);
+    ctx.fill();
+    // 門の装飾
+    ctx.fillStyle = '#c8a030';
+    ctx.fillRect(x + s*0.48, y + s*0.78, s*0.04, s*0.04);
+
+    // === 銃眼（城壁の上） ===
+    ctx.fillStyle = '#706858';
+    for (let i = 0; i < 7; i++) {
+      ctx.fillRect(x + s*0.06 + i*s*0.13, y + s*0.52, s*0.06, s*0.05);
+    }
   }
 
   // ── 魔王城アイコン（暗い城・赤く光る窓） ──────────────────
