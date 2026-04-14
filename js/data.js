@@ -75,7 +75,7 @@ const GameData = {
     '',   // 6 城壁
     '',   // 7 城床
     '洞', // 8 洞窟入口
-    '町', // 9 町入口
+    '',   // 9 町入口（テキストなし、アイコンで表現）
     '扉', // 10 扉
     '箱', // 11 宝箱
     '↓',  // 12 階段
@@ -164,7 +164,9 @@ const GameData = {
       events: [
         // 城門を出る→ワールドマップ
         { x:7, y:15, type:'teleport', dest:'world', destX:5, destY:4 },
-        // 王の間
+        // 王の間（城入口：2×2タイル全部を城アイコンに）
+        { x:2, y:2, type:'teleport', dest:'throne_room', destX:4, destY:8 },
+        { x:2, y:3, type:'teleport', dest:'throne_room', destX:4, destY:8 },
         { x:3, y:2, type:'teleport', dest:'throne_room', destX:4, destY:8 },
         { x:3, y:3, type:'teleport', dest:'throne_room', destX:4, destY:8 },
         // 武器屋
@@ -313,7 +315,7 @@ const GameData = {
       startX: 1, startY: 1,
       events: [
         { x:1, y:1, type:'teleport', dest:'world', destX:15, destY:14 },
-        { x:1, y:11, type:'chest', item:'holy_sword', opened:false },
+        { x:1, y:11, type:'chest', item:'demon_armor', opened:false },
         { x:7, y:14, type:'boss', bossId:'dungeon2_boss' },
         { x:7, y:14, type:'stair_boss', dest:'world', destX:15, destY:14 },
       ],
@@ -362,10 +364,10 @@ const GameData = {
   // ============================================================
   NPC: {
     king: [
-      'おお　ゆうしゃ でこやまよ！',
-      'まおう デコゾーンが\nひめを さらって\nいってしまった！',
+      'おお　ゆうしゃ　でこやまよ！\nまおうが　ひめを\nさらって　いってしまった！',
       'たのむ　ひめを\nすくいだしてくれ！',
-      'まおうじょうは　みなみの\nはての　くらやみの\nむこうに あるという…',
+      'したくきんとして\n５０Ｇを　さずけよう！',
+      'まおうじょうは　みなみの\nはての　くらやみの\nむこうに　あるという…',
     ],
     king_after_d1: [
       'おお！くさのどうくつを\nぬけたか　さすがじゃ！',
@@ -376,7 +378,8 @@ const GameData = {
       'ゆけ　ゆうしゃよ！\nひめをたのむぞ！',
     ],
     info1: [
-      'きたの　やまをこえたら\nみずうみが あるという。\nそのそばに　あやしい\nほらあなが　あるらしい。',
+      'ここから　みなみに\nくさのどうくつが　ある。',
+      'きょうてき　アームライオンが\nいるので　じゅうぶんに\nじゅんびして　のぞむといいよ。',
     ],
     desert_hint: [
       'まおうじょうは\nさらに　みなみに　あると\nきいたことがある。',
@@ -489,6 +492,18 @@ const GameData = {
       price:0, sellPrice:0,
       type:'key',
       desc:'てつのとびらをあける',
+    },
+    holy_shield: {
+      id:'holy_shield', name:'ひかりのたて',
+      price:0, sellPrice:0,
+      type:'shield', def:18,
+      desc:'ぼうぎょりょく+18\nまりょくをはじく',
+    },
+    demon_armor: {
+      id:'demon_armor', name:'まじんのよろい',
+      price:0, sellPrice:0,
+      type:'armor', def:22,
+      desc:'ぼうぎょりょく+22\nあつてつのよろい',
     },
   },
 
@@ -637,7 +652,7 @@ const GameData = {
       area:[], isBoss:true,
       color:'#aa6600',
       spells:[],
-      dropItem:'iron_key',
+      dropItem:'holy_shield',
     },
     dungeon2_boss: {
       id:'dungeon2_boss', name:'ダークドラゴン',
@@ -649,7 +664,7 @@ const GameData = {
       dropItem:'holy_sword',
     },
     maou: {
-      id:'maou', name:'まおう デコゾーン',
+      id:'maou', name:'まおう',
       hp:220, atk:45, def:25,
       exp:200, gold:999,
       area:[], isBoss:true,
@@ -679,13 +694,13 @@ const GameData = {
   //  オープニング・エンディングテキスト
   // ============================================================
   OPENING_LINES: [
-    'むかし　むかし\nでこやまのくにに\nひとりの　わかものが\nいた。',
-    'そのなまえは　でこやま。\nゆうかんな　ぼうけんしゃで\nおうさまにも　したわれて\nいた。',
-    'ところが　ある　よあけのこと\nおそろしい　まおう\nデコゾーンが　あらわれ…',
-    'おひめさまを　さらって\nやみのかなたへ\nきえていった！',
-    'おおいに　なげく　おうさまは\nゆうしゃ でこやまを\nよびよせ　こういった。',
-    'たのむ　でこやまよ\nひめを　すくいだし\nまおうを　たおして\nくれぬか！',
-    'かくして　でこやまの\nたびが　はじまった…',
+    'むかし、がれふあるど\nとよばれる　くにに\nひとりの　ゆうしゃが\nたんじょうした。',
+    'ゆうしゃのなまえは\nでこやま\nせかいで　しらぬものはない\nゆうかんな　ぼうけんしゃだ。',
+    'ところが　ある　よあけのこと\nせかいに　さいきょうの\nまおうが　あらわれた。\nせかいは　まおうに　きょうふした。',
+    'まおうは、いちやにして\nおうとに　おそいかかり、\nおひめさまを　さらって\nやみのかなたに　きえさった。',
+    'おうさまは　きぜんとして\nゆうしゃ　でこやまを\nよびよせ　こういった。',
+    'ゆうしゃ　でこやまよ。\nまおうを　たおし、\nひめをたすけ、\nこのよに　へいわを\nとりもどしてくれ',
+    'おうは　でこやまに\nきのみ　きのままで\nまおう　あんさつの\nたびへ　おくりこんだ。',
   ],
 
   ENDING_LINES: [
