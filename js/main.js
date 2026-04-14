@@ -27,7 +27,9 @@ const PLAYER_INIT = () => ({
 const Game = (() => {
 
   let player = PLAYER_INIT();
-  let _kingGoldGiven = false;
+  let _kingGoldGiven    = false;
+  let _queenItemGiven   = false;
+  let _spellPowerDoubled = false;
 
   // ── 初期化 ────────────────────────────────────────────────
   function init() {
@@ -70,7 +72,9 @@ const Game = (() => {
       sceneEl.removeEventListener('click',      onStart);
       sceneEl.removeEventListener('touchstart', onStartTouch);
       player = PLAYER_INIT();
-      _kingGoldGiven = false;
+      _kingGoldGiven     = false;
+      _queenItemGiven    = false;
+      _spellPowerDoubled = false;
       _startOpening();
     }
     function onStartTouch(e) {
@@ -138,14 +142,39 @@ const Game = (() => {
 
   // ── ショップ ─────────────────────────────────────────────
   function openShop(shopId) {
-    UI.showShop(shopId);
+    const greeting = _getShopGreeting();
+    UI.showMessage(greeting, () => {
+      UI.showShop(shopId);
+    });
+  }
+
+  function _getShopGreeting() {
+    const lv = player.level;
+    if (lv <= 2) return 'いらっしゃいませ！\nなんでも　そろっております！';
+    if (lv <= 4) return 'おこしやすい。\nよいものを　おいてますよ。';
+    if (lv === 5) return 'おや　てごわそうな　かた。\nたかいものしか\nおいてないですよ？';
+    if (lv === 6) return 'そんな　よれよれで\nかいものですか。\nたかいですよ？';
+    return 'ほほう　このくらいの　かたには\nていかでは　うれませんなぁ。\nたっぷり　はらっておくんなさい。';
+  }
+
+  // ── アイテムのレベル別価格 ───────────────────────────────
+  function getItemPrice(itemId) {
+    const item = GameData.ITEMS[itemId];
+    if (!item) return 0;
+    const base = item.price;
+    const lv   = player.level;
+    if (lv <= 4) return base;
+    if (lv === 5) return Math.floor(base * 1.5);
+    if (lv === 6) return Math.floor(base * 3);
+    return Math.floor(base * 5); // lv 7+
   }
 
   // ── アイテム購入 ──────────────────────────────────────────
   function buyItem(itemId) {
     const item = GameData.ITEMS[itemId];
-    if (player.gold < item.price) return;
-    player.gold -= item.price;
+    const price = getItemPrice(itemId);
+    if (player.gold < price) return;
+    player.gold -= price;
 
     if (item.type === 'weapon') {
       // 装備変更
@@ -296,6 +325,31 @@ const Game = (() => {
     }
   }
 
+  function getQueenDialog() {
+    if (!_queenItemGiven) {
+      _queenItemGiven = true;
+      return {
+        lines: GameData.NPC.queen,
+        onClose: () => {
+          addItem('bamboo_spear');
+          UI.showMessage('おうひさまから\nたけのやりを　もらった！', null);
+        }
+      };
+    }
+    return {
+      lines: ['たびに　きをつけて\nでこやまよ。'],
+      onClose: null
+    };
+  }
+
+  function doubleSpellPower() {
+    _spellPowerDoubled = true;
+  }
+
+  function isSpellDoubled() {
+    return _spellPowerDoubled;
+  }
+
   function revive() {
     // 復活：HP/MP全回復・毒解除・金半減
     player.hp       = player.maxHp;
@@ -311,7 +365,7 @@ const Game = (() => {
       version: 1,
       player: JSON.parse(JSON.stringify(player)),
       map:    MapEngine.getMapState(),
-      flags:  { kingGoldGiven: _kingGoldGiven },
+      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled },
     };
     try {
       localStorage.setItem('dekoyama_save', JSON.stringify(data));
@@ -328,7 +382,9 @@ const Game = (() => {
       const data = JSON.parse(raw);
       if (!data || data.version !== 1) return false;
       player         = data.player;
-      _kingGoldGiven = data.flags ? data.flags.kingGoldGiven : false;
+      _kingGoldGiven     = data.flags ? data.flags.kingGoldGiven     : false;
+      _queenItemGiven    = data.flags ? data.flags.queenItemGiven    : false;
+      _spellPowerDoubled = data.flags ? data.flags.spellPowerDoubled : false;
       UI.updateStatus(player);
       UI.showScene('game');
       setTimeout(() => {
@@ -374,6 +430,10 @@ const Game = (() => {
     hasSaveData,
     setPoison,
     isPoisoned,
+    getQueenDialog,
+    getItemPrice,
+    doubleSpellPower,
+    isSpellDoubled,
   };
 
 })();

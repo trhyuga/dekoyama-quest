@@ -916,7 +916,8 @@ const Battle = (() => {
       Sound.heal();
       UI.showMessage(`${spell.name}！\nでこやまの　HPが　${heal}　かいふくした！`, () => _enemyTurn());
     } else if (spell.type === 'attack') {
-      const dmg = _rand(spell.power[0], spell.power[1]);
+      let dmg = _rand(spell.power[0], spell.power[1]);
+      if (Game.isSpellDoubled()) dmg = dmg * 2;
       bstate.enemyHp -= dmg;
       _updateHpBar(bstate.enemyHp, bstate.enemyMaxHp);
       Sound.magicAttack();

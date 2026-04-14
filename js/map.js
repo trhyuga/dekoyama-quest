@@ -260,6 +260,13 @@ const MapEngine = (() => {
     switch (ev.type) {
 
       case 'teleport':
+        // ボス撃破が必要なエリアのチェック（魔王城）
+        if (ev.requiresBoss) {
+          if (!state.clearedBoss[ev.requiresBoss]) {
+            UI.showMessage('やみの　ちからが　はばんでいる…\nまのとうの　ちゅうボスを\nたおさなければ　すすめない。', null);
+            return;
+          }
+        }
         // 鍵が必要なエリアのチェック
         if (ev.requiresItem) {
           const player = Game.getPlayer();
@@ -342,13 +349,31 @@ const MapEngine = (() => {
         }
         break;
 
-      case 'npc':
+      case 'npc': {
+        // レベル制限チェック
+        if (ev.minLevel && Game.getPlayer().level < ev.minLevel) {
+          // まだレベルが足りない → 無視（通過）
+          _movePlayer(nx, ny);
+          return;
+        }
         _movePlayer(nx, ny);
         setTimeout(() => {
           if (typeof UI !== 'undefined' && typeof Game !== 'undefined') {
             if (ev.npcId === 'king') {
               const kd = Game.getKingDialog();
               UI.showNpcDialog(kd.lines, kd.onClose);
+            } else if (ev.npcId === 'queen') {
+              const qd = Game.getQueenDialog();
+              UI.showNpcDialog(qd.lines, qd.onClose);
+            } else if (ev.npcId === 'adventurer') {
+              if (!Game.isSpellDoubled()) {
+                UI.showNpcDialog(GameData.NPC.adventurer, () => {
+                  Game.doubleSpellPower();
+                  UI.showMessage('じゅもんの　ちからが\n２ばいに　なった！', null);
+                });
+              } else {
+                UI.showNpcDialog(['またきたか　ゆうしゃよ。\nはやく　まおうを　たおせ！'], null);
+              }
             } else {
               const lines = GameData.NPC[ev.npcId];
               if (lines) UI.showNpcDialog(lines);
@@ -356,6 +381,7 @@ const MapEngine = (() => {
           }
         }, 150);
         break;
+      }
 
       case 'inn':
         _movePlayer(nx, ny);
@@ -434,17 +460,29 @@ const MapEngine = (() => {
         const sy = ey * tileSize;
 
         switch (ev.type) {
-          case 'npc':
+          case 'npc': {
+            // レベル制限があるNPCは条件チェック
+            if (ev.minLevel && Game.getPlayer().level < ev.minLevel) break;
             if (ev.npcId === 'king') {
               _drawKingIcon(ctx, sx, sy, tileSize);
+            } else if (ev.npcId === 'queen') {
+              _drawQueenIcon(ctx, sx, sy, tileSize);
+            } else if (ev.npcId === 'adventurer') {
+              _drawAdventurerIcon(ctx, sx, sy, tileSize);
             } else {
               _drawNpcIcon(ctx, sx, sy, tileSize);
             }
             break;
+          }
           case 'teleport': {
             const d = ev.dest || '';
             if (d === 'castle_town' || d === 'throne_room') {
               _drawCastleIcon(ctx, sx, sy, tileSize);
+            } else if (d === 'maou_castle') {
+              if (state.clearedBoss['dungeon2_boss']) {
+                _drawDarkCastleIcon(ctx, sx, sy, tileSize);
+              }
+              // 魔王城は dungeon2_boss 撃破前は表示しない
             } else {
               _drawBuildingIcon(ctx, sx, sy, tileSize);
             }
@@ -690,6 +728,96 @@ const MapEngine = (() => {
     ctx.fill();
   }
 
+  // ── 女王アイコン（ティアラ・ドレス） ────────────────────────
+  function _drawQueenIcon(ctx, x, y, size) {
+    const s = size, cx = x + s / 2;
+    // ドレス（ピンク/紫）
+    ctx.fillStyle = '#cc44aa';
+    ctx.beginPath();
+    ctx.moveTo(cx - s*0.24, y + s*0.46);
+    ctx.lineTo(cx - s*0.34, y + s*0.86);
+    ctx.lineTo(cx + s*0.34, y + s*0.86);
+    ctx.lineTo(cx + s*0.24, y + s*0.46);
+    ctx.closePath();
+    ctx.fill();
+    // ドレスハイライト
+    ctx.fillStyle = '#ee66cc';
+    ctx.fillRect(x + s*0.38, y + s*0.46, s*0.06, s*0.36);
+    // 顔（肌色）
+    ctx.fillStyle = '#f8c880';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.30, s*0.17, 0, Math.PI * 2);
+    ctx.fill();
+    // 長い髪（金色）
+    ctx.fillStyle = '#ddaa00';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.25, s*0.20, Math.PI, 0);
+    ctx.fill();
+    ctx.fillRect(x + s*0.25, y + s*0.24, s*0.07, s*0.26);
+    ctx.fillRect(x + s*0.68, y + s*0.24, s*0.07, s*0.26);
+    // ティアラ
+    ctx.fillStyle = '#ddaa00';
+    ctx.fillRect(cx - s*0.18, y + s*0.10, s*0.36, s*0.07);
+    ctx.fillRect(cx - s*0.05, y + s*0.04, s*0.10, s*0.09);
+    // ティアラ宝石
+    ctx.fillStyle = '#ff88cc';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.06, s*0.03, 0, Math.PI * 2);
+    ctx.fill();
+    // 目
+    ctx.fillStyle = '#333';
+    ctx.fillRect(cx - s*0.07, y + s*0.28, s*0.04, s*0.04);
+    ctx.fillRect(cx + s*0.03, y + s*0.28, s*0.04, s*0.04);
+  }
+
+  // ── 冒険者アイコン（赤マント・旅人） ────────────────────────
+  function _drawAdventurerIcon(ctx, x, y, size) {
+    const s = size, cx = x + s / 2;
+    // 茶色マント
+    ctx.fillStyle = '#883311';
+    ctx.beginPath();
+    ctx.moveTo(cx, y + s*0.44);
+    ctx.lineTo(cx - s*0.30, y + s*0.86);
+    ctx.lineTo(cx + s*0.14, y + s*0.86);
+    ctx.closePath();
+    ctx.fill();
+    // 茶色の服（胴体）
+    ctx.fillStyle = '#664422';
+    ctx.fillRect(x + s*0.30, y + s*0.44, s*0.40, s*0.38);
+    ctx.fillStyle = '#885533';
+    ctx.fillRect(x + s*0.30, y + s*0.44, s*0.40, s*0.05);
+    // 杖（左手）
+    ctx.fillStyle = '#886600';
+    ctx.fillRect(x + s*0.18, y + s*0.28, s*0.05, s*0.56);
+    ctx.fillStyle = '#ddaa00';
+    ctx.beginPath();
+    ctx.arc(x + s*0.205, y + s*0.26, s*0.06, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#55ddff';
+    ctx.beginPath();
+    ctx.arc(x + s*0.205, y + s*0.26, s*0.03, 0, Math.PI * 2);
+    ctx.fill();
+    // 顔（肌色）
+    ctx.fillStyle = '#f8c880';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.30, s*0.17, 0, Math.PI * 2);
+    ctx.fill();
+    // ひげ（白/灰）
+    ctx.fillStyle = '#cccccc';
+    ctx.fillRect(cx - s*0.12, y + s*0.35, s*0.24, s*0.09);
+    // 頭巾（茶）
+    ctx.fillStyle = '#664422';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.25, s*0.19, Math.PI, 0);
+    ctx.fill();
+    ctx.fillRect(x + s*0.27, y + s*0.24, s*0.06, s*0.10);
+    ctx.fillRect(x + s*0.67, y + s*0.24, s*0.06, s*0.10);
+    // 目
+    ctx.fillStyle = '#333';
+    ctx.fillRect(cx - s*0.07, y + s*0.27, s*0.04, s*0.04);
+    ctx.fillRect(cx + s*0.03, y + s*0.27, s*0.04, s*0.04);
+  }
+
   // ── 城アイコン（城・王の間入口） ────────────────────────────
   function _drawCastleIcon(ctx, x, y, size) {
     const s = size;
@@ -734,6 +862,66 @@ const MapEngine = (() => {
     ctx.beginPath();
     ctx.arc(x + s*0.50, y + s*0.62, s*0.10, Math.PI, 0);
     ctx.fill();
+  }
+
+  // ── 魔王城アイコン（暗い城・赤く光る窓） ──────────────────
+  function _drawDarkCastleIcon(ctx, x, y, size) {
+    const s = size;
+    // 左の塔（暗黒色）
+    ctx.fillStyle = '#1a0a0a';
+    ctx.fillRect(x + s*0.04, y + s*0.30, s*0.23, s*0.70);
+    // 右の塔
+    ctx.fillRect(x + s*0.73, y + s*0.30, s*0.23, s*0.70);
+    // 中央の壁
+    ctx.fillRect(x + s*0.22, y + s*0.44, s*0.56, s*0.56);
+    // 中央の高い塔
+    ctx.fillStyle = '#110505';
+    ctx.fillRect(x + s*0.35, y + s*0.10, s*0.30, s*0.38);
+    // 暗い影ライン
+    ctx.fillStyle = '#330000';
+    ctx.fillRect(x + s*0.04, y + s*0.30, s*0.23, s*0.04);
+    ctx.fillRect(x + s*0.73, y + s*0.30, s*0.23, s*0.04);
+    ctx.fillRect(x + s*0.22, y + s*0.44, s*0.56, s*0.04);
+    ctx.fillRect(x + s*0.35, y + s*0.10, s*0.30, s*0.04);
+    // 銃眼（左塔）- 赤みがかった黒
+    ctx.fillStyle = '#2a0000';
+    ctx.fillRect(x + s*0.04, y + s*0.22, s*0.08, s*0.10);
+    ctx.fillRect(x + s*0.16, y + s*0.22, s*0.08, s*0.10);
+    // 銃眼（右塔）
+    ctx.fillRect(x + s*0.73, y + s*0.22, s*0.08, s*0.10);
+    ctx.fillRect(x + s*0.85, y + s*0.22, s*0.08, s*0.10);
+    // 銃眼（中央塔）
+    ctx.fillRect(x + s*0.35, y + s*0.02, s*0.07, s*0.10);
+    ctx.fillRect(x + s*0.46, y + s*0.02, s*0.07, s*0.10);
+    ctx.fillRect(x + s*0.57, y + s*0.02, s*0.07, s*0.10);
+    // 赤く光る窓（中央塔）
+    const grd = ctx.createRadialGradient(
+      x + s*0.50, y + s*0.22, 0,
+      x + s*0.50, y + s*0.22, s*0.12
+    );
+    grd.addColorStop(0, 'rgba(255,40,0,0.9)');
+    grd.addColorStop(1, 'rgba(80,0,0,0)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(x + s*0.36, y + s*0.14, s*0.28, s*0.20);
+    ctx.fillStyle = '#cc2200';
+    ctx.fillRect(x + s*0.42, y + s*0.18, s*0.16, s*0.10);
+    // 窓（左塔）- 赤
+    ctx.fillStyle = '#881100';
+    ctx.fillRect(x + s*0.08, y + s*0.36, s*0.10, s*0.10);
+    // 窓（右塔）- 赤
+    ctx.fillRect(x + s*0.82, y + s*0.36, s*0.10, s*0.10);
+    // 暗い門
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(x + s*0.40, y + s*0.62, s*0.20, s*0.38);
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.62, s*0.10, Math.PI, 0);
+    ctx.fill();
+    // 門の縁（血赤）
+    ctx.strokeStyle = '#880000';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.62, s*0.10, Math.PI, 0);
+    ctx.stroke();
   }
 
   // ── 建物アイコン（一般的な家・店） ──────────────────────────

@@ -232,20 +232,42 @@ const UI = (() => {
     elShopList.innerHTML = '';
 
     shop.items.forEach(itemId => {
-      const item = GameData.ITEMS[itemId];
-      const btn  = document.createElement('button');
-      btn.className = 'shop-item';
-      btn.innerHTML = `${item.name}<span class="item-price">${item.price}Ｇ</span>`;
-      btn.addEventListener('click', () => {
-        if (player.gold < item.price) {
-          showMessage('おかねが　たりない！', null);
-          return;
-        }
-        Game.buyItem(itemId);
-        elShopTitle.textContent = `${shop.name}　（${player.gold}Ｇ）`;
-        Sound.buy();
-        showMessage(`${item.name}を\nかいました！`, null);
-      });
+      const item  = GameData.ITEMS[itemId];
+      const price = Game.getItemPrice(itemId);
+
+      // 現在の装備より弱い場合は購入不可
+      let isWeaker = false;
+      if (item.type === 'weapon') {
+        const cur = player.weapon ? GameData.ITEMS[player.weapon] : null;
+        if (cur && (item.atk || 0) <= (cur.atk || 0)) isWeaker = true;
+      } else if (item.type === 'armor') {
+        const cur = player.armor ? GameData.ITEMS[player.armor] : null;
+        if (cur && (item.def || 0) <= (cur.def || 0)) isWeaker = true;
+      } else if (item.type === 'shield') {
+        const cur = player.shield ? GameData.ITEMS[player.shield] : null;
+        if (cur && (item.def || 0) <= (cur.def || 0)) isWeaker = true;
+      }
+
+      const btn = document.createElement('button');
+      btn.className = 'shop-item' + (isWeaker ? ' shop-item-weak' : '');
+      btn.innerHTML = `${item.name}<span class="item-price">${price}Ｇ</span>`;
+
+      if (isWeaker) {
+        btn.addEventListener('click', () => {
+          showMessage('いまの　そうびより\nよわいので　かえない。', null);
+        });
+      } else {
+        btn.addEventListener('click', () => {
+          if (player.gold < price) {
+            showMessage('おかねが　たりない！', null);
+            return;
+          }
+          Game.buyItem(itemId);
+          elShopTitle.textContent = `${shop.name}　（${player.gold}Ｇ）`;
+          Sound.buy();
+          showMessage(`${item.name}を\nかいました！`, null);
+        });
+      }
       elShopList.appendChild(btn);
     });
 

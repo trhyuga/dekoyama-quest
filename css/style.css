@@ -655,6 +655,10 @@ body {
   font-size: var(--fs-sm);
 }
 
+.shop-item-weak {
+  opacity: 0.45;
+}
+
 .shop-item .item-price {
   float: right;
   color: var(--yellow);

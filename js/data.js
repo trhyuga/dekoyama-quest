@@ -130,8 +130,10 @@ const GameData = {
         { x:11, y:17, type:'teleport', dest:'desert_town', destX:3, destY:8 },
         // 洞窟2（東）※てつのかぎが必要
         { x:15, y:14, type:'teleport', dest:'dungeon2', destX:1, destY:1, requiresItem:'iron_key' },
-        // 魔王城
-        { x:12, y:19, type:'teleport', dest:'maou_castle', destX:7, destY:13 },
+        // 魔王城（まのとうの中ボスを倒した後のみ）
+        { x:12, y:19, type:'teleport', dest:'maou_castle', destX:7, destY:13, requiresBoss:'dungeon2_boss' },
+        // フィールドの冒険者（レベル5以上のみ）
+        { x:14, y:2, type:'npc', npcId:'adventurer', minLevel:5 },
       ],
     },
 
@@ -180,6 +182,12 @@ const GameData = {
         { x:7, y:7, type:'shop', shopId:'item_shop1' },
         // 情報屋
         { x:3, y:6, type:'npc', npcId:'info1' },
+        // 追加の町人たち
+        { x:5, y:4, type:'npc', npcId:'npc_ghost_poison' },
+        { x:9, y:4, type:'npc', npcId:'npc_antidote' },
+        { x:13, y:4, type:'npc', npcId:'npc_torch' },
+        { x:5, y:8, type:'npc', npcId:'npc_desert_town' },
+        { x:11, y:6, type:'npc', npcId:'npc_manotou' },
       ],
     },
 
@@ -204,8 +212,10 @@ const GameData = {
       ],
       startX: 4, startY: 8,
       events: [
-        // 王様（1タイルのみ）
+        // 王様
         { x:5, y:3, type:'npc', npcId:'king' },
+        // 王妃（女王）
+        { x:4, y:3, type:'npc', npcId:'queen' },
         // 出口
         { x:5, y:9, type:'teleport', dest:'castle_town', destX:3, destY:5 },
       ],
@@ -248,6 +258,10 @@ const GameData = {
         { x:3, y:7, type:'shop', shopId:'item_shop2' },
         // NPC（ヒント）
         { x:9, y:5, type:'npc', npcId:'desert_hint' },
+        // 追加の町人たち
+        { x:9, y:3, type:'npc', npcId:'npc_adventurer_hint' },
+        { x:11, y:2, type:'npc', npcId:'npc_manotou_equip' },
+        { x:7, y:6, type:'npc', npcId:'npc_magic_vs_def' },
       ],
     },
 
@@ -388,6 +402,43 @@ const GameData = {
       'まおうじょうは\nさらに　みなみに　あると\nきいたことがある。',
       'でも　そこには　きょうだいな\nまものが　うろついて\nいるそうな…',
     ],
+    queen: [
+      'でこやまよ。\nたびのまえに\nこれをもっていきなさい。',
+      'たけのやりじゃ。\nあなたの　ちからを\nたすけるでしょう。',
+    ],
+    npc_ghost_poison: [
+      'ゴーストは　どくを\nつかってくるから\nきをつけてね！',
+      'どくけしそうを\nもっておくと\nいいよ。',
+    ],
+    npc_antidote: [
+      'どくけしそうは\nあらののまちの\nどうぐやに　あるよ。',
+    ],
+    npc_torch: [
+      'くらいどうくつには\nたいまつが　ひつよう。\nわすれずに！',
+    ],
+    npc_desert_town: [
+      'みちをひがしに\nすすむと　あらのまちが\nあるらしいよ。',
+      'さばくのまちだが\nつよいぶきが\nそろっているそうな。',
+    ],
+    npc_manotou: [
+      'まのとうには\nてつのかぎが\nひつようらしい。',
+      'くさのどうくつの　おくに\nかぎがあると\nきいたことがある。',
+    ],
+    npc_adventurer_hint: [
+      'ぼうけんしゃは\nじゅもんが　とくい。\nまほうは　つよいぞ！',
+    ],
+    npc_manotou_equip: [
+      'まのとうには　つよい\nてきが　いるぞ。\nそうびを　ととのえよ。',
+      'このまちで　そうびを\nかってから　むかうのが\nけんめいじゃろう。',
+    ],
+    npc_magic_vs_def: [
+      'まほうは　てきの\nぼうぎょを　むしして\nダメージをあたえるぞ。',
+      'ぼうぎょのたかい　てきに\nじゅもんがよく　きくぞ！',
+    ],
+    adventurer: [
+      'おお　ゆうしゃよ！\nおぬしのレベルも\nあがってきたな！',
+      'わしの　まほうのちしきを\nさずけよう！\nじゅもんのちからが　２ばいになるぞ！',
+    ],
     princess: [
       'ゆうしゃさま…！\nたすけてくださって\nありがとう！',
       'まおうは　もういない。\nいっしょに　じょうへ\nかえりましょう！',
@@ -489,6 +540,12 @@ const GameData = {
       price:220, sellPrice:110,
       type:'shield', def:10,
       desc:'ぼうぎょりょく+10',
+    },
+    bamboo_spear: {
+      id:'bamboo_spear', name:'たけのやり',
+      price:0, sellPrice:0,
+      type:'weapon', atk:1,
+      desc:'こうげきりょく+1',
     },
     iron_key: {
       id:'iron_key', name:'てつのかぎ',
