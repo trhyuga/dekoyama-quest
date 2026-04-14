@@ -20,6 +20,7 @@ const PLAYER_INIT = () => ({
   shield : null,
   spells : [],
   items  : ['herb','herb'], // 初期アイテム
+  poisoned: false,
 });
 
 // ── ゲームグローバル状態 ─────────────────────────────────────
@@ -112,6 +113,7 @@ const Game = (() => {
         player.gold -= cost;
         player.hp   = player.maxHp;
         player.mp   = player.maxMp;
+        player.poisoned = false;
         UI.updateStatus(player);
         UI.showMessage(
           'ゆっくり　やすんだ。\nHPと　MPが　かいふくした！',
@@ -332,6 +334,9 @@ const Game = (() => {
     return !!localStorage.getItem('dekoyama_save');
   }
 
+  function setPoison(v) { player.poisoned = !!v; UI.updateStatus(player); }
+  function isPoisoned() { return !!player.poisoned; }
+
   function getPlayer() { return player; }
 
   // ── エントリーポイント ────────────────────────────────────
@@ -357,6 +362,8 @@ const Game = (() => {
     saveGame,
     loadGame,
     hasSaveData,
+    setPoison,
+    isPoisoned,
   };
 
 })();

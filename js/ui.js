@@ -144,6 +144,12 @@ const UI = (() => {
     elStatusMp.textContent = `MP:${mpStr}/${mmStr}`;
     const elGold = document.getElementById('status-gold');
     if (elGold) elGold.textContent = `G:${String(player.gold).padStart(4)}`;
+    // 毒状態表示
+    const elName = document.getElementById('status-name');
+    if (elName) {
+      elName.textContent = player.poisoned ? 'でこやま[どく]' : 'でこやま';
+      elName.style.color = player.poisoned ? '#cc44ff' : '';
+    }
   }
 
   // ── 戦闘メニュー ─────────────────────────────────────────

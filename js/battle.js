@@ -837,6 +837,17 @@ const Battle = (() => {
 
   // ── コマンド入力待ち ──────────────────────────────────────
   function _waitCommand() {
+    // 毒ダメージ（ターン開始時）
+    if (Game.isPoisoned() && bstate.active) {
+      const pdmg = _rand(3, 6);
+      Game.takeDamage(pdmg);
+      UI.showMessage(`どくで　${pdmg}の　ダメージ！`, () => {
+        if (Game.getPlayer().hp <= 0) { _playerDead(); return; }
+        bstate.waitingCmd = true;
+        UI.showBattleMenu(true);
+      });
+      return;
+    }
     bstate.waitingCmd = true;
     UI.showBattleMenu(true);
   }
@@ -912,6 +923,7 @@ const Battle = (() => {
       UI.showMessage(`${item.name}をつかった！\nMPが　${item.power}　かいふくした！`, () => _enemyTurn());
     } else if (item.effect === 'cure_poison') {
       Game.removeItem(itemId);
+      Game.setPoison(false);
       UI.showMessage(`${item.name}をつかった！\nどくが　なおった！`, () => _enemyTurn());
     } else {
       UI.showMessage('いまは　つかえない。', () => _waitCommand());
@@ -952,6 +964,18 @@ const Battle = (() => {
 
   function _applyPlayerDamage(dmg, msg) {
     Game.takeDamage(dmg);
+    const enemy = bstate.enemy;
+    // 毒判定（40%の確率）
+    if (enemy.poison && !Game.isPoisoned() && Math.random() < 0.4) {
+      Game.setPoison(true);
+      UI.showMessage(msg, () => {
+        UI.showMessage('どくに　おかされた！', () => {
+          if (Game.getPlayer().hp <= 0) _playerDead();
+          else _waitCommand();
+        });
+      });
+      return;
+    }
     UI.showMessage(msg, () => {
       if (Game.getPlayer().hp <= 0) _playerDead();
       else _waitCommand();

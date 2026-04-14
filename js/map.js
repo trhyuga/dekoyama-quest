@@ -179,6 +179,23 @@ const MapEngine = (() => {
       }
     }
 
+    // フィールド毒ダメージ（毎歩1ダメージ）
+    if (Game.isPoisoned()) {
+      Game.takeDamage(1);
+      if (Game.getPlayer().hp <= 0) {
+        // 毒死→復活
+        UI.showMessage('どくで　たおれてしまった…', () => {
+          Game.revive();
+          Game.setPoison(false);
+          loadMap('throne_room', 4, 8);
+          UI.showNpcDialog([
+            'おお　でこやまよ。\nどくには　きをつけよ。',
+          ]);
+        });
+        return;
+      }
+    }
+
     // エンカウント判定
     if (GameData.ENCOUNTER_TILES.includes(tileId)) {
       const rate = map.encounter_rate || 0;

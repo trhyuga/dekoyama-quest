@@ -575,6 +575,7 @@ const GameData = {
       minLv:3, maxLv:6,
       color:'#aaaacc',
       spells:['hoimi'],
+      poison:true,
     },
     wyvern: {
       id:'wyvern', name:'ワイバーン',
@@ -636,6 +637,7 @@ const GameData = {
       minLv:6, maxLv:8,
       color:'#220022',
       spells:[],
+      poison:true,
     },
     hell_guard: {
       id:'hell_guard', name:'ヘルガード',
