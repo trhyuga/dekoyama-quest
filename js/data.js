@@ -336,7 +336,7 @@ const GameData = {
       startX: 1, startY: 1,
       events: [
         { x:1, y:1, type:'teleport', dest:'world', destX:15, destY:14 },
-        { x:1, y:11, type:'chest', item:'demon_armor', opened:false },
+        { x:1, y:11, type:'chest', item:'demon_armor', opened:false, mimicIf:'dungeon1_boss' },
         { x:7, y:14, type:'boss', bossId:'dungeon2_boss' },
         { x:7, y:14, type:'stair_boss', dest:'world', destX:15, destY:14 },
       ],
@@ -575,6 +575,12 @@ const GameData = {
       type:'weapon', atk:1,
       desc:'こうげきりょく+1',
     },
+    evasion_clothes: {
+      id:'evasion_clothes', name:'みかわしのふく',
+      price:0, sellPrice:150,
+      type:'armor', def:10,
+      desc:'ぼうぎょりょく+10\nかいひりつアップ',
+    },
     iron_key: {
       id:'iron_key', name:'てつのかぎ',
       price:0, sellPrice:0,
@@ -735,6 +741,15 @@ const GameData = {
     },
 
     // ── ボス ──────────────────────────────────────────────
+    mimic: {
+      id:'mimic', name:'ミミック',
+      hp:200, atk:72, def:24,
+      exp:80, gold:500,
+      area:[], isBoss:true,
+      color:'#b8860b',
+      spells:['gira'],
+      dropItem:'evasion_clothes',
+    },
     dungeon1_boss: {
       id:'dungeon1_boss', name:'アームライオン',
       hp:80, atk:36, def:10,

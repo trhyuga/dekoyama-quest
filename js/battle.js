@@ -777,6 +777,79 @@ const Battle = (() => {
       ctx.beginPath(); ctx.arc(cx-r*0.04, cy+r*0.16, r*0.05, 0, Math.PI*2); ctx.fill();
     },
 
+    // ── ミミック ──────────────────────────────────────────
+    mimic(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.48, r=Math.min(W,H)*0.28;
+      const col2 = _darken(col, 0.6);
+      // 宝箱の蓋（開いた状態）
+      ctx.fillStyle = col;
+      ctx.fillRect(cx - r*1.0, cy - r*0.3, r*2.0, r*0.5);
+      // 蓋の上部（半開き）
+      ctx.fillStyle = col2;
+      ctx.beginPath();
+      ctx.moveTo(cx - r*1.0, cy - r*0.3);
+      ctx.lineTo(cx - r*0.8, cy - r*1.3);
+      ctx.lineTo(cx + r*0.8, cy - r*1.3);
+      ctx.lineTo(cx + r*1.0, cy - r*0.3);
+      ctx.closePath();
+      ctx.fill();
+      // 蓋の金具
+      ctx.fillStyle = '#daa520';
+      ctx.fillRect(cx - r*0.7, cy - r*1.2, r*1.4, r*0.12);
+      // 箱の本体
+      ctx.fillStyle = _lighten(col, 1.15);
+      ctx.fillRect(cx - r*1.0, cy + r*0.2, r*2.0, r*1.2);
+      // 金の帯
+      ctx.fillStyle = '#daa520';
+      ctx.fillRect(cx - r*1.0, cy + r*0.2, r*2.0, r*0.15);
+      ctx.fillRect(cx - r*1.0, cy + r*1.1, r*2.0, r*0.15);
+      // 錠前風装飾
+      ctx.beginPath();
+      ctx.arc(cx, cy + r*0.65, r*0.18, 0, Math.PI*2);
+      ctx.fillStyle = '#daa520';
+      ctx.fill();
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.arc(cx, cy + r*0.65, r*0.08, 0, Math.PI*2);
+      ctx.fill();
+      // 口（箱の蓋と本体の間）の中に牙
+      ctx.fillStyle = '#cc1111';
+      ctx.fillRect(cx - r*0.9, cy - r*0.1, r*1.8, r*0.3);
+      // 牙（上）
+      ctx.fillStyle = '#fff';
+      for (let i = 0; i < 5; i++) {
+        const tx = cx - r*0.7 + i*r*0.35;
+        ctx.beginPath();
+        ctx.moveTo(tx, cy - r*0.1);
+        ctx.lineTo(tx + r*0.08, cy + r*0.15);
+        ctx.lineTo(tx + r*0.16, cy - r*0.1);
+        ctx.fill();
+      }
+      // 牙（下）
+      for (let i = 0; i < 5; i++) {
+        const tx = cx - r*0.7 + i*r*0.35;
+        ctx.beginPath();
+        ctx.moveTo(tx, cy + r*0.2);
+        ctx.lineTo(tx + r*0.08, cy + r*0.0);
+        ctx.lineTo(tx + r*0.16, cy + r*0.2);
+        ctx.fill();
+      }
+      // 目（蓋の内側に赤い目）
+      ctx.fillStyle = '#ff2200';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.35, cy-r*0.8, r*0.18, r*0.14, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.35, cy-r*0.8, r*0.18, r*0.14, 0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#111';
+      ctx.beginPath(); ctx.arc(cx-r*0.35, cy-r*0.8, r*0.08, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+r*0.35, cy-r*0.8, r*0.08, 0, Math.PI*2); ctx.fill();
+      // 舌
+      ctx.fillStyle = '#ff5588';
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.1, cy + r*0.05);
+      ctx.quadraticCurveTo(cx, cy + r*0.4, cx + r*0.15, cy + r*0.1);
+      ctx.quadraticCurveTo(cx, cy + r*0.25, cx - r*0.1, cy + r*0.05);
+      ctx.fill();
+    },
+
     // ── デフォルト（未定義の敵用） ───────────────────────
     _default(ctx, W, H, col) {
       const cx=W/2, cy=H*0.5, r=Math.min(W,H)*0.28;

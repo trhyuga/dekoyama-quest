@@ -311,6 +311,22 @@ const MapEngine = (() => {
           if (typeof UI !== 'undefined') UI.showMessage('からっぽだ。');
           return;
         }
+        // ミミック判定: 指定ボス未撃破なら戦闘
+        if (ev.mimicIf && !state.clearedBoss[ev.mimicIf]) {
+          _movePlayer(nx, ny);
+          state.openedChests[chestKey] = true;
+          _setTile(nx, ny, GameData.TILE.FLOOR);
+          render();
+          setTimeout(() => {
+            UI.showMessage('たからばこを　あけると…\nミミックだった！', () => {
+              const mimicData = GameData.ENEMIES['mimic'];
+              if (typeof Battle !== 'undefined') {
+                Battle.start(mimicData, true, null);
+              }
+            });
+          }, 150);
+          return;
+        }
         state.openedChests[chestKey] = true;
         _movePlayer(nx, ny);
         const item = GameData.ITEMS[ev.item];
