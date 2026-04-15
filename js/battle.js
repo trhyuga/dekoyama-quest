@@ -1218,6 +1218,19 @@ const Battle = (() => {
 
   // ── プレイヤー死亡 ────────────────────────────────────────
   function _playerDead() {
+    // エリクサー自動使用（50%の確率）
+    const player = Game.getPlayer();
+    if (player.items.includes('elixir') && Math.random() < 0.5) {
+      Game.removeItem('elixir');
+      Game.healHp(9999);
+      Game.healMp(9999);
+      Sound.heal();
+      UI.showMessage('しかし　ふところの\nエリクサーが　かがやき\nでこやまは　ふっかつした！', () => {
+        _waitCommand();
+      });
+      return;
+    }
+
     bstate.active = false;
     UI.showBattleMenu(false);
     Sound.death();
