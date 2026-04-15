@@ -667,8 +667,11 @@ const UI = (() => {
           elText.style.fontFamily = "'Great Vibes', cursive";
           elText.style.letterSpacing = '4px';
           elText.style.transition = 'opacity 2s';
-          cont.removeEventListener('touchstart', onTouchTap);
-          cont.removeEventListener('click', onTap);
+          // Fin表示後3秒→タップでタイトルに戻る
+          setTimeout(() => {
+            canTap = true;
+            elHint.classList.remove('hidden');
+          }, 3000);
           return;
         }
 
