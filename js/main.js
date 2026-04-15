@@ -36,6 +36,9 @@ const Game = (() => {
   let _healBoosted      = false; // 回復魔法強化済み
   let _queenElixirGiven = false;
   let _kingSwordGiven   = false;
+  let _firstItemShop    = true;
+  let _firstWeaponShop  = true;
+  let _firstInn         = true;
 
   // ── 初期化 ────────────────────────────────────────────────
   function init() {
@@ -88,6 +91,9 @@ const Game = (() => {
       _trueMaouDefeats   = 0;
       _defSeedGiven      = 0;
       _healBoosted       = false;
+      _firstItemShop     = true;
+      _firstWeaponShop   = true;
+      _firstInn          = true;
       _startOpening();
     }
     function onStartTouch(e) {
@@ -128,6 +134,19 @@ const Game = (() => {
 
   // ── 宿屋 ─────────────────────────────────────────────────
   function useInn(cost) {
+    if (_firstInn) {
+      _firstInn = false;
+      UI.showNpcDialog([
+        'やどやでは　HPとMPが\nぜんかいする　だけではなく\nどくも　かいふくできる。',
+        'げーむを　いちじちゅうだん\nするなら　うえの\nさんぼんせんメニューから',
+        'セーブしておけば\nあとで　つづきを\nロード　できるぞ。',
+      ], () => { _doInn(cost); });
+      return;
+    }
+    _doInn(cost);
+  }
+
+  function _doInn(cost) {
     UI.showInnDialog(cost,
       // YES
       () => {
@@ -155,6 +174,33 @@ const Game = (() => {
 
   // ── ショップ ─────────────────────────────────────────────
   function openShop(shopId) {
+    const isWeapon = shopId.includes('weapon');
+    const isItem   = shopId.includes('item');
+
+    if (isItem && _firstItemShop) {
+      _firstItemShop = false;
+      UI.showNpcDialog([
+        'どうぐは　マップじょうで\nうえの　さんぼんせん\nメニューから　つかえる。',
+        'せんとうちゅうも\nつかえるぞ。',
+      ], () => {
+        _openShopWithGreeting(shopId);
+      });
+      return;
+    }
+    if (isWeapon && _firstWeaponShop) {
+      _firstWeaponShop = false;
+      UI.showNpcDialog([
+        'ぶきや　ぼうぐは\nじどうてきに　そうびされる。',
+        'ステータスは　ひだりうえの\n「でこやま」を　おすと\nかくにんできるぞ。',
+      ], () => {
+        _openShopWithGreeting(shopId);
+      });
+      return;
+    }
+    _openShopWithGreeting(shopId);
+  }
+
+  function _openShopWithGreeting(shopId) {
     const greeting = _getShopGreeting();
     UI.showMessage(greeting, () => {
       UI.showShop(shopId);
@@ -461,7 +507,7 @@ const Game = (() => {
       version: 1,
       player: JSON.parse(JSON.stringify(player)),
       map:    MapEngine.getMapState(),
-      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven, deathCount: _deathCount, queenElixirGiven: _queenElixirGiven, kingSwordGiven: _kingSwordGiven, trueMaouDefeats: _trueMaouDefeats, defSeedGiven: _defSeedGiven, healBoosted: _healBoosted },
+      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven, deathCount: _deathCount, queenElixirGiven: _queenElixirGiven, kingSwordGiven: _kingSwordGiven, trueMaouDefeats: _trueMaouDefeats, defSeedGiven: _defSeedGiven, healBoosted: _healBoosted, firstItemShop: _firstItemShop, firstWeaponShop: _firstWeaponShop, firstInn: _firstInn },
     };
     try {
       localStorage.setItem('dekoyama_save', JSON.stringify(data));
@@ -488,6 +534,9 @@ const Game = (() => {
       _trueMaouDefeats   = data.flags ? (data.flags.trueMaouDefeats || 0) : 0;
       _defSeedGiven      = data.flags ? (data.flags.defSeedGiven   || 0) : 0;
       _healBoosted       = data.flags ? !!data.flags.healBoosted : false;
+      _firstItemShop     = data.flags ? (data.flags.firstItemShop !== false)   : true;
+      _firstWeaponShop   = data.flags ? (data.flags.firstWeaponShop !== false) : true;
+      _firstInn          = data.flags ? (data.flags.firstInn !== false)        : true;
       UI.updateStatus(player);
       UI.showScene('game');
       setTimeout(() => {
