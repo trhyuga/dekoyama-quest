@@ -697,6 +697,43 @@ const GameData = {
       color:'#448844',
       spells:[],
     },
+    big_crow: {
+      id:'big_crow', name:'おおがらす',
+      hp:14, atk:6, def:2,
+      exp:4, gold:25,
+      area:['world'],
+      minLv:1, maxLv:3,
+      color:'#222233',
+      spells:[],
+    },
+    scorpion: {
+      id:'scorpion', name:'おおサソリ',
+      hp:25, atk:14, def:7,
+      exp:7, gold:45,
+      area:['world'],
+      minLv:3, maxLv:5,
+      color:'#884422',
+      spells:[],
+      poison:true,
+    },
+    lizardman: {
+      id:'lizardman', name:'リザードマン',
+      hp:50, atk:40, def:18,
+      exp:16, gold:100,
+      area:['world'],
+      minLv:5, maxLv:7,
+      color:'#226644',
+      spells:[],
+    },
+    chimera: {
+      id:'chimera', name:'キメラ',
+      hp:70, atk:68, def:20,
+      exp:22, gold:130,
+      area:['world'],
+      minLv:7, maxLv:10,
+      color:'#884466',
+      spells:['gira'],
+    },
 
     // ── ダンジョン1 敵 ────────────────────────────────────
     skeleton: {
@@ -718,6 +755,15 @@ const GameData = {
       spells:[],
       poison:true,
     },
+    big_bat: {
+      id:'big_bat', name:'おおコウモリ',
+      hp:18, atk:24, def:4,
+      exp:8, gold:35,
+      area:['dungeon1'],
+      minLv:2, maxLv:4,
+      color:'#553355',
+      spells:[],
+    },
 
     // ── ダンジョン2 敵 ────────────────────────────────────
     orc: {
@@ -737,6 +783,15 @@ const GameData = {
       minLv:6, maxLv:7,
       color:'#333366',
       spells:['gira'],
+    },
+    wizard: {
+      id:'wizard', name:'まどうし',
+      hp:35, atk:45, def:15,
+      exp:22, gold:140,
+      area:['dungeon2'],
+      minLv:5, maxLv:7,
+      color:'#442266',
+      spells:['gira','hoimi'],
     },
 
     // ── レア・特殊敵 ──────────────────────────────────────
@@ -791,6 +846,15 @@ const GameData = {
       minLv:7, maxLv:8,
       color:'#442200',
       spells:['gira'],
+    },
+    demon: {
+      id:'demon', name:'デーモン',
+      hp:90, atk:92, def:28,
+      exp:25, gold:180,
+      area:['maou_castle'],
+      minLv:7, maxLv:10,
+      color:'#880044',
+      spells:['bagi'],
     },
 
     // ── ボス ──────────────────────────────────────────────
