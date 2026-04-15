@@ -2535,6 +2535,12 @@ const MapEngine = (() => {
       state.clearedBoss  = s.clearedBoss  || {};
       loadMap(s.currentMapId, s.playerX, s.playerY);
     },
+    resetProgress() {
+      state.openedChests = {};
+      state.clearedBoss  = {};
+      state.stepCount    = 0;
+      state.torchLife    = 0;
+    },
   };
 
 })();

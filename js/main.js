@@ -118,6 +118,7 @@ const Game = (() => {
       _firstItemShop     = true;
       _firstWeaponShop   = true;
       _firstInn          = true;
+      MapEngine.resetProgress(); // ボスクリア・宝箱をリセット
       _startOpening();
     }
     function onStartTouch(e) {
