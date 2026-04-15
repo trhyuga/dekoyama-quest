@@ -451,6 +451,21 @@ const MapEngine = (() => {
         }, 150);
         break;
 
+      case 'golem_guard':
+        // 魔王城が出現している場合のみゴーレムと戦闘
+        if (state.clearedBoss['dungeon2_boss'] && !state.clearedBoss['maou']) {
+          _movePlayer(nx, ny);
+          setTimeout(() => {
+            const golem = GameData.ENEMIES['golem'];
+            if (typeof Battle !== 'undefined') {
+              Battle.start(golem, true, null);
+            }
+          }, 150);
+        } else {
+          _movePlayer(nx, ny);
+        }
+        break;
+
       default:
         _movePlayer(nx, ny);
     }

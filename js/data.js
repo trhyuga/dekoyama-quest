@@ -132,6 +132,10 @@ const GameData = {
         { x:15, y:14, type:'teleport', dest:'dungeon2', destX:1, destY:1, requiresItem:'iron_key' },
         // 魔王城（まのとうの中ボスを倒した後のみ）
         { x:12, y:19, type:'teleport', dest:'maou_castle', destX:7, destY:13, requiresBoss:'dungeon2_boss' },
+        // 魔王城の番人ゴーレム（左・右・上）
+        { x:11, y:19, type:'golem_guard' },
+        { x:13, y:19, type:'golem_guard' },
+        { x:12, y:18, type:'golem_guard' },
         // フィールドの冒険者（レベル5以上のみ）
         { x:14, y:2, type:'npc', npcId:'adventurer', minLevel:5 },
       ],
@@ -756,6 +760,14 @@ const GameData = {
       weight:2,
       physImmune:true,  // 物理ダメージ常に1
       requireBoss:'dungeon2_boss',
+    },
+    golem: {
+      id:'golem', name:'ゴーレム',
+      hp:300, atk:88, def:58,
+      exp:15, gold:30,
+      area:[], isBoss:true,
+      color:'#8a7a6a',
+      spells:['hoimi'],
     },
 
     // ── 魔王城 敵 ──────────────────────────────────────────

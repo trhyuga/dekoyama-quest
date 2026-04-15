@@ -950,6 +950,63 @@ const Battle = (() => {
       });
     },
 
+    // ── ゴーレム ──────────────────────────────────────────
+    golem(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.42, r=Math.min(W,H)*0.30;
+      const col2 = _darken(col, 0.6);
+      // 体（巨大な岩の塊）
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy+r*0.3, r*1.1, r*1.3, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 岩のテクスチャ
+      ctx.fillStyle = _lighten(col, 1.2);
+      ctx.beginPath();
+      ctx.ellipse(cx-r*0.3, cy, r*0.35, r*0.25, -0.2, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = col2;
+      ctx.beginPath();
+      ctx.ellipse(cx+r*0.4, cy+r*0.6, r*0.3, r*0.2, 0.3, 0, Math.PI*2);
+      ctx.fill();
+      // 頭（小さめ）
+      ctx.fillStyle = _lighten(col, 1.1);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy-r*0.7, r*0.5, r*0.45, 0, 0, Math.PI*2);
+      ctx.fill();
+      // ひび割れ
+      ctx.strokeStyle = col2;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx-r*0.1, cy-r*0.9);
+      ctx.lineTo(cx+r*0.05, cy-r*0.5);
+      ctx.lineTo(cx-r*0.15, cy-r*0.3);
+      ctx.stroke();
+      // 目（赤く光る穴）
+      ctx.fillStyle = '#cc3300';
+      ctx.beginPath(); ctx.ellipse(cx-r*0.2, cy-r*0.75, r*0.09, r*0.06, 0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+r*0.2, cy-r*0.75, r*0.09, r*0.06, 0,0,Math.PI*2); ctx.fill();
+      // 目のグロウ
+      ctx.fillStyle = 'rgba(255,80,0,0.3)';
+      ctx.beginPath(); ctx.arc(cx-r*0.2, cy-r*0.75, r*0.15, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+r*0.2, cy-r*0.75, r*0.15, 0, Math.PI*2); ctx.fill();
+      // 腕（太い岩の腕）
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.ellipse(cx-r*1.3, cy+r*0.2, r*0.35, r*0.7, 0.3, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx+r*1.3, cy+r*0.2, r*0.35, r*0.7, -0.3, 0, Math.PI*2);
+      ctx.fill();
+      // 拳
+      ctx.fillStyle = col2;
+      ctx.beginPath(); ctx.arc(cx-r*1.4, cy+r*0.8, r*0.25, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+r*1.4, cy+r*0.8, r*0.25, 0, Math.PI*2); ctx.fill();
+      // 脚
+      ctx.fillStyle = col;
+      ctx.fillRect(cx-r*0.55, cy+r*1.3, r*0.4, r*0.5);
+      ctx.fillRect(cx+r*0.15, cy+r*1.3, r*0.4, r*0.5);
+    },
+
     // ── ミミック ──────────────────────────────────────────
     mimic(ctx, W, H, col) {
       const cx=W/2, cy=H*0.48, r=Math.min(W,H)*0.28;
