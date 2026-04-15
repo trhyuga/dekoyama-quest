@@ -372,6 +372,10 @@ const UI = (() => {
       if (!ok) showMessage('ロードに　しっぱいした…', null);
     });
     document.getElementById('btn-menu-close').addEventListener('click', _hideGameMenu);
+    document.getElementById('btn-field-item').addEventListener('click', () => {
+      _hideGameMenu();
+      _showFieldItemMenu();
+    });
   }
 
   function showGameMenu() {
@@ -381,6 +385,86 @@ const UI = (() => {
 
   function _hideGameMenu() {
     if (elGameMenu) elGameMenu.classList.add('hidden');
+  }
+
+  // ── フィールドどうぐメニュー ──────────────────────────────
+  function _showFieldItemMenu() {
+    const elMenu = document.getElementById('field-item-menu');
+    const elList = document.getElementById('field-item-list');
+    const player = Game.getPlayer();
+    elList.innerHTML = '';
+
+    // 使用可能なアイテムをカウント
+    const itemCounts = {};
+    player.items.forEach(id => {
+      const item = GameData.ITEMS[id];
+      if (item && item.type === 'consumable') {
+        itemCounts[id] = (itemCounts[id] || 0) + 1;
+      }
+    });
+
+    if (Object.keys(itemCounts).length === 0) {
+      showMessage('つかえる　どうぐがない。', null);
+      return;
+    }
+
+    MapEngine.setMoveLock(true);
+    for (const [id, count] of Object.entries(itemCounts)) {
+      const item = GameData.ITEMS[id];
+      const btn = document.createElement('button');
+      btn.className = 'item-item';
+      btn.textContent = `${item.name}　×${count}`;
+      btn.addEventListener('click', () => {
+        _hideFieldItemMenu();
+        _useFieldItem(id);
+      });
+      elList.appendChild(btn);
+    }
+    elMenu.classList.remove('hidden');
+
+    document.getElementById('btn-field-item-cancel').onclick = () => {
+      _hideFieldItemMenu();
+    };
+  }
+
+  function _hideFieldItemMenu() {
+    document.getElementById('field-item-menu').classList.add('hidden');
+    MapEngine.setMoveLock(false);
+  }
+
+  function _useFieldItem(itemId) {
+    const item = GameData.ITEMS[itemId];
+    if (!item) return;
+
+    if (item.effect === 'heal') {
+      Game.removeItem(itemId);
+      Game.healHp(item.power);
+      Sound.heal();
+      showMessage(`${item.name}をつかった！\nHPが　${item.power}　かいふくした！`, null);
+    } else if (item.effect === 'mp_heal') {
+      Game.removeItem(itemId);
+      const healAmt = item.power > 0 ? item.power : Math.floor(Game.getPlayer().maxMp * 0.8);
+      Game.healMp(healAmt);
+      Sound.heal();
+      showMessage(`${item.name}をつかった！\nMPが　${healAmt}　かいふくした！`, null);
+    } else if (item.effect === 'cure_poison') {
+      if (!Game.isPoisoned()) {
+        showMessage('どくに　かかっていない。', null);
+        return;
+      }
+      Game.removeItem(itemId);
+      Game.setPoison(false);
+      Sound.curePoison();
+      showMessage(`${item.name}をつかった！\nどくが　なおった！`, null);
+    } else if (item.effect === 'elixir') {
+      Game.removeItem(itemId);
+      Game.healHp(9999);
+      Game.healMp(9999);
+      Sound.heal();
+      showMessage(`${item.name}をつかった！\nHPとMPが　ぜんかいふくした！`, null);
+    } else {
+      showMessage('ここでは　つかえない。', null);
+    }
   }
 
   function hideAllSubMenus() {
