@@ -607,6 +607,7 @@ const Game = (() => {
       UI.showScene('game');
       setTimeout(() => {
         MapEngine.setMapState(data.map);
+        MapEngine.setMoveLock(false); // ロード後の移動ロック解除
       }, 50);
       return true;
     } catch(e) {

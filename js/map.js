@@ -57,7 +57,8 @@ const MapEngine = (() => {
   function loadMap(mapId, destX, destY) {
     const mapDef = GameData.MAPS[mapId];
     if (!mapDef) return;
-    UI.clearMessage(); // マップ移動時に残留メッセージをクリア
+    UI.clearMessage();
+    state.moving = false; // 移動ロック解除
     state.currentMapId = mapId;
     state.playerX = (destX !== undefined) ? destX : mapDef.startX;
     state.playerY = (destY !== undefined) ? destY : mapDef.startY;
