@@ -979,6 +979,7 @@ const Battle = (() => {
     bstate.trueMaou   = false;
 
     MapEngine.setMoveLock(true);
+    UI.clearMessage(); // 残留メッセージをクリア
     _showBattleScreen(bstate.enemy);
 
     if (isBoss) Sound.bossEncounter(); else Sound.encounter();
