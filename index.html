@@ -75,6 +75,7 @@
           <button class="game-menu-btn" id="btn-save">セーブする</button>
           <button class="game-menu-btn" id="btn-load">ロードする</button>
           <button class="game-menu-btn" id="btn-field-item">どうぐをつかう</button>
+          <button class="game-menu-btn" id="btn-field-spell">じゅもんをつかう</button>
           <div class="game-menu-divider"></div>
           <button class="game-menu-btn game-menu-close" id="btn-menu-close">もどる</button>
         </div>
@@ -86,6 +87,15 @@
           <div class="battle-cmd-label">どうぐ</div>
           <div id="field-item-list"></div>
           <button class="cancel-btn" id="btn-field-item-cancel">もどる</button>
+        </div>
+      </div>
+
+      <!-- フィールドじゅもんメニュー -->
+      <div id="field-spell-menu" class="hidden">
+        <div class="window-border" style="position:absolute;bottom:0;left:0;right:0;z-index:15;border-top:3px solid var(--border);border-bottom:none;border-left:none;border-right:none;outline:none;padding:10px 14px 14px;">
+          <div class="battle-cmd-label">じゅもん</div>
+          <div id="field-spell-list"></div>
+          <button class="cancel-btn" id="btn-field-spell-cancel">もどる</button>
         </div>
       </div>
 

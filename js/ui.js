@@ -376,6 +376,10 @@ const UI = (() => {
       _hideGameMenu();
       _showFieldItemMenu();
     });
+    document.getElementById('btn-field-spell').addEventListener('click', () => {
+      _hideGameMenu();
+      _showFieldSpellMenu();
+    });
   }
 
   function showGameMenu() {
@@ -465,6 +469,66 @@ const UI = (() => {
     } else {
       showMessage('ここでは　つかえない。', null);
     }
+  }
+
+  // ── フィールドじゅもんメニュー ──────────────────────────
+  function _showFieldSpellMenu() {
+    const elMenu = document.getElementById('field-spell-menu');
+    const elList = document.getElementById('field-spell-list');
+    const player = Game.getPlayer();
+    elList.innerHTML = '';
+
+    const healSpells = player.spells.filter(id => {
+      const sp = GameData.SPELLS[id];
+      return sp && sp.type === 'heal';
+    });
+
+    if (healSpells.length === 0) {
+      showMessage('つかえる　じゅもんがない。', null);
+      return;
+    }
+
+    MapEngine.setMoveLock(true);
+    healSpells.forEach(spellId => {
+      const sp = GameData.SPELLS[spellId];
+      const btn = document.createElement('button');
+      btn.className = 'spell-item';
+      btn.innerHTML = `${sp.name}<span class="spell-mp">MP:${sp.mp}</span>`;
+      btn.addEventListener('click', () => {
+        _hideFieldSpellMenu();
+        _useFieldSpell(spellId);
+      });
+      elList.appendChild(btn);
+    });
+    elMenu.classList.remove('hidden');
+
+    document.getElementById('btn-field-spell-cancel').onclick = () => {
+      _hideFieldSpellMenu();
+    };
+  }
+
+  function _hideFieldSpellMenu() {
+    document.getElementById('field-spell-menu').classList.add('hidden');
+    MapEngine.setMoveLock(false);
+  }
+
+  function _useFieldSpell(spellId) {
+    const sp = GameData.SPELLS[spellId];
+    const player = Game.getPlayer();
+    if (player.mp < sp.mp) {
+      showMessage('MPが　たりない！', null);
+      return;
+    }
+    Game.useMp(sp.mp);
+    let heal = _fieldRand(sp.power[0], sp.power[1]);
+    if (Game.isHealBoosted()) heal = Math.floor(heal * 1.3);
+    Game.healHp(heal);
+    Sound.heal();
+    showMessage(`${sp.name}！\nHPが　${heal}　かいふくした！`, null);
+  }
+
+  function _fieldRand(min, max) {
+    return min + Math.floor(Math.random() * (max - min + 1));
   }
 
   function hideAllSubMenus() {
