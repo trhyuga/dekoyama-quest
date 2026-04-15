@@ -623,6 +623,14 @@ const UI = (() => {
     const elText = document.getElementById('ending-text');
     const elHint = document.getElementById('ending-tap-hint');
     const cont   = document.getElementById('ending-content');
+    // Fin表示で変更されたスタイルをリセット
+    elText.style.fontSize = '';
+    elText.style.textAlign = '';
+    elText.style.color = '';
+    elText.style.fontFamily = '';
+    elText.style.letterSpacing = '';
+    elText.style.transition = '';
+    elText.style.opacity = '0';
     let i = 0;
     let canTap = false;
 
