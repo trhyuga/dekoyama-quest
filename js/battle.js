@@ -1407,7 +1407,7 @@ const Battle = (() => {
     // つうこんのいちげき判定（通常1/16、ボス1/10）
     const critRate = bstate.isBoss ? 1/10 : 1/16;
     const isEnemyCrit = Math.random() < critRate;
-    const atkMult = bstate.phase2 ? 1.3 : 1.0;
+    const atkMult = bstate.phase2 ? (bstate.trueMaou ? 1.5 : 1.3) : 1.0;
 
     if (isEnemyCrit) {
       // DEFの半分しか効かない + ATK1.5倍
@@ -1549,12 +1549,12 @@ const Battle = (() => {
             id:'true_maou',
             name:'しんのまおう',
             color:'#880000',
-            hp:450, atk:130, def:45,
+            hp:550, atk:140, def:48,
             spells:['bagi','behoimi'],
-            phase2Hp:200,
+            phase2Hp:250,
           };
-          bstate.enemyHp    = 450;
-          bstate.enemyMaxHp = 450;
+          bstate.enemyHp    = 550;
+          bstate.enemyMaxHp = 550;
           bstate.enemyMp    = 21; // ベホイミ3回分(7×3)
           bstate.phase2     = false;
           _updateHpBar(450, 450);
