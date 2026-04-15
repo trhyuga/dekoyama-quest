@@ -551,6 +551,8 @@ const MapEngine = (() => {
               }
             } else if (ev.npcId === 'guard1' || ev.npcId === 'guard2') {
               _drawGuardIcon(ctx, sx, sy, tileSize);
+            } else if (ev.npcId === 'princess_secret') {
+              // アイコン非表示（見えない隠しイベント）
             } else {
               _drawNpcIcon(ctx, sx, sy, tileSize);
             }
