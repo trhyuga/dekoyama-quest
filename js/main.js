@@ -41,6 +41,8 @@ const Game = (() => {
   let _firstItemShop    = true;
   let _firstWeaponShop  = true;
   let _firstInn         = true;
+  let _isNewGamePlus    = false;
+  let _ngPlusStats      = null; // { maxHp, maxMp, atk, def, gold }
 
   // ── 初期化 ────────────────────────────────────────────────
   function init() {
@@ -71,6 +73,14 @@ const Game = (() => {
     Sound.title();
     UI.showScene('title');
 
+    // メニューテキスト変更
+    const menuEl = document.getElementById('menu-start');
+    if (menuEl) {
+      menuEl.innerHTML = _isNewGamePlus
+        ? '<span class="cursor">▶</span>つよくてにゅーげーむ'
+        : '<span class="cursor">▶</span>ぼうけんをはじめる';
+    }
+
     // タイトル画面アニメーション起動
     setTimeout(() => {
       if (typeof TitleScreen !== 'undefined') TitleScreen.init();
@@ -83,6 +93,16 @@ const Game = (() => {
       sceneEl.removeEventListener('click',      onStart);
       sceneEl.removeEventListener('touchstart', onStartTouch);
       player = PLAYER_INIT();
+      // NG+: ステータス引き継ぎ
+      if (_isNewGamePlus && _ngPlusStats) {
+        player.maxHp = _ngPlusStats.maxHp;
+        player.hp    = _ngPlusStats.maxHp;
+        player.maxMp = _ngPlusStats.maxMp;
+        player.mp    = _ngPlusStats.maxMp;
+        player.atk   = _ngPlusStats.atk;
+        player.def   = _ngPlusStats.def;
+        player.gold  = _ngPlusStats.gold;
+      }
       _kingGoldGiven     = false;
       _queenItemGiven    = false;
       _spellPowerDoubled = false;
@@ -128,8 +148,20 @@ const Game = (() => {
     MapEngine.setMoveLock(true);
     Sound.ending();
     UI.showEnding(GameData.ENDING_LINES, () => {
-      // エンディング終了→タイトルに戻る
+      // エンディング終了→つよくてニューゲーム準備
       setTimeout(() => {
+        // 装備なしの素のステータスを保存
+        const baseAtk = player.atk - (player.weapon ? (GameData.ITEMS[player.weapon].atk || 0) : 0);
+        const baseDef = player.def - (player.armor  ? (GameData.ITEMS[player.armor].def  || 0) : 0)
+                                   - (player.shield ? (GameData.ITEMS[player.shield].def || 0) : 0);
+        _ngPlusStats = {
+          maxHp: player.maxHp,
+          maxMp: player.maxMp,
+          atk: baseAtk,
+          def: baseDef,
+          gold: player.gold,
+        };
+        _isNewGamePlus = true;
         player = PLAYER_INIT();
         _showTitle();
       }, 3000);
@@ -342,12 +374,15 @@ const Game = (() => {
     const oldMaxMp = player.maxMp;
     const oldAtk   = player.atk;
     const oldDef   = player.def;
-    player.maxHp   = tbl.hp;
-    player.maxMp   = tbl.mp;
-    player.hp      = Math.min(player.maxHp, player.hp + (tbl.hp - oldMaxHp));
-    player.mp      = Math.min(player.maxMp, player.mp + (tbl.mp - oldMaxMp));
-    player.atk     = _calcAtk();
-    player.def     = _calcDef();
+    // NG+: ステータスが下がらないようにする
+    player.maxHp   = Math.max(player.maxHp, tbl.hp);
+    player.maxMp   = Math.max(player.maxMp, tbl.mp);
+    player.hp      = Math.min(player.maxHp, player.hp + Math.max(0, player.maxHp - oldMaxHp));
+    player.mp      = Math.min(player.maxMp, player.mp + Math.max(0, player.maxMp - oldMaxMp));
+    const newAtk   = _calcAtk();
+    const newDef   = _calcDef();
+    player.atk     = Math.max(player.atk, newAtk);
+    player.def     = Math.max(player.def, newDef);
     UI.updateStatus(player);
     return {
       hpGain  : player.maxHp - oldMaxHp,
@@ -464,7 +499,8 @@ const Game = (() => {
     const phased = GameData.NPC_PHASED && GameData.NPC_PHASED[npcId];
     if (phased) {
       const phase = _getGamePhase();
-      const pool = phased[phase] || phased[0];
+      // NG+のPhase0は専用セリフ
+      const pool = (_isNewGamePlus && phase === 0 && phased.ngplus) ? phased.ngplus : (phased[phase] || phased[0]);
       if (!pool) return GameData.NPC[npcId];
       // { first, random } 構造 → 初回は fixed、2回目以降ランダム
       if (pool.first && pool.random) {
@@ -659,6 +695,7 @@ const Game = (() => {
     setLostToMaou: () => { _lostToMaou = true; },
     getNpcLines,
     getPrincessSecretDialog,
+    isNewGamePlus: () => _isNewGamePlus,
     boostHeal: () => { _healBoosted = true; },
     isHealBoosted: () => _healBoosted,
   };
