@@ -456,13 +456,23 @@ const Game = (() => {
     return 0;
   }
 
+  const _npcFirstTalk = {}; // { npcId_phase: true } 初回会話済み
+
   function getNpcLines(npcId) {
-    // フェーズ別セリフがあればそちらを使用
     const phased = GameData.NPC_PHASED && GameData.NPC_PHASED[npcId];
     if (phased) {
       const phase = _getGamePhase();
       const pool = phased[phase] || phased[0];
       if (!pool) return GameData.NPC[npcId];
+      // { first, random } 構造 → 初回は fixed、2回目以降ランダム
+      if (pool.first && pool.random) {
+        const key = npcId + '_' + phase;
+        if (!_npcFirstTalk[key]) {
+          _npcFirstTalk[key] = true;
+          return pool.first;
+        }
+        return pool.random[Math.floor(Math.random() * pool.random.length)];
+      }
       // 配列の配列 → ランダム選択
       if (Array.isArray(pool[0])) {
         return pool[Math.floor(Math.random() * pool.length)];
