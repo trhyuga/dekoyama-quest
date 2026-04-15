@@ -36,6 +36,7 @@ const Game = (() => {
   let _healBoosted      = false; // 回復魔法強化済み
   let _queenElixirGiven = false;
   let _kingSwordGiven   = false;
+  let _lostToMaou       = false;
   let _firstItemShop    = true;
   let _firstWeaponShop  = true;
   let _firstInn         = true;
@@ -88,6 +89,7 @@ const Game = (() => {
       _deathCount        = 0;
       _queenElixirGiven  = false;
       _kingSwordGiven    = false;
+      _lostToMaou        = false;
       _trueMaouDefeats   = 0;
       _defSeedGiven      = 0;
       _healBoosted       = false;
@@ -446,6 +448,30 @@ const Game = (() => {
     };
   }
 
+  // ── ゲームフェーズ判定 ──────────────────────────────────
+  function _getGamePhase() {
+    if (_lostToMaou) return 3;
+    if (MapEngine.isBossCleared('dungeon2_boss')) return 2;
+    if (MapEngine.isBossCleared('dungeon1_boss')) return 1;
+    return 0;
+  }
+
+  function getNpcLines(npcId) {
+    // フェーズ別セリフがあればそちらを使用
+    const phased = GameData.NPC_PHASED && GameData.NPC_PHASED[npcId];
+    if (phased) {
+      const phase = _getGamePhase();
+      const pool = phased[phase] || phased[0];
+      if (!pool) return GameData.NPC[npcId];
+      // 配列の配列 → ランダム選択
+      if (Array.isArray(pool[0])) {
+        return pool[Math.floor(Math.random() * pool.length)];
+      }
+      return pool;
+    }
+    return GameData.NPC[npcId];
+  }
+
   let _slimeGiftGiven = false;
 
   function getFriendlySlimeDialog() {
@@ -507,7 +533,7 @@ const Game = (() => {
       version: 1,
       player: JSON.parse(JSON.stringify(player)),
       map:    MapEngine.getMapState(),
-      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven, deathCount: _deathCount, queenElixirGiven: _queenElixirGiven, kingSwordGiven: _kingSwordGiven, trueMaouDefeats: _trueMaouDefeats, defSeedGiven: _defSeedGiven, healBoosted: _healBoosted, firstItemShop: _firstItemShop, firstWeaponShop: _firstWeaponShop, firstInn: _firstInn },
+      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven, deathCount: _deathCount, queenElixirGiven: _queenElixirGiven, kingSwordGiven: _kingSwordGiven, trueMaouDefeats: _trueMaouDefeats, defSeedGiven: _defSeedGiven, healBoosted: _healBoosted, firstItemShop: _firstItemShop, firstWeaponShop: _firstWeaponShop, firstInn: _firstInn, lostToMaou: _lostToMaou },
     };
     try {
       localStorage.setItem('dekoyama_save', JSON.stringify(data));
@@ -537,6 +563,7 @@ const Game = (() => {
       _firstItemShop     = data.flags ? (data.flags.firstItemShop !== false)   : true;
       _firstWeaponShop   = data.flags ? (data.flags.firstWeaponShop !== false) : true;
       _firstInn          = data.flags ? (data.flags.firstInn !== false)        : true;
+      _lostToMaou        = data.flags ? !!data.flags.lostToMaou : false;
       UI.updateStatus(player);
       UI.showScene('game');
       setTimeout(() => {
@@ -589,6 +616,8 @@ const Game = (() => {
     getFriendlySlimeDialog,
     addTrueMaouDefeat: () => { _trueMaouDefeats++; },
     hasTrueMaouDefeats: () => _trueMaouDefeats > 0,
+    setLostToMaou: () => { _lostToMaou = true; },
+    getNpcLines,
     boostHeal: () => { _healBoosted = true; },
     isHealBoosted: () => _healBoosted,
   };

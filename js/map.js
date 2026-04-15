@@ -429,7 +429,7 @@ const MapEngine = (() => {
                 UI.showNpcDialog(['またきたか　ゆうしゃよ。\nはやく　まおうを　たおせ！'], null);
               }
             } else {
-              const lines = GameData.NPC[ev.npcId];
+              const lines = Game.getNpcLines(ev.npcId);
               if (lines) UI.showNpcDialog(lines);
             }
           }
