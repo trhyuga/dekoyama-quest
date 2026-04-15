@@ -813,7 +813,7 @@ const GameData = {
       exp:200, gold:999,
       area:[], isBoss:true,
       color:'#cc0000',
-      spells:['bagi','behoimi'],
+      spells:['bagi','hoimi'],
       phase2Hp:130, // HP半分以下で激化
     },
   },
