@@ -777,6 +777,179 @@ const Battle = (() => {
       ctx.beginPath(); ctx.arc(cx-r*0.04, cy+r*0.16, r*0.05, 0, Math.PI*2); ctx.fill();
     },
 
+    // ── しんのまおう ─────────────────────────────────────
+    true_maou(ctx, W, H, col) {
+      const cx=W/2, cy=H*0.38, r=Math.min(W,H)*0.28;
+      const col2 = _darken(col, 0.4);
+
+      // === 背景オーラ（暗黒の炎） ===
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        const fx = cx + Math.cos(angle) * r * 1.8;
+        const fy = cy + r*0.5 + Math.sin(angle) * r * 1.5;
+        const grad = ctx.createRadialGradient(fx, fy, 0, fx, fy, r*0.6);
+        grad.addColorStop(0, 'rgba(180,0,30,0.25)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      // === マント（巨大・翼のように広がる） ===
+      ctx.fillStyle = '#0a0008';
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - r*0.5);
+      ctx.quadraticCurveTo(cx - r*2.8, cy - r*0.5, cx - r*2.2, cy + r*3.2);
+      ctx.lineTo(cx - r*0.8, cy + r*2.5);
+      ctx.lineTo(cx, cy + r*1.5);
+      ctx.lineTo(cx + r*0.8, cy + r*2.5);
+      ctx.lineTo(cx + r*2.2, cy + r*3.2);
+      ctx.quadraticCurveTo(cx + r*2.8, cy - r*0.5, cx, cy - r*0.5);
+      ctx.closePath();
+      ctx.fill();
+      // マント裏地（深紅）
+      ctx.fillStyle = '#550010';
+      ctx.beginPath();
+      ctx.moveTo(cx - r*1.8, cy + r*1.5);
+      ctx.quadraticCurveTo(cx - r*1.5, cy + r*2.8, cx - r*0.8, cy + r*2.5);
+      ctx.lineTo(cx - r*0.4, cy + r*1.2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx + r*1.8, cy + r*1.5);
+      ctx.quadraticCurveTo(cx + r*1.5, cy + r*2.8, cx + r*0.8, cy + r*2.5);
+      ctx.lineTo(cx + r*0.4, cy + r*1.2);
+      ctx.closePath();
+      ctx.fill();
+
+      // === 鎧（胸甲） ===
+      ctx.fillStyle = '#2a0008';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + r*0.5, r*0.9, r*1.2, 0, 0, Math.PI*2);
+      ctx.fill();
+      // 鎧の装飾（金のライン）
+      ctx.strokeStyle = '#aa7700';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - r*0.5);
+      ctx.lineTo(cx, cy + r*1.6);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + r*0.2, r*0.7, r*0.15, 0, 0, Math.PI*2);
+      ctx.stroke();
+
+      // === 顔（より威圧的） ===
+      ctx.fillStyle = _lighten(col, 1.2);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - r*0.45, r*0.6, r*0.65, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      // === 角（4本・大きく曲がる） ===
+      ctx.fillStyle = '#1a1a1a';
+      // 外側の大きな角
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.45, cy - r*0.95);
+      ctx.quadraticCurveTo(cx - r*1.3, cy - r*1.8, cx - r*1.0, cy - r*2.3);
+      ctx.quadraticCurveTo(cx - r*0.8, cy - r*1.5, cx - r*0.2, cy - r*0.85);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx + r*0.45, cy - r*0.95);
+      ctx.quadraticCurveTo(cx + r*1.3, cy - r*1.8, cx + r*1.0, cy - r*2.3);
+      ctx.quadraticCurveTo(cx + r*0.8, cy - r*1.5, cx + r*0.2, cy - r*0.85);
+      ctx.closePath();
+      ctx.fill();
+      // 内側の小さな角
+      ctx.fillStyle = '#333';
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.2, cy - r*1.0);
+      ctx.lineTo(cx - r*0.45, cy - r*1.6);
+      ctx.lineTo(cx - r*0.05, cy - r*0.9);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx + r*0.2, cy - r*1.0);
+      ctx.lineTo(cx + r*0.45, cy - r*1.6);
+      ctx.lineTo(cx + r*0.05, cy - r*0.9);
+      ctx.fill();
+
+      // === 目（燃える赤） ===
+      // グロウ
+      const eyeGrad1 = ctx.createRadialGradient(cx - r*0.25, cy - r*0.5, 0, cx - r*0.25, cy - r*0.5, r*0.25);
+      eyeGrad1.addColorStop(0, 'rgba(255,60,0,0.6)');
+      eyeGrad1.addColorStop(1, 'rgba(255,0,0,0)');
+      ctx.fillStyle = eyeGrad1;
+      ctx.fillRect(cx - r*0.5, cy - r*0.75, r*0.5, r*0.5);
+      const eyeGrad2 = ctx.createRadialGradient(cx + r*0.25, cy - r*0.5, 0, cx + r*0.25, cy - r*0.5, r*0.25);
+      eyeGrad2.addColorStop(0, 'rgba(255,60,0,0.6)');
+      eyeGrad2.addColorStop(1, 'rgba(255,0,0,0)');
+      ctx.fillStyle = eyeGrad2;
+      ctx.fillRect(cx, cy - r*0.75, r*0.5, r*0.5);
+      // 目本体
+      ctx.fillStyle = '#ff2200';
+      ctx.beginPath(); ctx.ellipse(cx - r*0.25, cy - r*0.5, r*0.16, r*0.09, -0.1, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx + r*0.25, cy - r*0.5, r*0.16, r*0.09, 0.1, 0, Math.PI*2); ctx.fill();
+      // 瞳
+      ctx.fillStyle = '#ffcc00';
+      ctx.beginPath(); ctx.ellipse(cx - r*0.25, cy - r*0.5, r*0.06, r*0.09, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx + r*0.25, cy - r*0.5, r*0.06, r*0.09, 0, 0, Math.PI*2); ctx.fill();
+
+      // === 眉（怒りの三日月） ===
+      ctx.strokeStyle = '#1a0000';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.55, cy - r*0.75);
+      ctx.quadraticCurveTo(cx - r*0.3, cy - r*0.7, cx - r*0.08, cy - r*0.58);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx + r*0.55, cy - r*0.75);
+      ctx.quadraticCurveTo(cx + r*0.3, cy - r*0.7, cx + r*0.08, cy - r*0.58);
+      ctx.stroke();
+
+      // === 口（邪悪な笑み＋大きな牙） ===
+      ctx.fillStyle = '#0a0000';
+      ctx.beginPath();
+      ctx.moveTo(cx - r*0.4, cy - r*0.12);
+      ctx.quadraticCurveTo(cx, cy + r*0.2, cx + r*0.4, cy - r*0.12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      // 上の牙
+      ctx.beginPath(); ctx.moveTo(cx-r*0.3,cy-r*0.12); ctx.lineTo(cx-r*0.22,cy+r*0.08); ctx.lineTo(cx-r*0.14,cy-r*0.12); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx+r*0.14,cy-r*0.12); ctx.lineTo(cx+r*0.22,cy+r*0.08); ctx.lineTo(cx+r*0.3,cy-r*0.12); ctx.fill();
+      // 下の牙
+      ctx.beginPath(); ctx.moveTo(cx-r*0.08,cy+r*0.08); ctx.lineTo(cx-r*0.02,cy-r*0.05); ctx.lineTo(cx+r*0.04,cy+r*0.08); ctx.fill();
+
+      // === 宝玉（胸元・禍々しい赤紫） ===
+      const gemGrad = ctx.createRadialGradient(cx - r*0.05, cy + r*0.15, 0, cx, cy + r*0.2, r*0.2);
+      gemGrad.addColorStop(0, '#ff44aa');
+      gemGrad.addColorStop(0.5, '#aa00cc');
+      gemGrad.addColorStop(1, '#330044');
+      ctx.fillStyle = gemGrad;
+      ctx.beginPath(); ctx.arc(cx, cy + r*0.2, r*0.18, 0, Math.PI*2); ctx.fill();
+      // 宝玉の光
+      ctx.fillStyle = 'rgba(255,150,255,0.5)';
+      ctx.beginPath(); ctx.arc(cx - r*0.05, cy + r*0.14, r*0.06, 0, Math.PI*2); ctx.fill();
+
+      // === 手（爪付き） ===
+      ctx.fillStyle = col2;
+      ctx.beginPath();
+      ctx.ellipse(cx - r*1.4, cy + r*0.6, r*0.25, r*0.5, 0.4, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx + r*1.4, cy + r*0.6, r*0.25, r*0.5, -0.4, 0, Math.PI*2);
+      ctx.fill();
+      // 爪
+      ctx.fillStyle = '#ddd';
+      [-1, 1].forEach(s => {
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.moveTo(cx + s*(r*1.4 + r*0.2), cy + r*0.9 + i*r*0.12);
+          ctx.lineTo(cx + s*(r*1.4 + r*0.5), cy + r*0.95 + i*r*0.12);
+          ctx.lineTo(cx + s*(r*1.4 + r*0.2), cy + r*1.0 + i*r*0.12);
+          ctx.fill();
+        }
+      });
+    },
+
     // ── ミミック ──────────────────────────────────────────
     mimic(ctx, W, H, col) {
       const cx=W/2, cy=H*0.48, r=Math.min(W,H)*0.28;
@@ -1289,7 +1462,9 @@ const Battle = (() => {
           bstate.active = true;
           bstate.enemy = {
             ...bstate.enemy,
+            id:'true_maou',
             name:'しんのまおう',
+            color:'#880000',
             hp:450, atk:130, def:45,
             spells:['bagi','behoimi'],
             phase2Hp:200,
