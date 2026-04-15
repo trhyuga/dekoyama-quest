@@ -119,6 +119,8 @@ const Game = (() => {
       _firstWeaponShop   = true;
       _firstInn          = true;
       MapEngine.resetProgress(); // ボスクリア・宝箱をリセット
+      // NPC初回会話フラグをリセット
+      for (const key in _npcFirstTalk) delete _npcFirstTalk[key];
       _startOpening();
     }
     function onStartTouch(e) {
@@ -163,6 +165,11 @@ const Game = (() => {
           gold: player.gold,
         };
         _isNewGamePlus = true;
+        // NG+移行前にフラグをリセット
+        _lostToMaou = false;
+        _trueMaouDefeats = 0;
+        _defSeedGiven = 0;
+        _atkSeedGiven = 0;
         player = PLAYER_INIT();
         _showTitle();
       }, 3000);
