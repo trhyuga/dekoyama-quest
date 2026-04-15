@@ -549,6 +549,16 @@ const MapEngine = (() => {
               _drawTowerIcon(ctx, sx, sy, tileSize);
             } else if (d === 'desert_town') {
               _drawDesertTownIcon(ctx, sx, sy, tileSize);
+            } else if (d === 'world') {
+              // マップから出る時：マップ種別に応じたアイコン
+              const mid = state.currentMapId;
+              if (mid === 'castle_town' || mid === 'desert_town') {
+                _drawGateIcon(ctx, sx, sy, tileSize);
+              } else if (mid === 'dungeon1' || mid === 'dungeon2' || mid === 'maou_castle') {
+                _drawExitCaveIcon(ctx, sx, sy, tileSize);
+              } else {
+                _drawBuildingIcon(ctx, sx, sy, tileSize);
+              }
             } else {
               _drawBuildingIcon(ctx, sx, sy, tileSize);
             }
@@ -2266,6 +2276,87 @@ const MapEngine = (() => {
     // 影
     ctx.fillStyle = 'rgba(0,0,0,0.12)';
     ctx.fillRect(x + s*0.15, y + s*0.90, s*0.73, s*0.05);
+  }
+
+  // ── 門（ゲート）アイコン ────────────────────────────────
+  function _drawGateIcon(ctx, x, y, size) {
+    const s = size;
+    // 左の柱
+    ctx.fillStyle = '#a09080';
+    ctx.fillRect(x + s*0.08, y + s*0.10, s*0.18, s*0.85);
+    // 右の柱
+    ctx.fillRect(x + s*0.74, y + s*0.10, s*0.18, s*0.85);
+    // 柱のハイライト
+    ctx.fillStyle = '#c0b0a0';
+    ctx.fillRect(x + s*0.08, y + s*0.10, s*0.05, s*0.85);
+    ctx.fillRect(x + s*0.74, y + s*0.10, s*0.05, s*0.85);
+    // 柱の上の装飾（球）
+    ctx.fillStyle = '#b0a090';
+    ctx.beginPath();
+    ctx.arc(x + s*0.17, y + s*0.10, s*0.08, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + s*0.83, y + s*0.10, s*0.08, 0, Math.PI*2);
+    ctx.fill();
+    // アーチ（上部）
+    ctx.fillStyle = '#8a7868';
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.28, s*0.28, Math.PI, 0);
+    ctx.fill();
+    // アーチ内（暗い通路）
+    ctx.fillStyle = '#1a1008';
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.28, s*0.22, Math.PI, 0);
+    ctx.lineTo(x + s*0.72, y + s*0.95);
+    ctx.lineTo(x + s*0.28, y + s*0.95);
+    ctx.closePath();
+    ctx.fill();
+    // 光（出口の先の光）
+    ctx.fillStyle = 'rgba(200,220,180,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(x + s*0.50, y + s*0.55, s*0.12, s*0.20, 0, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // ── 洞窟出口アイコン ──────────────────────────────────────
+  function _drawExitCaveIcon(ctx, x, y, size) {
+    const s = size;
+    // 岩壁
+    ctx.fillStyle = '#4a3a2a';
+    ctx.fillRect(x, y, s, s);
+    // 岩のテクスチャ
+    ctx.fillStyle = '#5a4a38';
+    ctx.fillRect(x + s*0.05, y + s*0.1, s*0.25, s*0.3);
+    ctx.fillRect(x + s*0.7, y + s*0.05, s*0.25, s*0.35);
+    ctx.fillRect(x + s*0.1, y + s*0.6, s*0.2, s*0.25);
+    ctx.fillRect(x + s*0.75, y + s*0.55, s*0.2, s*0.3);
+    // 洞窟の穴（出口）
+    ctx.fillStyle = '#0a0808';
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.45, s*0.22, Math.PI, 0);
+    ctx.lineTo(x + s*0.72, y + s*0.95);
+    ctx.lineTo(x + s*0.28, y + s*0.95);
+    ctx.closePath();
+    ctx.fill();
+    // 穴の縁
+    ctx.strokeStyle = '#3a2a1a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x + s*0.50, y + s*0.45, s*0.23, Math.PI, 0);
+    ctx.stroke();
+    // 出口の光
+    ctx.fillStyle = 'rgba(180,220,255,0.3)';
+    ctx.beginPath();
+    ctx.ellipse(x + s*0.50, y + s*0.60, s*0.14, s*0.18, 0, 0, Math.PI*2);
+    ctx.fill();
+    // 光の矢印（↑方向を示唆）
+    ctx.fillStyle = 'rgba(255,255,200,0.35)';
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.50, y + s*0.40);
+    ctx.lineTo(x + s*0.42, y + s*0.55);
+    ctx.lineTo(x + s*0.58, y + s*0.55);
+    ctx.closePath();
+    ctx.fill();
   }
 
   function _drawBuildingIcon(ctx, x, y, size) {
