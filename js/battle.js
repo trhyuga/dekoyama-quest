@@ -1150,6 +1150,7 @@ const Battle = (() => {
     bstate.phase2     = false;
     bstate.waitingCmd = false;
     bstate.trueMaou   = false;
+    bstate.enemyMp    = enemyDef.mp || 0;
 
     MapEngine.setMoveLock(true);
     UI.clearMessage(); // 残留メッセージをクリア
@@ -1312,12 +1313,37 @@ const Battle = (() => {
     if (!bstate.active) return;
     const enemy  = bstate.enemy;
     const player = Game.getPlayer();
+
+    // 真の魔王: HP半分以下でベホイミ優先（80%の確率）
+    if (bstate.trueMaou && bstate.enemyHp <= bstate.enemyMaxHp * 0.5) {
+      const behoimi = GameData.SPELLS['behoimi'];
+      if (behoimi && bstate.enemyMp >= behoimi.mp && Math.random() < 0.8) {
+        bstate.enemyMp -= behoimi.mp;
+        const heal = _rand(behoimi.power[0], behoimi.power[1]);
+        bstate.enemyHp = Math.min(bstate.enemyMaxHp, bstate.enemyHp + heal);
+        _updateHpBar(bstate.enemyHp, bstate.enemyMaxHp);
+        Sound.heal();
+        UI.showMessage(`${enemy.name}は\nベホイミを　となえた！\nHPが　${heal}　かいふくした！`, () => _waitCommand());
+        return;
+      }
+    }
+
+    // 通常の呪文使用（30%の確率）
     if (enemy.spells && enemy.spells.length > 0 && Math.random() < 0.3) {
       const spellId = enemy.spells[Math.floor(Math.random() * enemy.spells.length)];
       const spell   = GameData.SPELLS[spellId];
       if (spell.type === 'attack') {
         const dmg = _rand(spell.power[0], spell.power[1]);
         _applyPlayerDamage(dmg, `${enemy.name}は　${spell.name}をとなえた！\nでこやまは　${dmg}の　ダメージをうけた！`);
+        return;
+      }
+      // 通常ボスの回復呪文（HP半分以下で使用、MP不問）
+      if (spell.type === 'heal' && bstate.enemyHp <= bstate.enemyMaxHp * 0.5) {
+        const heal = _rand(spell.power[0], spell.power[1]);
+        bstate.enemyHp = Math.min(bstate.enemyMaxHp, bstate.enemyHp + heal);
+        _updateHpBar(bstate.enemyHp, bstate.enemyMaxHp);
+        Sound.heal();
+        UI.showMessage(`${enemy.name}は\n${spell.name}を　となえた！\nHPが　${heal}　かいふくした！`, () => _waitCommand());
         return;
       }
     }
@@ -1471,6 +1497,7 @@ const Battle = (() => {
           };
           bstate.enemyHp    = 450;
           bstate.enemyMaxHp = 450;
+          bstate.enemyMp    = 21; // ベホイミ3回分(7×3)
           bstate.phase2     = false;
           _updateHpBar(450, 450);
           _showBattleScreen(bstate.enemy);
