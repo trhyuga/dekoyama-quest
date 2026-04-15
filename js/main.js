@@ -35,6 +35,7 @@ const Game = (() => {
   let _defSeedGiven     = 0;  // まもりのたねをもらった回数
   let _healBoosted      = false; // 回復魔法強化済み
   let _queenElixirGiven = false;
+  let _atkSeedGiven     = 0;   // 力のタネをもらった回数
   let _kingSwordGiven   = false;
   let _lostToMaou       = false;
   let _firstItemShop    = true;
@@ -92,6 +93,7 @@ const Game = (() => {
       _lostToMaou        = false;
       _trueMaouDefeats   = 0;
       _defSeedGiven      = 0;
+      _atkSeedGiven      = 0;
       _healBoosted       = false;
       _firstItemShop     = true;
       _firstWeaponShop   = true;
@@ -482,6 +484,32 @@ const Game = (() => {
     return GameData.NPC[npcId];
   }
 
+  function getPrincessSecretDialog() {
+    // 魔王撃破後は会えない（姫はエンディングへ）
+    if (MapEngine.isBossCleared('maou')) return null;
+    // 初回 or 真の魔王に負けた回数 > 力のタネをもらった回数
+    if (_atkSeedGiven === 0 || _trueMaouDefeats > _atkSeedGiven) {
+      _atkSeedGiven = Math.max(_atkSeedGiven + 1, _trueMaouDefeats);
+      return {
+        lines: [
+          'でこやま…\nたすけにきてくれたのね。',
+          'でも　まおうを　たおさなければ\nにげだせないわ。',
+          'こっそり　おうけにつたわる\nちからのタネを　わたすから\nかならず　たすけて。',
+        ],
+        onClose: () => {
+          player.atk += 2;
+          UI.updateStatus(player);
+          Sound.heal();
+          UI.showMessage('ちからのタネを　のんだ！\nこうげきりょくが　２あがった！', null);
+        }
+      };
+    }
+    return {
+      lines: ['でこやま…\nかならず　まおうを　たおして。\nわたし　しんじてるわ。'],
+      onClose: null,
+    };
+  }
+
   let _slimeGiftGiven = false;
 
   function getFriendlySlimeDialog() {
@@ -543,7 +571,7 @@ const Game = (() => {
       version: 1,
       player: JSON.parse(JSON.stringify(player)),
       map:    MapEngine.getMapState(),
-      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven, deathCount: _deathCount, queenElixirGiven: _queenElixirGiven, kingSwordGiven: _kingSwordGiven, trueMaouDefeats: _trueMaouDefeats, defSeedGiven: _defSeedGiven, healBoosted: _healBoosted, firstItemShop: _firstItemShop, firstWeaponShop: _firstWeaponShop, firstInn: _firstInn, lostToMaou: _lostToMaou },
+      flags:  { kingGoldGiven: _kingGoldGiven, queenItemGiven: _queenItemGiven, spellPowerDoubled: _spellPowerDoubled, slimeGiftGiven: _slimeGiftGiven, deathCount: _deathCount, queenElixirGiven: _queenElixirGiven, kingSwordGiven: _kingSwordGiven, trueMaouDefeats: _trueMaouDefeats, defSeedGiven: _defSeedGiven, healBoosted: _healBoosted, firstItemShop: _firstItemShop, firstWeaponShop: _firstWeaponShop, firstInn: _firstInn, lostToMaou: _lostToMaou, atkSeedGiven: _atkSeedGiven },
     };
     try {
       localStorage.setItem('dekoyama_save', JSON.stringify(data));
@@ -574,6 +602,7 @@ const Game = (() => {
       _firstWeaponShop   = data.flags ? (data.flags.firstWeaponShop !== false) : true;
       _firstInn          = data.flags ? (data.flags.firstInn !== false)        : true;
       _lostToMaou        = data.flags ? !!data.flags.lostToMaou : false;
+      _atkSeedGiven      = data.flags ? (data.flags.atkSeedGiven || 0) : 0;
       UI.updateStatus(player);
       UI.showScene('game');
       setTimeout(() => {
@@ -628,6 +657,7 @@ const Game = (() => {
     hasTrueMaouDefeats: () => _trueMaouDefeats > 0,
     setLostToMaou: () => { _lostToMaou = true; },
     getNpcLines,
+    getPrincessSecretDialog,
     boostHeal: () => { _healBoosted = true; },
     isHealBoosted: () => _healBoosted,
   };

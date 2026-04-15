@@ -381,6 +381,8 @@ const GameData = {
         { x:7, y:1, type:'boss', bossId:'maou' },
         // 姫（ボス撃破後）row1 x=8は床タイル
         { x:8, y:1, type:'princess', npcId:'princess' },
+        // 王女の隣（ボス撃破前に力のタネ）
+        { x:9, y:1, type:'npc', npcId:'princess_secret' },
       ],
     },
   },

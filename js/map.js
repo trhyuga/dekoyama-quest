@@ -409,6 +409,11 @@ const MapEngine = (() => {
               if (sd) {
                 UI.showNpcDialog(sd.lines, sd.onClose);
               }
+            } else if (ev.npcId === 'princess_secret') {
+              const pd = Game.getPrincessSecretDialog();
+              if (pd) {
+                UI.showNpcDialog(pd.lines, pd.onClose);
+              }
             } else if (ev.npcId === 'adventurer') {
               if (!Game.isSpellDoubled()) {
                 UI.showNpcDialog(GameData.NPC.adventurer, () => {
