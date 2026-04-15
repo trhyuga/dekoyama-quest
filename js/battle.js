@@ -1407,7 +1407,7 @@ const Battle = (() => {
     // つうこんのいちげき判定（通常1/16、ボス1/10）
     const critRate = bstate.isBoss ? 1/10 : 1/16;
     const isEnemyCrit = Math.random() < critRate;
-    const atkMult = bstate.phase2 ? (bstate.trueMaou ? 1.5 : 1.3) : 1.0;
+    const atkMult = bstate.phase2 ? (bstate.trueMaou ? 1.4 : 1.3) : 1.0;
 
     if (isEnemyCrit) {
       // DEFの半分しか効かない + ATK1.5倍
