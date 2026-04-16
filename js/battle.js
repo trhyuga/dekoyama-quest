@@ -1682,6 +1682,13 @@ const Battle = (() => {
   function _applyPlayerDamage(dmg, msg) {
     Sound.hit();
     Game.takeDamage(dmg);
+    // メッセージウィンドウを揺らす
+    const msgWin = document.getElementById('message-window');
+    if (msgWin) {
+      msgWin.classList.remove('shake');
+      void msgWin.offsetWidth; // リフロー強制（連続で効かせるため）
+      msgWin.classList.add('shake');
+    }
     const enemy = bstate.enemy;
     // 毒判定（40%の確率）
     if (enemy.poison && !Game.isPoisoned() && Math.random() < 0.4) {
