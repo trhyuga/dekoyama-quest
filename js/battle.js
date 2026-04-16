@@ -1755,6 +1755,13 @@ const Battle = (() => {
     bstate.active = false;
     UI.showBattleMenu(false);
     Sound.death();
+    // 死亡時の激しい揺れ
+    const msgWin = document.getElementById('message-window');
+    if (msgWin) {
+      msgWin.classList.remove('shake', 'shake-heavy');
+      void msgWin.offsetWidth;
+      msgWin.classList.add('shake-heavy');
+    }
     // 真の魔王戦 or 魔王戦での死亡→城に戻す
     if (bstate.bossId === 'maou') {
       Game.setLostToMaou();
