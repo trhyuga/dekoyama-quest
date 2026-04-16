@@ -301,14 +301,14 @@ const Game = (() => {
   function _calcAtk() {
     const base = GameData.LEVEL_TABLE[player.level].atk;
     const wBonus = player.weapon ? (GameData.ITEMS[player.weapon].atk || 0) : 0;
-    return base + wBonus;
+    return Math.max(player.atk, base + wBonus);
   }
 
   function _calcDef() {
     const base = GameData.LEVEL_TABLE[player.level].def;
     const aBonus = player.armor  ? (GameData.ITEMS[player.armor].def  || 0) : 0;
     const sBonus = player.shield ? (GameData.ITEMS[player.shield].def || 0) : 0;
-    return base + aBonus + sBonus;
+    return Math.max(player.def, base + aBonus + sBonus);
   }
 
   // ── アイテム追加・削除 ────────────────────────────────────
