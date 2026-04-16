@@ -280,18 +280,23 @@ const Game = (() => {
     player.gold -= price;
 
     if (item.type === 'weapon') {
-      // 装備変更
-      if (player.weapon) player.items.push(player.weapon); // 旧装備を持ち物へ
-      player.weapon  = itemId;
-      player.atk     = _calcAtk();
+      const oldBonus = player.weapon ? (GameData.ITEMS[player.weapon].atk || 0) : 0;
+      if (player.weapon) player.items.push(player.weapon);
+      player.weapon = itemId;
+      const newBonus = item.atk || 0;
+      player.atk = player.atk - oldBonus + newBonus;
     } else if (item.type === 'armor') {
+      const oldBonus = player.armor ? (GameData.ITEMS[player.armor].def || 0) : 0;
       if (player.armor) player.items.push(player.armor);
       player.armor = itemId;
-      player.def   = _calcDef();
+      const newBonus = item.def || 0;
+      player.def = player.def - oldBonus + newBonus;
     } else if (item.type === 'shield') {
+      const oldBonus = player.shield ? (GameData.ITEMS[player.shield].def || 0) : 0;
       if (player.shield) player.items.push(player.shield);
       player.shield = itemId;
-      player.def    = _calcDef();
+      const newBonus = item.def || 0;
+      player.def = player.def - oldBonus + newBonus;
     } else {
       player.items.push(itemId);
     }
@@ -301,14 +306,14 @@ const Game = (() => {
   function _calcAtk() {
     const base = GameData.LEVEL_TABLE[player.level].atk;
     const wBonus = player.weapon ? (GameData.ITEMS[player.weapon].atk || 0) : 0;
-    return Math.max(player.atk, base + wBonus);
+    return base + wBonus;
   }
 
   function _calcDef() {
     const base = GameData.LEVEL_TABLE[player.level].def;
     const aBonus = player.armor  ? (GameData.ITEMS[player.armor].def  || 0) : 0;
     const sBonus = player.shield ? (GameData.ITEMS[player.shield].def || 0) : 0;
-    return Math.max(player.def, base + aBonus + sBonus);
+    return base + aBonus + sBonus;
   }
 
   // ── アイテム追加・削除 ────────────────────────────────────
@@ -316,17 +321,20 @@ const Game = (() => {
     const item = GameData.ITEMS[itemId];
     if (!item) return;
     if (item.type === 'weapon') {
-      if (player.weapon) player.items.push(player.weapon); // 旧装備をバッグへ
+      const oldBonus = player.weapon ? (GameData.ITEMS[player.weapon].atk || 0) : 0;
+      if (player.weapon) player.items.push(player.weapon);
       player.weapon = itemId;
-      player.atk    = _calcAtk();
+      player.atk = player.atk - oldBonus + (item.atk || 0);
     } else if (item.type === 'armor') {
+      const oldBonus = player.armor ? (GameData.ITEMS[player.armor].def || 0) : 0;
       if (player.armor) player.items.push(player.armor);
       player.armor = itemId;
-      player.def    = _calcDef();
+      player.def = player.def - oldBonus + (item.def || 0);
     } else if (item.type === 'shield') {
+      const oldBonus = player.shield ? (GameData.ITEMS[player.shield].def || 0) : 0;
       if (player.shield) player.items.push(player.shield);
       player.shield = itemId;
-      player.def    = _calcDef();
+      player.def = player.def - oldBonus + (item.def || 0);
     } else {
       player.items.push(itemId);
     }
