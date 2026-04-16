@@ -1688,16 +1688,23 @@ const Battle = (() => {
     }
   }
 
+  // ── 揺れ演出（アニメ終了後に自動クリーンアップ） ────────
+  function _shakeMsg(heavy) {
+    const msgWin = document.getElementById('message-window');
+    if (!msgWin) return;
+    msgWin.classList.remove('shake', 'shake-heavy');
+    void msgWin.offsetWidth;
+    const cls = heavy ? 'shake-heavy' : 'shake';
+    msgWin.classList.add(cls);
+    msgWin.addEventListener('animationend', () => {
+      msgWin.classList.remove('shake', 'shake-heavy');
+    }, { once: true });
+  }
+
   function _applyPlayerDamage(dmg, msg, isCritical) {
     Sound.hit();
     Game.takeDamage(dmg);
-    // メッセージウィンドウを揺らす
-    const msgWin = document.getElementById('message-window');
-    if (msgWin) {
-      msgWin.classList.remove('shake', 'shake-heavy');
-      void msgWin.offsetWidth;
-      msgWin.classList.add(isCritical ? 'shake-heavy' : 'shake');
-    }
+    _shakeMsg(isCritical);
     const enemy = bstate.enemy;
     // 毒判定（40%の確率）
     if (enemy.poison && !Game.isPoisoned() && Math.random() < 0.4) {
@@ -1765,12 +1772,7 @@ const Battle = (() => {
     UI.showBattleMenu(false);
     Sound.death();
     // 死亡時の激しい揺れ
-    const msgWin = document.getElementById('message-window');
-    if (msgWin) {
-      msgWin.classList.remove('shake', 'shake-heavy');
-      void msgWin.offsetWidth;
-      msgWin.classList.add('shake-heavy');
-    }
+    _shakeMsg(true);
     // 真の魔王戦 or 魔王戦での死亡→城に戻す
     if (bstate.bossId === 'maou') {
       Game.setLostToMaou();
