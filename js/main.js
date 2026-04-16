@@ -152,6 +152,7 @@ const Game = (() => {
   function startEnding() {
     MapEngine.setMoveLock(true);
     Sound.ending();
+    BGM.play('ending');
     UI.showEnding(GameData.ENDING_LINES, () => {
       // エンディング終了→つよくてニューゲーム準備
       setTimeout(() => {
