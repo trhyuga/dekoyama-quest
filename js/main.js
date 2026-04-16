@@ -550,9 +550,9 @@ const Game = (() => {
   function getPrincessSecretDialog() {
     // 魔王撃破後は会えない（姫はエンディングへ）
     if (MapEngine.isBossCleared('maou')) return null;
-    // 初回 or 真の魔王に負けた回数 > 力のタネをもらった回数
-    if (_atkSeedGiven === 0 || _trueMaouDefeats > _atkSeedGiven) {
-      _atkSeedGiven = Math.max(_atkSeedGiven + 1, _trueMaouDefeats);
+    // 初回 or 真の魔王に負けた回数 >= 力のタネをもらった回数
+    if (_atkSeedGiven === 0 || _trueMaouDefeats >= _atkSeedGiven) {
+      _atkSeedGiven++;
       return {
         lines: [
           'でこやま…\nたすけにきてくれたのね。',
