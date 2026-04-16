@@ -386,19 +386,22 @@ const Game = (() => {
 
   function _applyLevelStats() {
     const tbl      = GameData.LEVEL_TABLE[player.level];
+    const prevTbl  = GameData.LEVEL_TABLE[player.level - 1];
     const oldMaxHp = player.maxHp;
     const oldMaxMp = player.maxMp;
     const oldAtk   = player.atk;
     const oldDef   = player.def;
-    // NG+: ステータスが下がらないようにする
-    player.maxHp   = Math.max(player.maxHp, tbl.hp);
-    player.maxMp   = Math.max(player.maxMp, tbl.mp);
-    player.hp      = Math.min(player.maxHp, player.hp + Math.max(0, player.maxHp - oldMaxHp));
-    player.mp      = Math.min(player.maxMp, player.mp + Math.max(0, player.maxMp - oldMaxMp));
-    const newAtk   = _calcAtk();
-    const newDef   = _calcDef();
-    player.atk     = Math.max(player.atk, newAtk);
-    player.def     = Math.max(player.def, newDef);
+    // レベルテーブルの差分を加算（NG+でも確実に成長）
+    const hpUp  = tbl.hp  - (prevTbl ? prevTbl.hp  : 0);
+    const mpUp  = tbl.mp  - (prevTbl ? prevTbl.mp  : 0);
+    const atkUp = tbl.atk - (prevTbl ? prevTbl.atk : 0);
+    const defUp = tbl.def - (prevTbl ? prevTbl.def : 0);
+    player.maxHp += hpUp;
+    player.maxMp += mpUp;
+    player.hp     = Math.min(player.maxHp, player.hp + hpUp);
+    player.mp     = Math.min(player.maxMp, player.mp + mpUp);
+    player.atk   += atkUp;
+    player.def   += defUp;
     UI.updateStatus(player);
     return {
       hpGain  : player.maxHp - oldMaxHp,
