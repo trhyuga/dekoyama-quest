@@ -683,9 +683,12 @@ const Game = (() => {
       _atkSeedGiven      = data.flags ? (data.flags.atkSeedGiven || 0) : 0;
       UI.updateStatus(player);
       UI.showScene('game');
+      // 戦闘中だった場合、戦闘画面を強制終了
+      if (typeof Battle !== 'undefined') Battle.forceEnd();
+      UI.clearMessage();
       setTimeout(() => {
         MapEngine.setMapState(data.map);
-        MapEngine.setMoveLock(false); // ロード後の移動ロック解除
+        MapEngine.setMoveLock(false);
       }, 50);
       return true;
     } catch(e) {

@@ -1898,6 +1898,12 @@ const Battle = (() => {
     getEnemyHp   : () => bstate.enemyHp,
     getEnemy     : () => bstate.enemy,
     isWaitingCmd : () => bstate.waitingCmd,
+    forceEnd() {
+      bstate.active = false;
+      bstate.waitingCmd = false;
+      UI.showBattleMenu(false);
+      _hideBattleScreen();
+    },
   };
 
 })();
