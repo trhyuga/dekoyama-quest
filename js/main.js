@@ -71,8 +71,17 @@ const Game = (() => {
   // ── タイトル画面 ──────────────────────────────────────────
   function _showTitle() {
     Sound.title();
-    BGM.play('title');
     UI.showScene('title');
+
+    // 初回タップでBGM開始（自動再生ブロック対策）
+    function _startBgm() {
+      BGM.play('title');
+      document.removeEventListener('click', _startBgm);
+      document.removeEventListener('touchstart', _startBgm);
+    }
+    BGM.play('title'); // 2回目以降のタイトル表示用（NG+等）
+    document.addEventListener('click', _startBgm, { once: true });
+    document.addEventListener('touchstart', _startBgm, { once: true });
 
     // メニューテキスト変更
     const menuEl = document.getElementById('menu-start');
