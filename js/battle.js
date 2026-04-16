@@ -1672,22 +1672,22 @@ const Battle = (() => {
       const rawAtk = Math.floor(enemy.atk * atkMult * 1.5);
       const dmg = _calcDamage(rawAtk, Math.floor(player.def * 0.5));
       Sound.enemyCritical();
-      _applyPlayerDamage(dmg, `${enemy.name}の　つうこんの　いちげき！！\nでこやまは　${dmg}の　ダメージをうけた！`);
+      _applyPlayerDamage(dmg, `${enemy.name}の　つうこんの　いちげき！！\nでこやまは　${dmg}の　ダメージをうけた！`, true);
     } else {
       const dmg = _calcDamage(Math.floor(enemy.atk * atkMult), player.def);
       _applyPlayerDamage(dmg, `${enemy.name}の　こうげき！\nでこやまは　${dmg}の　ダメージをうけた！`);
     }
   }
 
-  function _applyPlayerDamage(dmg, msg) {
+  function _applyPlayerDamage(dmg, msg, isCritical) {
     Sound.hit();
     Game.takeDamage(dmg);
     // メッセージウィンドウを揺らす
     const msgWin = document.getElementById('message-window');
     if (msgWin) {
-      msgWin.classList.remove('shake');
-      void msgWin.offsetWidth; // リフロー強制（連続で効かせるため）
-      msgWin.classList.add('shake');
+      msgWin.classList.remove('shake', 'shake-heavy');
+      void msgWin.offsetWidth;
+      msgWin.classList.add(isCritical ? 'shake-heavy' : 'shake');
     }
     const enemy = bstate.enemy;
     // 毒判定（40%の確率）
