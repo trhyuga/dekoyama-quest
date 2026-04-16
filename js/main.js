@@ -71,6 +71,7 @@ const Game = (() => {
   // ── タイトル画面 ──────────────────────────────────────────
   function _showTitle() {
     Sound.title();
+    BGM.play('title');
     UI.showScene('title');
 
     // メニューテキスト変更
@@ -138,6 +139,7 @@ const Game = (() => {
       // 先にシーンを表示してからレイアウト計算が完了するのを待つ（50ms）
       UI.showScene('game');
       UI.updateStatus(player);
+      BGM.play('throne');
       setTimeout(() => {
         MapEngine.resize();
         MapEngine.loadMap('throne_room', 5, 5);
