@@ -26,14 +26,15 @@ const BGM = (() => {
   };
 
   function play(id) {
-    if (currentId === id && current && !current.paused) return; // 同じ曲なら何もしない
+    if (currentId === id && current && !current.paused) return;
     stop();
     const src = tracks[id];
     if (!src) return;
     currentId = id;
     current = new Audio(src);
     current.loop = true;
-    current.volume = muted ? 0 : volume;
+    current.volume = volume;
+    current.muted = muted;
     current.play().catch(() => {});
   }
 
@@ -44,7 +45,8 @@ const BGM = (() => {
     currentId = id;
     current = new Audio(src);
     current.loop = false;
-    current.volume = muted ? 0 : volume;
+    current.volume = volume;
+    current.muted = muted;
     current.play().catch(() => {});
   }
 
@@ -59,12 +61,12 @@ const BGM = (() => {
 
   function setVolume(v) {
     volume = Math.max(0, Math.min(1, v));
-    if (current) current.volume = muted ? 0 : volume;
+    if (current) current.volume = volume;
   }
 
   function toggleMute() {
     muted = !muted;
-    if (current) current.volume = muted ? 0 : volume;
+    if (current) current.muted = muted;
     return muted;
   }
 
