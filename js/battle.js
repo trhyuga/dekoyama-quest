@@ -1643,8 +1643,9 @@ const Battle = (() => {
       }
     }
 
-    // 通常の呪文使用（30%の確率）
-    if (enemy.spells && enemy.spells.length > 0 && Math.random() < 0.3) {
+    // 通常の呪文使用（spellRateがあればその確率、なければ30%）
+    const spellRate = enemy.spellRate || 0.3;
+    if (enemy.spells && enemy.spells.length > 0 && Math.random() < spellRate) {
       const spellId = enemy.spells[Math.floor(Math.random() * enemy.spells.length)];
       const spell   = GameData.SPELLS[spellId];
       if (spell.type === 'attack') {

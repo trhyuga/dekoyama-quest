@@ -727,12 +727,13 @@ const GameData = {
     },
     chimera: {
       id:'chimera', name:'キメラ',
-      hp:70, atk:68, def:20,
+      hp:130, atk:55, def:22,
       exp:22, gold:130,
       area:['world'],
       minLv:7, maxLv:10,
       color:'#884466',
-      spells:['gira'],
+      spells:['gira','bagi'],
+      spellRate:0.7,
     },
 
     // ── ダンジョン1 敵 ────────────────────────────────────
@@ -786,12 +787,13 @@ const GameData = {
     },
     wizard: {
       id:'wizard', name:'まどうし',
-      hp:35, atk:45, def:15,
+      hp:65, atk:35, def:15,
       exp:22, gold:140,
       area:['dungeon2'],
       minLv:5, maxLv:7,
       color:'#442266',
       spells:['gira','hoimi'],
+      spellRate:0.75,
     },
 
     // ── レア・特殊敵 ──────────────────────────────────────
