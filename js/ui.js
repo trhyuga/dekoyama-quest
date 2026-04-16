@@ -380,10 +380,19 @@ const UI = (() => {
       _hideGameMenu();
       _showFieldSpellMenu();
     });
+    const muteBtn = document.getElementById('btn-mute');
+    if (muteBtn) {
+      muteBtn.addEventListener('click', () => {
+        const muted = BGM.toggleMute();
+        muteBtn.textContent = muted ? '♪ おとOFF' : '♪ おとON';
+      });
+    }
   }
 
   function showGameMenu() {
     _initGameMenu();
+    const muteBtn = document.getElementById('btn-mute');
+    if (muteBtn) muteBtn.textContent = BGM.isMuted() ? '♪ おとOFF' : '♪ おとON';
     elGameMenu.classList.remove('hidden');
   }
 

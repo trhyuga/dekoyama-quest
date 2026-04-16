@@ -32,8 +32,8 @@ const BGM = (() => {
     currentId = id;
     current = new Audio(src);
     current.loop = true;
-    current.volume = volume;
-    current.play().catch(() => {}); // 自動再生ブロック対策
+    current.volume = muted ? 0 : volume;
+    current.play().catch(() => {});
   }
 
   function playOnce(id) {
@@ -43,7 +43,7 @@ const BGM = (() => {
     currentId = id;
     current = new Audio(src);
     current.loop = false;
-    current.volume = volume;
+    current.volume = muted ? 0 : volume;
     current.play().catch(() => {});
   }
 
@@ -58,13 +58,23 @@ const BGM = (() => {
 
   function setVolume(v) {
     volume = Math.max(0, Math.min(1, v));
-    if (current) current.volume = volume;
+    if (current) current.volume = muted ? 0 : volume;
   }
+
+  let muted = false;
+
+  function toggleMute() {
+    muted = !muted;
+    if (current) current.volume = muted ? 0 : volume;
+    return muted;
+  }
+
+  function isMuted() { return muted; }
 
   function getCurrentId() {
     return currentId;
   }
 
-  return { play, playOnce, stop, setVolume, getCurrentId };
+  return { play, playOnce, stop, setVolume, getCurrentId, toggleMute, isMuted };
 
 })();
