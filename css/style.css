@@ -367,6 +367,15 @@ body {
   text-decoration: underline dotted var(--gray);
 }
 
+#status-mute-btn {
+  background: transparent;
+  border: none;
+  color: var(--gray);
+  font-size: 16px;
+  padding: 2px 4px;
+  cursor: pointer;
+  margin-left: 6px;
+}
 #status-menu-btn {
   background: transparent;
   border: 1px solid var(--gray);
@@ -376,7 +385,7 @@ body {
   padding: 2px 6px;
   cursor: pointer;
   letter-spacing: 0;
-  margin-left: 4px;
+  margin-left: 10px;
 }
 #status-menu-btn:active {
   background: #0000a0;

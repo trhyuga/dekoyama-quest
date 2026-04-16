@@ -6,16 +6,21 @@
 const Sound = (() => {
 
   let ctx = null;
+  let _muted = false;
 
   function _getCtx() {
+    if (_muted) return null;
     if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
   }
 
+  function setMuted(v) { _muted = v; }
+
   // ── 基本波形再生 ─────────────────────────────────────────
   function _tone(freq, dur, type, vol, startTime) {
     const c = _getCtx();
+    if (!c) return;
     const t = startTime || c.currentTime;
     const osc  = c.createOscillator();
     const gain = c.createGain();
@@ -32,6 +37,7 @@ const Sound = (() => {
   // ── ノイズ（打撃・爆発用） ──────────────────────────────
   function _noise(dur, vol, startTime) {
     const c = _getCtx();
+    if (!c) return;
     const t = startTime || c.currentTime;
     const bufSize = c.sampleRate * dur;
     const buf = c.createBuffer(1, bufSize, c.sampleRate);
@@ -281,7 +287,7 @@ const Sound = (() => {
     poison, poisonTick, curePoison,
     victory, levelUp, death,
     chest, buy, inn, teleport,
-    title, ending,
+    title, ending, setMuted,
     runFail, runOk,
   };
 

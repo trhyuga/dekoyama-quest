@@ -5,9 +5,10 @@
 
 const BGM = (() => {
 
-  let current = null;   // 現在再生中のAudioオブジェクト
-  let currentId = null; // 現在のBGM ID
-  let volume = 0.4;     // 音量（0.0〜1.0）
+  let current = null;
+  let currentId = null;
+  let volume = 0.4;
+  let muted = false;
 
   const tracks = {
     title:     'audio/タイトル画面.mp3',
@@ -60,8 +61,6 @@ const BGM = (() => {
     volume = Math.max(0, Math.min(1, v));
     if (current) current.volume = muted ? 0 : volume;
   }
-
-  let muted = false;
 
   function toggleMute() {
     muted = !muted;

@@ -41,6 +41,19 @@ const UI = (() => {
     document.getElementById('status-name').addEventListener('touchstart', (e) => {
       e.preventDefault(); _toggleStatusOverlay();
     }, { passive: false });
+    // ステータスバーのミュートボタン
+    const topMuteBtn = document.getElementById('status-mute-btn');
+    if (topMuteBtn) {
+      topMuteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const muted = BGM.toggleMute();
+        Sound.setMuted(muted);
+        topMuteBtn.textContent = muted ? '🔇' : '🔊';
+        const menuBtn = document.getElementById('btn-mute');
+        if (menuBtn) menuBtn.textContent = muted ? '♪ おとOFF' : '♪ おとON';
+      });
+    }
+
     elStatusOverlay.addEventListener('click', _hideStatusOverlay);
     elStatusOverlay.addEventListener('touchstart', (e) => {
       e.preventDefault(); _hideStatusOverlay();
@@ -384,7 +397,11 @@ const UI = (() => {
     if (muteBtn) {
       muteBtn.addEventListener('click', () => {
         const muted = BGM.toggleMute();
+        Sound.setMuted(muted);
         muteBtn.textContent = muted ? '♪ おとOFF' : '♪ おとON';
+        // ステータスバーのミュートボタンも同期
+        const topBtn = document.getElementById('status-mute-btn');
+        if (topBtn) topBtn.textContent = muted ? '🔇' : '🔊';
       });
     }
   }
