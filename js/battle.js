@@ -1468,24 +1468,29 @@ const Battle = (() => {
     bstate.enemyMp    = enemyDef.mp || 0;
 
     MapEngine.setMoveLock(true);
-    UI.clearMessage(); // 残留メッセージをクリア
+    UI.clearMessage();
     _showBattleScreen(bstate.enemy);
 
     if (isBoss) Sound.bossEncounter(); else Sound.encounter();
-    // BGM切り替え
-    if (bossId === 'maou') {
-      BGM.play('maou');
-    } else if (isBoss) {
-      BGM.play('boss'); // 中ボス・ミミック・ゴーレム
-    } else {
-      BGM.play('battle');
-    }
 
     const msg = isBoss
       ? `${enemyDef.name}が\nあらわれた！`
       : `${enemyDef.name}に\nであった！`;
 
     UI.showMessage(msg, () => _waitCommand());
+
+    // BGM切り替え（メッセージ表示後に遅延実行）
+    setTimeout(() => {
+      try {
+        if (bossId === 'maou') {
+          BGM.play('maou');
+        } else if (isBoss) {
+          BGM.play('boss');
+        } else {
+          BGM.play('battle');
+        }
+      } catch(e) {}
+    }, 100);
   }
 
   // ── コマンド入力待ち ──────────────────────────────────────
@@ -1870,7 +1875,7 @@ const Battle = (() => {
       desert_town:'desert_town', dungeon1:'dungeon1', dungeon2:'dungeon2',
       maou_castle:'maou_castle',
     };
-    if (bgmMap[mapId]) BGM.play(bgmMap[mapId]);
+    if (bgmMap[mapId]) setTimeout(() => { try { BGM.play(bgmMap[mapId]); } catch(e) {} }, 100);
   }
 
   // ── ダメージ計算 ─────────────────────────────────────────

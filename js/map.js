@@ -62,13 +62,13 @@ const MapEngine = (() => {
     state.currentMapId = mapId;
     state.playerX = (destX !== undefined) ? destX : mapDef.startX;
     state.playerY = (destY !== undefined) ? destY : mapDef.startY;
-    // BGM切り替え
+    // BGM切り替え（遅延実行でUI処理を優先）
     const bgmMap = {
       world:'field', castle_town:'castle_town', throne_room:'throne',
       desert_town:'desert_town', dungeon1:'dungeon1', dungeon2:'dungeon2',
       maou_castle:'maou_castle',
     };
-    if (bgmMap[mapId]) BGM.play(bgmMap[mapId]);
+    if (bgmMap[mapId]) setTimeout(() => { try { BGM.play(bgmMap[mapId]); } catch(e) {} }, 100);
     // ダンジョン進入時：たいまつ自動消費
     if (mapDef.isDungeon && !_isDungeonBossCleared()) {
       _tryLightTorch(true);
