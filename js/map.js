@@ -2491,9 +2491,26 @@ const MapEngine = (() => {
   function _drawArmLionIcon(ctx, x, y, size) {
     const s = size;
     const cx = x + s * 0.5;
-    // オーラ（発光）
-    const aura = ctx.createRadialGradient(cx, y + s*0.5, 0, cx, y + s*0.5, s*0.5);
-    aura.addColorStop(0, 'rgba(255,170,0,0.4)');
+    const ccy = y + s * 0.5;
+    // 外側の明るい枠（視認性向上）
+    ctx.fillStyle = '#ffcc44';
+    ctx.beginPath();
+    ctx.arc(cx, ccy, s*0.46, 0, Math.PI*2);
+    ctx.fill();
+    // 内側の背景（クリーム色）
+    ctx.fillStyle = '#fff0c0';
+    ctx.beginPath();
+    ctx.arc(cx, ccy, s*0.42, 0, Math.PI*2);
+    ctx.fill();
+    // 暗い枠（コントラスト）
+    ctx.strokeStyle = '#4a2800';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cx, ccy, s*0.42, 0, Math.PI*2);
+    ctx.stroke();
+    // オーラ
+    const aura = ctx.createRadialGradient(cx, y + s*0.5, 0, cx, y + s*0.5, s*0.4);
+    aura.addColorStop(0, 'rgba(255,200,40,0.35)');
     aura.addColorStop(1, 'rgba(255,100,0,0)');
     ctx.fillStyle = aura;
     ctx.fillRect(x, y, s, s);
@@ -2567,10 +2584,27 @@ const MapEngine = (() => {
   function _drawDarkDragonIcon(ctx, x, y, size) {
     const s = size;
     const cx = x + s * 0.5;
+    const ccy = y + s * 0.5;
+    // 外側の明るい枠（紫）
+    ctx.fillStyle = '#cc88ff';
+    ctx.beginPath();
+    ctx.arc(cx, ccy, s*0.46, 0, Math.PI*2);
+    ctx.fill();
+    // 内側の背景（薄紫）
+    ctx.fillStyle = '#e8ccff';
+    ctx.beginPath();
+    ctx.arc(cx, ccy, s*0.42, 0, Math.PI*2);
+    ctx.fill();
+    // 暗い枠
+    ctx.strokeStyle = '#1a0030';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cx, ccy, s*0.42, 0, Math.PI*2);
+    ctx.stroke();
     // 暗黒オーラ
-    const aura = ctx.createRadialGradient(cx, y + s*0.5, 0, cx, y + s*0.5, s*0.55);
-    aura.addColorStop(0, 'rgba(80,0,120,0.5)');
-    aura.addColorStop(1, 'rgba(20,0,40,0)');
+    const aura = ctx.createRadialGradient(cx, y + s*0.5, 0, cx, y + s*0.5, s*0.42);
+    aura.addColorStop(0, 'rgba(120,40,180,0.5)');
+    aura.addColorStop(1, 'rgba(60,0,120,0)');
     ctx.fillStyle = aura;
     ctx.fillRect(x, y, s, s);
     // 翼（大きく広げた）
@@ -2654,13 +2688,36 @@ const MapEngine = (() => {
   function _drawMaouIcon(ctx, x, y, size) {
     const s = size;
     const cx = x + s * 0.5;
-    // 禍々しい赤黒オーラ
-    const aura = ctx.createRadialGradient(cx, y + s*0.5, 0, cx, y + s*0.5, s*0.6);
-    aura.addColorStop(0, 'rgba(180,0,0,0.6)');
-    aura.addColorStop(0.5, 'rgba(80,0,0,0.3)');
-    aura.addColorStop(1, 'rgba(0,0,0,0)');
+    const ccy = y + s * 0.5;
+    // 外側の明るい枠（ゴールド - 伝説のボス感）
+    ctx.fillStyle = '#ffcc00';
+    ctx.beginPath();
+    ctx.arc(cx, ccy, s*0.47, 0, Math.PI*2);
+    ctx.fill();
+    // 赤い内枠
+    ctx.fillStyle = '#ff3366';
+    ctx.beginPath();
+    ctx.arc(cx, ccy, s*0.43, 0, Math.PI*2);
+    ctx.fill();
+    // 内側の明るい背景（クリーム）
+    ctx.fillStyle = '#ffe8a0';
+    ctx.beginPath();
+    ctx.arc(cx, ccy, s*0.39, 0, Math.PI*2);
+    ctx.fill();
+    // 暗い枠（コントラスト）
+    ctx.strokeStyle = '#660000';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cx, ccy, s*0.39, 0, Math.PI*2);
+    ctx.stroke();
+    // 禍々しい赤オーラ（枠内）
+    const aura = ctx.createRadialGradient(cx, y + s*0.5, 0, cx, y + s*0.5, s*0.38);
+    aura.addColorStop(0, 'rgba(255,80,80,0.4)');
+    aura.addColorStop(1, 'rgba(180,0,0,0)');
     ctx.fillStyle = aura;
-    ctx.fillRect(x, y, s, s);
+    ctx.beginPath();
+    ctx.arc(cx, ccy, s*0.38, 0, Math.PI*2);
+    ctx.fill();
     // マント（黒）
     ctx.fillStyle = '#0a0008';
     ctx.beginPath();
