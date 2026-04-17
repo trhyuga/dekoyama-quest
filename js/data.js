@@ -690,7 +690,7 @@ const GameData = {
     },
     wyvern: {
       id:'wyvern', name:'ワイバーン',
-      hp:80, atk:58, def:14,
+      hp:120, atk:75, def:28,
       exp:14, gold:80,
       area:['world'],
       minLv:6, maxLv:8,
@@ -718,7 +718,7 @@ const GameData = {
     },
     lizardman: {
       id:'lizardman', name:'リザードマン',
-      hp:50, atk:40, def:18,
+      hp:90, atk:65, def:25,
       exp:16, gold:100,
       area:['world'],
       minLv:5, maxLv:7,
@@ -727,7 +727,7 @@ const GameData = {
     },
     chimera: {
       id:'chimera', name:'キメラ',
-      hp:130, atk:55, def:22,
+      hp:160, atk:88, def:35,
       exp:22, gold:130,
       area:['world'],
       minLv:7, maxLv:10,
@@ -737,7 +737,7 @@ const GameData = {
     },
     werewolf: {
       id:'werewolf', name:'ウェアウルフ',
-      hp:40, atk:32, def:12,
+      hp:75, atk:55, def:20,
       exp:11, gold:70,
       area:['world'],
       minLv:4, maxLv:7,
@@ -746,7 +746,7 @@ const GameData = {
     },
     gargoyle: {
       id:'gargoyle', name:'ガーゴイル',
-      hp:60, atk:48, def:22,
+      hp:110, atk:70, def:30,
       exp:18, gold:110,
       area:['world'],
       minLv:5, maxLv:8,
@@ -755,7 +755,7 @@ const GameData = {
     },
     dragon: {
       id:'dragon', name:'ドラゴン',
-      hp:120, atk:78, def:28,
+      hp:200, atk:98, def:40,
       exp:30, gold:180,
       area:['world'],
       minLv:8, maxLv:10,
