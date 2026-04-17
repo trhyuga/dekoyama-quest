@@ -757,7 +757,7 @@ const GameData = {
       id:'dragon', name:'ドラゴン',
       hp:220, atk:100, def:42,
       exp:35, gold:200,
-      area:['world'],
+      area:['world','maou_castle'],
       minLv:9, maxLv:10,
       color:'#cc2222',
       spells:['bagi'],
