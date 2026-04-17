@@ -1610,24 +1610,30 @@ const Battle = (() => {
     UI.clearMessage();
     _showBattleScreen(bstate.enemy);
 
-    if (isBoss) Sound.bossEncounter(); else Sound.encounter();
+    // SE・メッセージ表示をDOM安定後に遅延実行（モバイル対策）
+    setTimeout(() => {
+      if (isBoss) Sound.bossEncounter(); else Sound.encounter();
 
-    const msg = isBoss
-      ? `${enemyDef.name}が\nあらわれた！`
-      : `${enemyDef.name}に\nであった！`;
+      const msg = isBoss
+        ? `${enemyDef.name}が\nあらわれた！`
+        : `${enemyDef.name}に\nであった！`;
 
-    // 冒頭セリフ
-    const lines = GameData.ENEMY_LINES && GameData.ENEMY_LINES[enemyDef.id];
-    if (lines && lines.start) {
-      const startLine = lines.start[Math.floor(Math.random() * lines.start.length)];
-      UI.showMessage(msg, () => {
-        UI.showMessage(startLine, () => _waitCommand());
-      });
-    } else {
-      UI.showMessage(msg, () => _waitCommand());
-    }
+      // 冒頭セリフ
+      const lines = GameData.ENEMY_LINES && GameData.ENEMY_LINES[enemyDef.id];
+      if (lines && lines.start) {
+        const startLine = lines.start[Math.floor(Math.random() * lines.start.length)];
+        UI.showMessage(msg, () => {
+          UI.showMessage(startLine, () => _waitCommand());
+        });
+      } else {
+        UI.showMessage(msg, () => _waitCommand());
+      }
 
-    // BGM切り替え（メッセージ表示後に遅延実行）
+      // 先制攻撃判定（8%）
+      // ※ここでは判定しない（execCommandで毎ターン判定）
+    }, 50);
+
+    // BGM切り替え（DOM+メッセージ安定後に遅延実行）
     setTimeout(() => {
       try {
         if (bossId === 'maou') {
@@ -1638,7 +1644,7 @@ const Battle = (() => {
           BGM.play('battle');
         }
       } catch(e) {}
-    }, 100);
+    }, 200);
   }
 
   // ── コマンド入力待ち ──────────────────────────────────────
