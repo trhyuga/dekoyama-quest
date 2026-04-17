@@ -1616,25 +1616,15 @@ const Battle = (() => {
       ? `${enemyDef.name}が\nあらわれた！`
       : `${enemyDef.name}に\nであった！`;
 
-    // 先制攻撃判定（8%）
-    const preemptive = Math.random() < 0.08;
-    function _afterStartLine() {
-      if (preemptive) {
-        UI.showMessage(`${enemyDef.name}は\nせんせいこうげきをしかけた！`, () => _enemyTurn());
-      } else {
-        _waitCommand();
-      }
-    }
-
     // 冒頭セリフ
     const lines = GameData.ENEMY_LINES && GameData.ENEMY_LINES[enemyDef.id];
     if (lines && lines.start) {
       const startLine = lines.start[Math.floor(Math.random() * lines.start.length)];
       UI.showMessage(msg, () => {
-        UI.showMessage(startLine, _afterStartLine);
+        UI.showMessage(startLine, () => _waitCommand());
       });
     } else {
-      UI.showMessage(msg, _afterStartLine);
+      UI.showMessage(msg, () => _waitCommand());
     }
 
     // BGM切り替え（メッセージ表示後に遅延実行）
@@ -1674,6 +1664,18 @@ const Battle = (() => {
     if (!bstate.active || !bstate.waitingCmd) return;
     bstate.waitingCmd = false;
     UI.showBattleMenu(false);
+
+    // 8%で敵が先手を取る（にげるの時は判定しない）
+    if (cmd !== 'run' && Math.random() < 0.08) {
+      bstate.enemyWentFirst = true;
+      UI.showMessage(`${bstate.enemy.name}は\nさきに　うごいた！`, () => {
+        _enemyTurn();
+      });
+      // _enemyTurnの後、_waitCommandの代わりにプレイヤーのコマンドを実行
+      return;
+    }
+    bstate.enemyWentFirst = false;
+
     switch (cmd) {
       case 'fight': _playerAttack(); break;
       case 'run':   _playerRun();    break;
@@ -1705,7 +1707,11 @@ const Battle = (() => {
         _enemyDead();
       } else if (bstate.isBoss && enemy.phase2Hp && bstate.enemyHp <= enemy.phase2Hp && !bstate.phase2) {
         bstate.phase2 = true;
-        UI.showMessage(`${enemy.name}は　まだ　たたかう\nちからが　のこっている！`, () => _enemyTurn());
+        const next = bstate.skipEnemyTurn ? () => { bstate.skipEnemyTurn = false; _waitCommand(); } : () => _enemyTurn();
+        UI.showMessage(`${enemy.name}は　まだ　たたかう\nちからが　のこっている！`, next);
+      } else if (bstate.skipEnemyTurn) {
+        bstate.skipEnemyTurn = false;
+        _waitCommand();
       } else {
         _enemyTurn();
       }
@@ -1809,7 +1815,7 @@ const Battle = (() => {
         bstate.enemyHp = Math.min(bstate.enemyMaxHp, bstate.enemyHp + heal);
         _updateHpBar(bstate.enemyHp, bstate.enemyMaxHp);
         Sound.heal();
-        UI.showMessage(`${enemy.name}は\nベホイミを　となえた！\nHPが　${heal}　かいふくした！`, () => _waitCommand());
+        UI.showMessage(`${enemy.name}は\nベホイミを　となえた！\nHPが　${heal}　かいふくした！`, () => _afterEnemyAction());
         return;
       }
     }
@@ -1830,7 +1836,7 @@ const Battle = (() => {
         bstate.enemyHp = Math.min(bstate.enemyMaxHp, bstate.enemyHp + heal);
         _updateHpBar(bstate.enemyHp, bstate.enemyMaxHp);
         Sound.heal();
-        UI.showMessage(`${enemy.name}は\n${spell.name}を　となえた！\nHPが　${heal}　かいふくした！`, () => _waitCommand());
+        UI.showMessage(`${enemy.name}は\n${spell.name}を　となえた！\nHPが　${heal}　かいふくした！`, () => _afterEnemyAction());
         return;
       }
     }
@@ -1864,6 +1870,17 @@ const Battle = (() => {
     }, { once: true });
   }
 
+  function _afterEnemyAction() {
+    // 敵先手の場合→プレイヤーの攻撃を実行
+    if (bstate.enemyWentFirst) {
+      bstate.enemyWentFirst = false;
+      bstate.skipEnemyTurn = true;
+      _playerAttack();
+    } else {
+      _waitCommand();
+    }
+  }
+
   function _applyPlayerDamage(dmg, msg, isCritical) {
     Sound.hit();
     Game.takeDamage(dmg);
@@ -1876,14 +1893,14 @@ const Battle = (() => {
         Sound.poison();
         UI.showMessage('どくに　おかされた！', () => {
           if (Game.getPlayer().hp <= 0) _playerDead();
-          else _waitCommand();
+          else _afterEnemyAction();
         });
       });
       return;
     }
     UI.showMessage(msg, () => {
       if (Game.getPlayer().hp <= 0) _playerDead();
-      else _waitCommand();
+      else _afterEnemyAction();
     });
   }
 
