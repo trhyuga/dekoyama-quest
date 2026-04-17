@@ -1616,15 +1616,25 @@ const Battle = (() => {
       ? `${enemyDef.name}が\nあらわれた！`
       : `${enemyDef.name}に\nであった！`;
 
+    // 先制攻撃判定（8%）
+    const preemptive = Math.random() < 0.08;
+    function _afterStartLine() {
+      if (preemptive) {
+        UI.showMessage(`${enemyDef.name}は\nせんせいこうげきをしかけた！`, () => _enemyTurn());
+      } else {
+        _waitCommand();
+      }
+    }
+
     // 冒頭セリフ
     const lines = GameData.ENEMY_LINES && GameData.ENEMY_LINES[enemyDef.id];
     if (lines && lines.start) {
       const startLine = lines.start[Math.floor(Math.random() * lines.start.length)];
       UI.showMessage(msg, () => {
-        UI.showMessage(startLine, () => _waitCommand());
+        UI.showMessage(startLine, _afterStartLine);
       });
     } else {
-      UI.showMessage(msg, () => _waitCommand());
+      UI.showMessage(msg, _afterStartLine);
     }
 
     // BGM切り替え（メッセージ表示後に遅延実行）
