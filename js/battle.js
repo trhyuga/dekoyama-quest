@@ -1616,7 +1616,16 @@ const Battle = (() => {
       ? `${enemyDef.name}が\nあらわれた！`
       : `${enemyDef.name}に\nであった！`;
 
-    UI.showMessage(msg, () => _waitCommand());
+    // 冒頭セリフ
+    const lines = GameData.ENEMY_LINES && GameData.ENEMY_LINES[enemyDef.id];
+    if (lines && lines.start) {
+      const startLine = lines.start[Math.floor(Math.random() * lines.start.length)];
+      UI.showMessage(msg, () => {
+        UI.showMessage(startLine, () => _waitCommand());
+      });
+    } else {
+      UI.showMessage(msg, () => _waitCommand());
+    }
 
     // BGM切り替え（メッセージ表示後に遅延実行）
     setTimeout(() => {
@@ -1872,13 +1881,17 @@ const Battle = (() => {
   function _enemyDead() {
     const enemy = bstate.enemy;
     Sound.victory();
+    // 撃破セリフ
+    const elines = GameData.ENEMY_LINES && GameData.ENEMY_LINES[enemy.id];
+    const winLine = elines && elines.win;
     let msg = `${enemy.name}を　たおした！\n${enemy.exp}の　けいけんちと\n${enemy.gold}ゴールドをてにいれた！`;
     if (enemy.dropItem) {
       Game.addItem(enemy.dropItem);
       msg += `\n${GameData.ITEMS[enemy.dropItem].name}をてにいれた！`;
     }
-    UI.showMessage(msg, () => {
-      const gains = Game.gainExp(enemy.exp);
+    function _afterWinLine() {
+      UI.showMessage(msg, () => {
+        const gains = Game.gainExp(enemy.exp);
       Game.gainGold(enemy.gold);
       // 魔王は真の魔王戦が残るかもしれないので、ここではクリアしない
       if (bstate.bossId && bstate.bossId !== 'maou') MapEngine.setBossCleared(bstate.bossId);
@@ -1895,6 +1908,12 @@ const Battle = (() => {
         _endBattle(true);
       }
     });
+    }
+    if (winLine) {
+      UI.showMessage(winLine, _afterWinLine);
+    } else {
+      _afterWinLine();
+    }
   }
 
   // ── プレイヤー死亡 ────────────────────────────────────────
@@ -1915,8 +1934,11 @@ const Battle = (() => {
     bstate.active = false;
     UI.showBattleMenu(false);
     Sound.death();
-    // 死亡時の激しい揺れ
     _shakeMsg(true);
+    // 敵の勝利セリフ
+    const elines = GameData.ENEMY_LINES && GameData.ENEMY_LINES[bstate.enemy.id];
+    const loseLine = elines && elines.lose;
+    function _afterLoseLine() {
     // 真の魔王戦 or 魔王戦での死亡→城に戻す
     if (bstate.bossId === 'maou') {
       Game.setLostToMaou();
@@ -1956,6 +1978,12 @@ const Battle = (() => {
         ]);
       }, 300);
     });
+    } // end _afterLoseLine
+    if (loseLine) {
+      UI.showMessage(loseLine, _afterLoseLine);
+    } else {
+      _afterLoseLine();
+    }
   }
 
   // ── 戦闘終了 ─────────────────────────────────────────────
