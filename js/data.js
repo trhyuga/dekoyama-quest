@@ -761,6 +761,8 @@ const GameData = {
       minLv:9, maxLv:10,
       color:'#cc2222',
       spells:['bagi'],
+      weight:3,
+      requireBoss:'dungeon2_boss',
     },
 
     // ── ダンジョン1 敵 ────────────────────────────────────
