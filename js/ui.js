@@ -371,6 +371,12 @@ const UI = (() => {
     if (elGameMenu) return;
     elGameMenu = document.getElementById('game-menu-overlay');
     document.getElementById('btn-save').addEventListener('click', () => {
+      const mapId = MapEngine.getCurrentMapId();
+      if (mapId === 'dungeon1' || mapId === 'dungeon2' || mapId === 'maou_castle') {
+        _hideGameMenu();
+        showMessage('ダンジョンの　なかでは\nセーブできない！', null);
+        return;
+      }
       const ok = Game.saveGame();
       _hideGameMenu();
       showMessage(ok ? 'セーブしました！' : 'セーブに　しっぱいした…', null);
