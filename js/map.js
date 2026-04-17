@@ -1706,11 +1706,54 @@ const MapEngine = (() => {
   }
 
   function _drawChestIcon(ctx, x, y, size) {
-    const m = size * 0.2;
-    ctx.fillStyle   = '#d4aa00';
-    ctx.fillRect(x + m, y + m * 1.5, size - m * 2, size - m * 2.5);
-    ctx.fillStyle   = '#8b6914';
-    ctx.fillRect(x + m, y + m * 1.2, size - m * 2, m * 0.6);
+    const s = size;
+    const cx = x + s * 0.5;
+    // 光のオーラ
+    const aura = ctx.createRadialGradient(cx, y + s*0.55, 0, cx, y + s*0.55, s*0.4);
+    aura.addColorStop(0, 'rgba(255,220,60,0.35)');
+    aura.addColorStop(1, 'rgba(200,150,0,0)');
+    ctx.fillStyle = aura;
+    ctx.fillRect(x, y, s, s);
+    // 箱本体
+    ctx.fillStyle = '#b8860b';
+    ctx.fillRect(x + s*0.15, y + s*0.45, s*0.7, s*0.42);
+    // 箱の立体感（明るい面）
+    ctx.fillStyle = '#d4a020';
+    ctx.fillRect(x + s*0.15, y + s*0.45, s*0.7, s*0.06);
+    // 箱の影面
+    ctx.fillStyle = '#8a6010';
+    ctx.fillRect(x + s*0.15, y + s*0.81, s*0.7, s*0.06);
+    // 蓋（台形・立体的に）
+    ctx.fillStyle = '#cc9500';
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.12, y + s*0.45);
+    ctx.lineTo(x + s*0.18, y + s*0.28);
+    ctx.lineTo(x + s*0.82, y + s*0.28);
+    ctx.lineTo(x + s*0.88, y + s*0.45);
+    ctx.closePath();
+    ctx.fill();
+    // 蓋のハイライト
+    ctx.fillStyle = '#e0b040';
+    ctx.beginPath();
+    ctx.moveTo(x + s*0.18, y + s*0.28);
+    ctx.lineTo(x + s*0.22, y + s*0.30);
+    ctx.lineTo(x + s*0.50, y + s*0.30);
+    ctx.lineTo(x + s*0.50, y + s*0.28);
+    ctx.closePath();
+    ctx.fill();
+    // 金の帯（横）
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(x + s*0.15, y + s*0.58, s*0.7, s*0.05);
+    // 金の帯（縦）
+    ctx.fillRect(cx - s*0.03, y + s*0.45, s*0.06, s*0.42);
+    // 錠前
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath(); ctx.arc(cx, y + s*0.58, s*0.06, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#8a6010';
+    ctx.beginPath(); ctx.arc(cx, y + s*0.58, s*0.025, 0, Math.PI*2); ctx.fill();
+    // 鍵穴
+    ctx.fillStyle = '#222';
+    ctx.fillRect(cx - s*0.008, y + s*0.57, s*0.016, s*0.03);
   }
 
   function _drawStairIcon(ctx, x, y, size) {
