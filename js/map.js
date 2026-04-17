@@ -607,7 +607,10 @@ const MapEngine = (() => {
           }
           case 'boss':
             if (!state.clearedBoss[ev.bossId]) {
-              _drawBossIcon(ctx, sx, sy, tileSize);
+              if (ev.bossId === 'dungeon1_boss') _drawArmLionIcon(ctx, sx, sy, tileSize);
+              else if (ev.bossId === 'dungeon2_boss') _drawDarkDragonIcon(ctx, sx, sy, tileSize);
+              else if (ev.bossId === 'maou') _drawMaouIcon(ctx, sx, sy, tileSize);
+              else _drawBossIcon(ctx, sx, sy, tileSize);
             }
             break;
           case 'chest': {
@@ -2419,12 +2422,10 @@ const MapEngine = (() => {
   function _drawBossIcon(ctx, x, y, size) {
     const cx = x + size / 2;
     const cy = y + size / 2;
-    // 体
     ctx.fillStyle = '#cc0000';
     ctx.beginPath();
     ctx.arc(cx, cy + size * 0.05, size * 0.28, 0, Math.PI * 2);
     ctx.fill();
-    // 角
     ctx.fillStyle = '#ff4444';
     ctx.beginPath();
     ctx.moveTo(cx - size * 0.18, cy - size * 0.18);
@@ -2438,10 +2439,260 @@ const MapEngine = (() => {
     ctx.lineTo(cx + size * 0.08, cy - size * 0.2);
     ctx.closePath();
     ctx.fill();
-    // 目
     ctx.fillStyle = '#ffff00';
     ctx.fillRect(cx - size * 0.12, cy - size * 0.04, size * 0.08, size * 0.07);
     ctx.fillRect(cx + size * 0.04, cy - size * 0.04, size * 0.08, size * 0.07);
+  }
+
+  // ── アームライオン（草の洞窟ボス）アイコン ─────────────
+  function _drawArmLionIcon(ctx, x, y, size) {
+    const s = size;
+    const cx = x + s * 0.5;
+    // オーラ（発光）
+    const aura = ctx.createRadialGradient(cx, y + s*0.5, 0, cx, y + s*0.5, s*0.5);
+    aura.addColorStop(0, 'rgba(255,170,0,0.4)');
+    aura.addColorStop(1, 'rgba(255,100,0,0)');
+    ctx.fillStyle = aura;
+    ctx.fillRect(x, y, s, s);
+    // たてがみ（オレンジ）
+    ctx.fillStyle = '#cc6600';
+    ctx.beginPath();
+    ctx.arc(cx, y + s*0.42, s*0.32, 0, Math.PI * 2);
+    ctx.fill();
+    // たてがみのギザギザ
+    ctx.fillStyle = '#dd7700';
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      const x1 = cx + Math.cos(a) * s * 0.32;
+      const y1 = y + s*0.42 + Math.sin(a) * s * 0.32;
+      const x2 = cx + Math.cos(a) * s * 0.42;
+      const y2 = y + s*0.42 + Math.sin(a) * s * 0.42;
+      ctx.beginPath();
+      ctx.moveTo(x1 - Math.sin(a) * s*0.04, y1 + Math.cos(a) * s*0.04);
+      ctx.lineTo(x2, y2);
+      ctx.lineTo(x1 + Math.sin(a) * s*0.04, y1 - Math.cos(a) * s*0.04);
+      ctx.fill();
+    }
+    // 顔（明るい茶）
+    ctx.fillStyle = '#e8a050';
+    ctx.beginPath();
+    ctx.ellipse(cx, y + s*0.44, s*0.22, s*0.2, 0, 0, Math.PI*2);
+    ctx.fill();
+    // 目（黄色く光る）
+    ctx.fillStyle = '#ffdd00';
+    ctx.beginPath(); ctx.arc(cx - s*0.08, y + s*0.4, s*0.05, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + s*0.08, y + s*0.4, s*0.05, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(cx - s*0.08, y + s*0.4, s*0.025, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + s*0.08, y + s*0.4, s*0.025, 0, Math.PI*2); ctx.fill();
+    // 鼻
+    ctx.fillStyle = '#222';
+    ctx.beginPath(); ctx.arc(cx, y + s*0.48, s*0.025, 0, Math.PI*2); ctx.fill();
+    // 口と牙
+    ctx.fillStyle = '#330000';
+    ctx.beginPath();
+    ctx.moveTo(cx - s*0.08, y + s*0.52);
+    ctx.quadraticCurveTo(cx, y + s*0.58, cx + s*0.08, y + s*0.52);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.moveTo(cx-s*0.05,y+s*0.52); ctx.lineTo(cx-s*0.03,y+s*0.56); ctx.lineTo(cx-s*0.01,y+s*0.52); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx+s*0.01,y+s*0.52); ctx.lineTo(cx+s*0.03,y+s*0.56); ctx.lineTo(cx+s*0.05,y+s*0.52); ctx.fill();
+    // 巨大な爪（左右）
+    ctx.fillStyle = '#8a4a1a';
+    ctx.beginPath();
+    ctx.ellipse(x + s*0.12, y + s*0.68, s*0.08, s*0.14, 0.3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(x + s*0.88, y + s*0.68, s*0.08, s*0.14, -0.3, 0, Math.PI*2);
+    ctx.fill();
+    // 爪先（白い鋭い爪）
+    ctx.fillStyle = '#eee';
+    [-1, 1].forEach(sgn => {
+      for (let i = 0; i < 3; i++) {
+        const bx = cx + sgn * s * 0.38;
+        const by = y + s*0.8 + i * s*0.04;
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(bx + sgn * s*0.08, by - s*0.02);
+        ctx.lineTo(bx + sgn * s*0.02, by + s*0.03);
+        ctx.fill();
+      }
+    });
+  }
+
+  // ── ダークドラゴン（まのとうボス）アイコン ───────────
+  function _drawDarkDragonIcon(ctx, x, y, size) {
+    const s = size;
+    const cx = x + s * 0.5;
+    // 暗黒オーラ
+    const aura = ctx.createRadialGradient(cx, y + s*0.5, 0, cx, y + s*0.5, s*0.55);
+    aura.addColorStop(0, 'rgba(80,0,120,0.5)');
+    aura.addColorStop(1, 'rgba(20,0,40,0)');
+    ctx.fillStyle = aura;
+    ctx.fillRect(x, y, s, s);
+    // 翼（大きく広げた）
+    ctx.fillStyle = '#1a0030';
+    ctx.beginPath();
+    ctx.moveTo(cx - s*0.15, y + s*0.4);
+    ctx.lineTo(x + s*0.02, y + s*0.15);
+    ctx.lineTo(x + s*0.12, y + s*0.35);
+    ctx.lineTo(x + s*0.03, y + s*0.32);
+    ctx.lineTo(x + s*0.14, y + s*0.48);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx + s*0.15, y + s*0.4);
+    ctx.lineTo(x + s*0.98, y + s*0.15);
+    ctx.lineTo(x + s*0.88, y + s*0.35);
+    ctx.lineTo(x + s*0.97, y + s*0.32);
+    ctx.lineTo(x + s*0.86, y + s*0.48);
+    ctx.closePath();
+    ctx.fill();
+    // 翼の骨
+    ctx.strokeStyle = '#440088';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx - s*0.15, y + s*0.4); ctx.lineTo(x + s*0.05, y + s*0.18); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + s*0.15, y + s*0.4); ctx.lineTo(x + s*0.95, y + s*0.18); ctx.stroke();
+    // 体（紫がかった暗い色）
+    ctx.fillStyle = '#330066';
+    ctx.beginPath();
+    ctx.ellipse(cx, y + s*0.55, s*0.2, s*0.3, 0, 0, Math.PI*2);
+    ctx.fill();
+    // 首と頭
+    ctx.beginPath();
+    ctx.moveTo(cx - s*0.08, y + s*0.35);
+    ctx.quadraticCurveTo(cx - s*0.04, y + s*0.15, cx + s*0.05, y + s*0.18);
+    ctx.quadraticCurveTo(cx + s*0.12, y + s*0.2, cx + s*0.08, y + s*0.35);
+    ctx.closePath();
+    ctx.fill();
+    // 頭
+    ctx.beginPath();
+    ctx.ellipse(cx + s*0.04, y + s*0.2, s*0.12, s*0.08, 0.1, 0, Math.PI*2);
+    ctx.fill();
+    // 角
+    ctx.fillStyle = '#220044';
+    ctx.beginPath();
+    ctx.moveTo(cx + s*0.02, y + s*0.15);
+    ctx.lineTo(cx - s*0.03, y + s*0.06);
+    ctx.lineTo(cx + s*0.05, y + s*0.13);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx + s*0.08, y + s*0.14);
+    ctx.lineTo(cx + s*0.14, y + s*0.06);
+    ctx.lineTo(cx + s*0.12, y + s*0.14);
+    ctx.fill();
+    // 赤く光る目
+    ctx.fillStyle = 'rgba(255,30,0,0.5)';
+    ctx.beginPath(); ctx.arc(cx + s*0.1, y + s*0.19, s*0.05, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ff2200';
+    ctx.beginPath(); ctx.arc(cx + s*0.1, y + s*0.19, s*0.025, 0, Math.PI*2); ctx.fill();
+    // 炎のブレス
+    ctx.fillStyle = '#ff6600';
+    ctx.beginPath();
+    ctx.moveTo(cx + s*0.14, y + s*0.22);
+    ctx.quadraticCurveTo(cx + s*0.25, y + s*0.24, cx + s*0.32, y + s*0.28);
+    ctx.quadraticCurveTo(cx + s*0.22, y + s*0.26, cx + s*0.14, y + s*0.25);
+    ctx.fill();
+    ctx.fillStyle = '#ffcc00';
+    ctx.beginPath();
+    ctx.moveTo(cx + s*0.15, y + s*0.23);
+    ctx.quadraticCurveTo(cx + s*0.2, y + s*0.24, cx + s*0.26, y + s*0.26);
+    ctx.fill();
+    // 尻尾
+    ctx.strokeStyle = '#330066';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx, y + s*0.85);
+    ctx.quadraticCurveTo(cx - s*0.2, y + s*0.92, cx - s*0.3, y + s*0.82);
+    ctx.stroke();
+  }
+
+  // ── 魔王アイコン ───────────────────────────────────────
+  function _drawMaouIcon(ctx, x, y, size) {
+    const s = size;
+    const cx = x + s * 0.5;
+    // 禍々しい赤黒オーラ
+    const aura = ctx.createRadialGradient(cx, y + s*0.5, 0, cx, y + s*0.5, s*0.6);
+    aura.addColorStop(0, 'rgba(180,0,0,0.6)');
+    aura.addColorStop(0.5, 'rgba(80,0,0,0.3)');
+    aura.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = aura;
+    ctx.fillRect(x, y, s, s);
+    // マント（黒）
+    ctx.fillStyle = '#0a0008';
+    ctx.beginPath();
+    ctx.moveTo(cx - s*0.35, y + s*0.35);
+    ctx.quadraticCurveTo(cx - s*0.45, y + s*0.85, cx - s*0.2, y + s*0.92);
+    ctx.lineTo(cx + s*0.2, y + s*0.92);
+    ctx.quadraticCurveTo(cx + s*0.45, y + s*0.85, cx + s*0.35, y + s*0.35);
+    ctx.closePath();
+    ctx.fill();
+    // マント裏地（深紅）
+    ctx.fillStyle = '#550008';
+    ctx.beginPath();
+    ctx.moveTo(cx - s*0.28, y + s*0.38);
+    ctx.quadraticCurveTo(cx - s*0.3, y + s*0.75, cx - s*0.15, y + s*0.8);
+    ctx.lineTo(cx - s*0.05, y + s*0.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx + s*0.28, y + s*0.38);
+    ctx.quadraticCurveTo(cx + s*0.3, y + s*0.75, cx + s*0.15, y + s*0.8);
+    ctx.lineTo(cx + s*0.05, y + s*0.5);
+    ctx.closePath();
+    ctx.fill();
+    // 体
+    ctx.fillStyle = '#1a0012';
+    ctx.beginPath();
+    ctx.ellipse(cx, y + s*0.58, s*0.17, s*0.25, 0, 0, Math.PI*2);
+    ctx.fill();
+    // 顔（暗赤）
+    ctx.fillStyle = '#7a0020';
+    ctx.beginPath();
+    ctx.ellipse(cx, y + s*0.34, s*0.15, s*0.17, 0, 0, Math.PI*2);
+    ctx.fill();
+    // 大きな角（4本）
+    ctx.fillStyle = '#1a1a1a';
+    ctx.beginPath();
+    ctx.moveTo(cx - s*0.1, y + s*0.22);
+    ctx.quadraticCurveTo(cx - s*0.28, y + s*0.05, cx - s*0.22, y + s*0.02);
+    ctx.quadraticCurveTo(cx - s*0.18, y + s*0.12, cx - s*0.05, y + s*0.2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx + s*0.1, y + s*0.22);
+    ctx.quadraticCurveTo(cx + s*0.28, y + s*0.05, cx + s*0.22, y + s*0.02);
+    ctx.quadraticCurveTo(cx + s*0.18, y + s*0.12, cx + s*0.05, y + s*0.2);
+    ctx.fill();
+    // 内側の小角
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.moveTo(cx-s*0.04,y+s*0.2); ctx.lineTo(cx-s*0.08,y+s*0.12); ctx.lineTo(cx-s*0.01,y+s*0.2); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx+s*0.04,y+s*0.2); ctx.lineTo(cx+s*0.08,y+s*0.12); ctx.lineTo(cx+s*0.01,y+s*0.2); ctx.fill();
+    // 燃える目（グロウ）
+    ctx.fillStyle = 'rgba(255,60,0,0.6)';
+    ctx.beginPath(); ctx.arc(cx - s*0.06, y + s*0.33, s*0.05, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + s*0.06, y + s*0.33, s*0.05, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffcc00';
+    ctx.beginPath(); ctx.ellipse(cx - s*0.06, y + s*0.33, s*0.03, s*0.02, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + s*0.06, y + s*0.33, s*0.03, s*0.02, 0, 0, Math.PI*2); ctx.fill();
+    // 邪悪な口と牙
+    ctx.fillStyle = '#0a0000';
+    ctx.beginPath();
+    ctx.moveTo(cx - s*0.08, y + s*0.42);
+    ctx.quadraticCurveTo(cx, y + s*0.48, cx + s*0.08, y + s*0.42);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.moveTo(cx-s*0.05,y+s*0.42); ctx.lineTo(cx-s*0.03,y+s*0.47); ctx.lineTo(cx-s*0.01,y+s*0.42); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx+s*0.01,y+s*0.42); ctx.lineTo(cx+s*0.03,y+s*0.47); ctx.lineTo(cx+s*0.05,y+s*0.42); ctx.fill();
+    // 胸の宝玉
+    const gem = ctx.createRadialGradient(cx - s*0.01, y + s*0.56, 0, cx, y + s*0.58, s*0.08);
+    gem.addColorStop(0, '#ff44aa');
+    gem.addColorStop(0.5, '#aa00cc');
+    gem.addColorStop(1, '#330044');
+    ctx.fillStyle = gem;
+    ctx.beginPath(); ctx.arc(cx, y + s*0.58, s*0.06, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,150,255,0.6)';
+    ctx.beginPath(); ctx.arc(cx - s*0.015, y + s*0.565, s*0.02, 0, Math.PI*2); ctx.fill();
   }
 
   // ── 宿屋アイコン（青い建物） ─────────────────────────────
