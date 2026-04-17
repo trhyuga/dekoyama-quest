@@ -273,13 +273,23 @@ const MapEngine = (() => {
       (!e.requireBoss || state.clearedBoss[e.requireBoss])
     );
     if (enemies.length === 0) return;
-    // 重み付きランダム選択
-    const totalWeight = enemies.reduce((s, e) => s + (e.weight || 10), 0);
+    // 重み付きランダム選択（適正レベルの敵が出やすい）
+    const weights = enemies.map(e => {
+      // weight が明示されている敵（レア等）はそのまま
+      if (e.weight) return e.weight;
+      // 敵の適正レベル帯の中央
+      const eMid = ((e.minLv || 1) + (e.maxLv || 10)) / 2;
+      // プレイヤーLvとの距離で重みを調整（近いほど高い）
+      const dist = Math.abs(pLv - eMid);
+      // 距離0→重み15, 距離3→重み6, 距離6以上→重み3
+      return Math.max(3, 15 - dist * 3);
+    });
+    const totalWeight = weights.reduce((s, w) => s + w, 0);
     let roll = Math.random() * totalWeight;
     let enemy = enemies[0];
-    for (const e of enemies) {
-      roll -= (e.weight || 10);
-      if (roll <= 0) { enemy = e; break; }
+    for (let i = 0; i < enemies.length; i++) {
+      roll -= weights[i];
+      if (roll <= 0) { enemy = enemies[i]; break; }
     }
     if (typeof Battle !== 'undefined') {
       Battle.start(enemy, false);
