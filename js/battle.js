@@ -1794,7 +1794,10 @@ const Battle = (() => {
   // ── プレイヤー：にげる ────────────────────────────────────
   function _playerRun() {
     if (bstate.isBoss) {
-      UI.showMessage('まおうのまえから\nにげることはできない！', () => _waitCommand());
+      const msg = bstate.bossId === 'maou'
+        ? 'まおうのまえから\nにげることはできない！'
+        : 'このてきのまえから\nにげることはできない！';
+      UI.showMessage(msg, () => _waitCommand());
       return;
     }
     if (Math.random() < 0.70) {

@@ -269,7 +269,8 @@ const MapEngine = (() => {
     const pLv = Game.getPlayer().level;
     const enemies = Object.values(GameData.ENEMIES).filter(e =>
       e.area && e.area.includes(map.id) && !e.isBoss &&
-      (!e.minLv || pLv >= e.minLv - 2) &&
+      (!e.minLv || pLv >= e.minLv) &&
+      (!e.maxLv || pLv <= e.maxLv + 2) &&
       (!e.requireBoss || state.clearedBoss[e.requireBoss])
     );
     if (enemies.length === 0) return;
@@ -1467,8 +1468,6 @@ const MapEngine = (() => {
     ctx.strokeStyle = isThroneRoom ? 'rgba(80,60,120,0.25)' : 'rgba(20,20,40,0.3)';
     ctx.lineWidth = 0.5;
     ctx.strokeRect(x, y, s, s);
-    if (tileId === T.CHEST) _drawChestIcon(ctx, x, y, s);
-    if (tileId === T.STAIR) _drawStairIcon(ctx, x, y, s);
   }
 
   // ── フィールドマップ（ワールド）タイル ────────────────────────
