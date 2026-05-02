@@ -12,7 +12,6 @@ const UI = (() => {
 
   // ── メッセージキュー ─────────────────────────────────────
   let msgQueue   = [];
-  let msgCallback = null;
   let msgTyping  = false;
   let msgFull    = '';
   let msgCurrent = '';
@@ -99,7 +98,6 @@ const UI = (() => {
     const { text, callback } = msgQueue[0];
     msgFull    = text;
     msgCurrent = '';
-    msgCallback = callback;
     msgTyping  = true;
     elMsgHint.classList.add('hidden');
     elMsg.textContent = '';
@@ -132,7 +130,9 @@ const UI = (() => {
     elMsgHint.classList.add('hidden');
     const done = msgQueue.shift();
     if (done && done.callback) done.callback();
-    if (msgQueue.length > 0) {
+    // callbackがshowMessageを呼んだ場合はすでにdequeue済み（msgTyping===true）
+    // 二重呼び出しでメッセージ表示が競合するのを防ぐ
+    if (msgQueue.length > 0 && !msgTyping) {
       _dequeueMsg();
     }
   }
@@ -140,9 +140,8 @@ const UI = (() => {
   function clearMessage() {
     msgQueue   = [];
     msgTyping  = false;
-    msgCallback = null;
     clearTimeout(msgTimer);
-    if (elMsg) elMsg.textContent = '　';
+    if (elMsg) elMsg.textContent = '';
     if (elMsgHint) elMsgHint.classList.add('hidden');
   }
 

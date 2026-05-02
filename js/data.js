@@ -306,8 +306,6 @@ const GameData = {
         { x:7, y:2, type:'chest', item:'iron_key', opened:false },
         // ボス
         { x:11, y:13, type:'boss', bossId:'dungeon1_boss' },
-        // ボス後の階段はワールドマップへ
-        { x:11, y:13, type:'stair_boss', dest:'world', destX:6, destY:13 },
       ],
     },
 
@@ -342,7 +340,6 @@ const GameData = {
         { x:1, y:1, type:'teleport', dest:'world', destX:15, destY:14 },
         { x:1, y:11, type:'chest', item:'demon_armor', opened:false, mimicIf:'dungeon1_boss' },
         { x:7, y:14, type:'boss', bossId:'dungeon2_boss' },
-        { x:7, y:14, type:'stair_boss', dest:'world', destX:15, destY:14 },
       ],
     },
 
@@ -807,7 +804,7 @@ const GameData = {
     },
     dark_knight: {
       id:'dark_knight', name:'あんこくきし',
-      hp:55, atk:66, def:52,
+      hp:55, atk:66, def:20,
       exp:24, gold:160,
       area:['dungeon2'],
       minLv:6, maxLv:7,
